@@ -11,6 +11,7 @@ Mục tiêu: đảm bảo code **dễ mở rộng, dễ bảo trì, dễ test** 
 
 Kiến trúc được xây theo hướng **Feature-based + Clean Architecture**.  
 Mỗi module (feature) là **một khối độc lập** gồm:
+
 - Giao diện (screens, components)
 - Logic (hooks, store)
 - Giao tiếp backend (api)
@@ -65,11 +66,13 @@ src/
 ## 4. Nguyên lý tổ chức
 
 ### 4.1. Mỗi feature độc lập
+
 - Mọi phần liên quan đến chức năng (auth, health, profile...) **phải nằm gọn trong folder riêng**.
 - Không được import chéo giữa các feature.
 - Nếu cần chia sẻ logic hoặc UI → đưa vào `hooks/` hoặc `components/common/`.
 
 ### 4.2. Layer logic rõ ràng
+
 ```
 UI (screens/components)
 ↓
@@ -81,6 +84,7 @@ Store (Zustand/Redux)
 ```
 
 ### 4.3. Nguyên tắc import
+
 - Dùng alias trong `tsconfig.json`:
   ```json
   {
@@ -95,13 +99,14 @@ Store (Zustand/Redux)
 - Import luôn từ alias, không dùng đường dẫn tương đối `../../`.
 
 ### 4.4. Quy tắc đặt tên
-| Loại file | Quy tắc đặt tên | Ví dụ |
-|------------|----------------|-------|
-| Screen | PascalCase + “Screen” | `HealthOverviewScreen.tsx` |
-| Component | PascalCase | `HealthCard.tsx` |
-| Hook | camelCase + “use” | `useHealthData.ts` |
-| API | lowercase + `.api.ts` | `health.api.ts` |
-| Store | `use<Name>Store.ts` | `useAuthStore.ts` |
+
+| Loại file | Quy tắc đặt tên       | Ví dụ                      |
+| --------- | --------------------- | -------------------------- |
+| Screen    | PascalCase + “Screen” | `HealthOverviewScreen.tsx` |
+| Component | PascalCase            | `HealthCard.tsx`           |
+| Hook      | camelCase + “use”     | `useHealthData.ts`         |
+| API       | lowercase + `.api.ts` | `health.api.ts`            |
+| Store     | `use<Name>Store.ts`   | `useAuthStore.ts`          |
 
 ---
 
@@ -110,7 +115,7 @@ Store (Zustand/Redux)
 Tất cả API phải qua `services/apiClient.ts`:
 
 ```ts
-import axios from "axios";
+import axios from 'axios';
 
 const apiClient = axios.create({
   baseURL: process.env.API_URL,
@@ -128,13 +133,14 @@ export default apiClient;
 ```
 
 Mỗi feature có file riêng:
+
 ```ts
 // src/features/health/api/health.api.ts
-import apiClient from "@/services/apiClient";
+import apiClient from '@/services/apiClient';
 
 export const healthApi = {
   getOverview: (userId: string) => apiClient.get(`/health/${userId}`),
-  updateRecord: (data: any) => apiClient.post("/health/update", data),
+  updateRecord: (data: any) => apiClient.post('/health/update', data),
 };
 ```
 
@@ -143,13 +149,15 @@ export const healthApi = {
 ## 6. State management (Zustand)
 
 Zustand được chọn vì:
+
 - Dễ viết, không boilerplate.
 - Hiệu năng tốt hơn Redux cho mobile.
 
 Ví dụ:
+
 ```ts
 // src/store/useHealthStore.ts
-import { create } from "zustand";
+import { create } from 'zustand';
 
 export const useHealthStore = create(set => ({
   data: [],
@@ -180,27 +188,7 @@ export const useHealthStore = create(set => ({
 
 ---
 
-## 9. Gợi ý chia nhiệm vụ nhóm
-
-| Thành viên | Vai trò chính | Thư mục phụ trách |
-|-------------|----------------|-------------------|
-| Huỳnh Minh Trí | Backend + AI + Health API Integration | `features/ai`, `features/health`, `services` |
-| Thiện Trí | Frontend UI (React Native) | `features/auth`, `features/profile`, `app/navigation` |
-| Tuấn | AI logic + model API | `features/ai/api`, `useAIResponse.ts`, `AIProvider.tsx` |
-
----
-
-## 10. Lợi ích kiến trúc này
-
-- Tăng **tốc độ phát triển song song**
-- Dễ **thay thế hoặc tách module**
-- Giảm **conflict khi merge**
-- Dễ **refactor hoặc nâng cấp React Native**
-
----
-
-## 11. Tài liệu tham khảo
+## 9. Tài liệu tham khảo
 
 - [React Native Architecture Best Practices](https://reactnative.dev/docs/architecture-overview)
-- [Clean Architecture for React Native](https://khalilstemmler.com/articles/react-clean-architecture)
 - [Zustand Docs](https://docs.pmnd.rs/zustand/getting-started/introduction)
