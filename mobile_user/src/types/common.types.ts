@@ -4,3 +4,13 @@ export interface ApiResponse<T> {
   message?: string;
   data?: T;
 }
+
+// {
+//   "success":
+//   message:
+//   data: {
+//     user: ...,
+//     token: ...,
+//     refreshToken: ...,
+//   }
+// }

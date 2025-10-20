@@ -6,7 +6,7 @@ export * from './entities';
 // services/userService.ts
 // import { User } from '@/types';
 
-// export async function getUserProfile(): Promise<User> {
+// export async function getUserProfile(): Promise<ApiResponse<User></User>> {
 //   const res = await fetch('/api/user');
 //   return res.json();
 // }
