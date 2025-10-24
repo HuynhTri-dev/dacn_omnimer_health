@@ -1,5 +1,5 @@
 import { ISystemLog, SystemLog } from "../models";
-import { BaseRepository } from "./base.repository";
+import { BaseRepository } from "./Base.repository";
 
 export class SystemLogRepository extends BaseRepository<ISystemLog> {
   constructor() {

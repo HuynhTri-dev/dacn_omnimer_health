@@ -19,7 +19,6 @@ export {
   IWorkout,
   IWorkoutDetail,
   IWorkoutDeviceSummary,
-  IWorkoutFeedback,
   IWorkoutSet,
 } from "./Workout.model";
 
@@ -32,3 +31,5 @@ export {
 
 export { IRole, Role } from "./Role.model";
 export { IPermission, Permission } from "./Permission.model";
+
+export * from "./WorkoutFeedback.model";

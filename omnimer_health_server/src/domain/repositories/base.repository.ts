@@ -5,8 +5,7 @@ import {
   UpdateQuery,
   ClientSession,
 } from "mongoose";
-import { PaginationQueryOptions } from "../../utils/BuildQueryOptions";
-import chalk from "chalk";
+import { PaginationQueryOptions } from "../entities";
 
 /**
  * BaseRepository là class cơ sở để thao tác CRUD với Mongoose.

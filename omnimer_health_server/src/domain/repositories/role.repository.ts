@@ -1,6 +1,6 @@
 import { Model } from "mongoose";
 import { IRole } from "../models";
-import { BaseRepository } from "./base.repository";
+import { BaseRepository } from "./Base.repository";
 
 export class RoleRepository extends BaseRepository<IRole> {
   constructor(model: Model<IRole>) {

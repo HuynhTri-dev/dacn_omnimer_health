@@ -11,18 +11,10 @@ const permissionService = new PermissionService(permissionRepository);
 const permissionController = new PermissionController(permissionService);
 const router = Router();
 
-router.get(
-  "/",
-  verifyAccessToken,
-  //checkPermission("permission.getall"),
-  checkPermission("bodyPart.update"),
-  permissionController.getAll.bind(permissionController)
-);
-router.post(
-  "/",
-  verifyAccessToken,
-  permissionController.create.bind(permissionController)
-);
-router.delete("/:id", permissionController.delete.bind(permissionController));
+router.get("/", permissionController.getAll);
+router.post("/", verifyAccessToken, permissionController.create);
+router.delete("/:id", verifyAccessToken, permissionController.delete);
+router.get("/:id", permissionController.getById);
+router.put("/:id", verifyAccessToken, permissionController.update);
 
 export default router;

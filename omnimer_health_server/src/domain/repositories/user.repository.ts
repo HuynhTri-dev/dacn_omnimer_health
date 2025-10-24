@@ -1,4 +1,4 @@
-import { BaseRepository } from "./base.repository";
+import { BaseRepository } from "./Base.repository";
 import { IUser } from "../models";
 import { Model } from "mongoose";
 

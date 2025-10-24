@@ -11,8 +11,11 @@ const roleController = new RoleController(roleService);
 
 const router = Router();
 
-router.get("/", verifyAccessToken, roleController.getAll.bind(roleController));
-router.post("/", roleController.create.bind(roleController));
-router.delete("/:id", roleController.delete.bind(roleController));
+router.get("/", verifyAccessToken, roleController.getAll);
+router.post("/", roleController.create);
+router.delete("/:id", roleController.delete);
+router.get("/:id", roleController.getById);
+router.put("/:id", verifyAccessToken, roleController.updateRole);
+router.patch("/:id", verifyAccessToken, roleController.updatePermissionIds);
 
 export default router;

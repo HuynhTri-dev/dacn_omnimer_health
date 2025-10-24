@@ -32,16 +32,6 @@ export interface IWorkoutDetail {
   createdByAI?: boolean;
 }
 
-// 🔹 Interface tổng cho feedback
-export interface IWorkoutFeedback {
-  suitability?: number; // 1-5
-  workout_goal_achieved?: boolean;
-  target_muscle_felt?: string;
-  injury_or_pain_notes?: string;
-  exercise_not_suitable?: boolean;
-  additionalNotes?: string;
-}
-
 // 🔹 Interface cho device summary
 export interface IWorkoutDeviceSummary {
   heartRateAvg?: number;
@@ -60,7 +50,6 @@ export interface IWorkout extends Document {
   notes?: string;
   workoutDetail: IWorkoutDetail[];
   deviceSummary?: IWorkoutDeviceSummary;
-  feedback?: IWorkoutFeedback;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -129,15 +118,6 @@ const WorkoutSchema: Schema<IWorkout> = new Schema(
       heartRateAvg: Number,
       heartRateMax: Number,
       caloriesBurned: Number,
-    },
-
-    feedback: {
-      suitability: { type: Number, min: 1, max: 5 },
-      workout_goal_achieved: { type: Boolean },
-      target_muscle_felt: { type: String },
-      injury_or_pain_notes: { type: String },
-      exercise_not_suitable: { type: Boolean },
-      additionalNotes: { type: String },
     },
   },
   {

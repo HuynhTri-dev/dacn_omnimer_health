@@ -1,4 +1,3 @@
-// src/config/r2.ts
 import { S3Client } from "@aws-sdk/client-s3";
 import dotenv from "dotenv";
 import { HttpError } from "../../utils/HttpError";

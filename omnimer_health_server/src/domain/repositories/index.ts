@@ -1,5 +1,9 @@
-export { BaseRepository } from "./base.repository";
-export { UserRepository } from "./user.repository";
-export { SystemLogRepository } from "./systemLog.repository";
-export { RoleRepository } from "./role.repository";
-export { PermissionRepository } from "./permission.repository";
+export { BaseRepository } from "./Base.repository";
+export { UserRepository } from "./User.repository";
+export { SystemLogRepository } from "./SystemLog.repository";
+export { RoleRepository } from "./Role.repository";
+export { PermissionRepository } from "./Permission.repository";
+export * from "./BodyPart.repository";
+export * from "./Equipment.repository";
+export * from "./ExerciseType.repository";
+export * from "./Muscle.repository";

@@ -1,14 +1,13 @@
-import { UserRepository } from "../repositories/user.repository";
+import { UserRepository } from "../repositories";
 import { IUser } from "../models";
 import { JwtUtils } from "../../utils/JwtUtils";
 import { logAudit, logError } from "../../utils/LoggerUtil";
 import { StatusLogEnum } from "../../common/constants/AppConstants";
 import admin from "../../common/configs/firebaseAdminConfig";
 import { HttpError } from "../../utils/HttpError";
-import { RoleRepository } from "../repositories";
 import { DecodePayload } from "../entities/DecodePayload";
 
-export class UserService {
+export class AuthService {
   private readonly userRepo: UserRepository;
 
   constructor(userRepo: UserRepository) {
@@ -94,6 +93,26 @@ export class UserService {
       return { user, accessToken, refreshToken };
     } catch (e) {
       throw e;
+    }
+  }
+
+  async createNewAccessToken(refreshToken: string) {
+    try {
+      const decoded: any = JwtUtils.verifyRefreshToken(refreshToken);
+
+      const user = await this.userRepo.findById(decoded.id);
+      if (!user) {
+        throw new HttpError(404, "User not found");
+      }
+
+      const accessToken = JwtUtils.generateAccessToken({
+        id: user.id,
+        role: user.roleIds,
+      });
+
+      return accessToken;
+    } catch (e) {
+      throw new HttpError(401, "Invalid or expired refresh token");
     }
   }
 }
