@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { AuthService } from "../services/Auth.service";
+import { AuthService } from "../services";
 import { HttpError } from "../../utils/HttpError";
 import {
   sendBadRequest,
