@@ -5,15 +5,15 @@ import {
   sendCreated,
   sendUnauthorized,
 } from "../../utils/ResponseHelper";
-import { HttpError } from "../../utils/HttpError";
 import { DecodePayload } from "../entities/DecodePayload";
+import { buildQueryOptions } from "../../utils/BuildQueryOptions";
 
 export class PermissionController {
-  private readonly service: PermissionService;
+  private readonly PermissionService: PermissionService;
 
-  // Constructor cho phép inject service (dễ test hoặc mock)
-  constructor(service: PermissionService) {
-    this.service = service;
+  // Constructor cho phép inject PermissionService (dễ test hoặc mock)
+  constructor(PermissionService: PermissionService) {
+    this.PermissionService = PermissionService;
   }
 
   // =================== CREATE ===================
@@ -27,7 +27,10 @@ export class PermissionController {
         return;
       }
 
-      const permission = await this.service.createPermission(userId, req.body);
+      const permission = await this.PermissionService.createPermission(
+        userId,
+        req.body
+      );
       return sendCreated(res, permission, "Tạo quyền thành công");
     } catch (err) {
       next(err);
@@ -37,7 +40,8 @@ export class PermissionController {
   // =================== GET ALL ===================
   getAll = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const permissions = await this.service.getPermissions();
+      const options = buildQueryOptions(req.params as any);
+      const permissions = await this.PermissionService.getPermissions(options);
       return sendSuccess(res, permissions, "Danh sách quyền hạn");
     } catch (err) {
       next(err);
@@ -55,7 +59,7 @@ export class PermissionController {
         return;
       }
 
-      const permission = await this.service.deletePermission(
+      const permission = await this.PermissionService.deletePermission(
         req.params.id,
         userId
       );
@@ -68,7 +72,9 @@ export class PermissionController {
   // =================== GET BY ID ===================
   getById = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const permission = await this.service.getPermissionById(req.params.id);
+      const permission = await this.PermissionService.getPermissionById(
+        req.params.id
+      );
       return sendSuccess(res, permission, "Chi tiết quyền hạn");
     } catch (err) {
       next(err);
@@ -86,7 +92,7 @@ export class PermissionController {
         return;
       }
 
-      const permission = await this.service.updatePermission(
+      const permission = await this.PermissionService.updatePermission(
         req.params.id,
         req.body,
         userId

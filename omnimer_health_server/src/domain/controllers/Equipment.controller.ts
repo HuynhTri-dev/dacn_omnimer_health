@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { BodyPartService } from "../services";
+import { EquipmentService } from "../services";
 import {
   sendSuccess,
   sendCreated,
@@ -8,10 +8,10 @@ import {
 import { DecodePayload } from "../entities/DecodePayload";
 import { buildQueryOptions } from "../../utils/BuildQueryOptions";
 
-export class BodyPartController {
-  private readonly equipmentController: BodyPartService;
+export class EquipmentController {
+  private readonly equipmentController: EquipmentService;
 
-  constructor(equipmentController: BodyPartService) {
+  constructor(equipmentController: EquipmentService) {
     this.equipmentController = equipmentController;
   }
 
@@ -23,13 +23,13 @@ export class BodyPartController {
       if (!userId) return sendUnauthorized(res);
 
       const file = req.file;
-      const bodyPart = await this.equipmentController.createBodyPart(
+      const bodyPart = await this.equipmentController.createEquipment(
         userId,
         file,
         req.body
       );
 
-      return sendCreated(res, bodyPart, "Tạo nhóm cơ thành công");
+      return sendCreated(res, bodyPart, "Tạo thiết bị thành công");
     } catch (err) {
       next(err);
     }
@@ -45,14 +45,14 @@ export class BodyPartController {
       const file = req.file;
       const { id } = req.params;
 
-      const updated = await this.equipmentController.updateBodyPart(
+      const updated = await this.equipmentController.updateEquipment(
         userId,
         id,
         file,
         req.body
       );
 
-      return sendSuccess(res, updated, "Cập nhật nhóm cơ thành công");
+      return sendSuccess(res, updated, "Cập nhật thiết bị thành công");
     } catch (err) {
       next(err);
     }
@@ -63,9 +63,9 @@ export class BodyPartController {
     try {
       const options = buildQueryOptions(req.query as any);
 
-      const list = await this.equipmentController.getAllBodyParts(options);
+      const list = await this.equipmentController.getAllEquipments(options);
 
-      return sendSuccess(res, list, "Lấy danh sách nhóm cơ thành công");
+      return sendSuccess(res, list, "Lấy danh sách thiết bị thành công");
     } catch (err) {
       next(err);
     }
@@ -79,9 +79,9 @@ export class BodyPartController {
       if (!userId) return sendUnauthorized(res);
 
       const { id } = req.params;
-      await this.equipmentController.deleteBodyPart(userId, id);
+      await this.equipmentController.deleteEquipment(userId, id);
 
-      return sendSuccess(res, true, "Xoá nhóm cơ thành công");
+      return sendSuccess(res, true, "Xoá thiết bị thành công");
     } catch (err) {
       next(err);
     }

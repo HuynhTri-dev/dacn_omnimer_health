@@ -3,6 +3,7 @@ import { logError, logAudit } from "../../utils/LoggerUtil";
 import { StatusLogEnum } from "../../common/constants/AppConstants";
 import { IPermission } from "../models";
 import { HttpError } from "../../utils/HttpError";
+import { PaginationQueryOptions } from "../entities";
 
 export class PermissionService {
   private readonly permissionRepo: PermissionRepository;
@@ -51,9 +52,9 @@ export class PermissionService {
   }
 
   // =================== GET ALL ===================
-  async getPermissions() {
+  async getPermissions(options?: PaginationQueryOptions) {
     try {
-      return await this.permissionRepo.findAll({});
+      return await this.permissionRepo.findAll({}, options);
     } catch (err: any) {
       await logError({
         action: "getPermissions",

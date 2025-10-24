@@ -13,11 +13,15 @@ export const GenderTuple = Object.values(GenderEnum) as [
 
 // =================== GOAL TYPE ===================
 export enum GoalTypeEnum {
-  WeightLoss = "WeightLoss",
-  MuscleGain = "MuscleGain",
-  Endurance = "Endurance",
-  Flexibility = "Flexibility",
-  Custom = "Custom",
+  WeightLoss = "WeightLoss", // Giảm cân, giảm mỡ
+  MuscleGain = "MuscleGain", // Tăng cơ, săn chắc cơ bắp
+  Endurance = "Endurance", // Tăng sức bền, sức chịu đựng
+  Flexibility = "Flexibility", // Tăng linh hoạt, dẻo dai
+  StressRelief = "StressRelief", // Giảm căng thẳng, thư giãn
+  HeartHealth = "HeartHealth", // Cải thiện tim mạch, sức khỏe tổng quát
+  Mobility = "Mobility", // Cải thiện khả năng vận động khớp
+  AthleticPerformance = "AthleticPerformance", // Cải thiện hiệu suất thể thao
+  Custom = "Custom", // Mục tiêu tùy chỉnh
 }
 
 // Tuple tự động từ enum TS để dùng trong Mongoose enum

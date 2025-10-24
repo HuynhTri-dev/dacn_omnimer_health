@@ -1,38 +1,39 @@
 import mongoose from "mongoose";
-import { BodyPartRepository } from "../repositories";
-import { IBodyPart } from "../models";
+import { EquipmentRepository } from "../repositories";
+import { IEquipment } from "../models";
 import {
   uploadToCloudflare,
   updateCloudflareImage,
   deleteFileFromCloudflare,
+  extractFileKey,
 } from "../../utils/CloudflareUpload";
 import { logError, logAudit } from "../../utils/LoggerUtil";
 import { StatusLogEnum } from "../../common/constants/AppConstants";
 import { HttpError } from "../../utils/HttpError";
 import { PaginationQueryOptions } from "../entities";
 
-export class BodyPartService {
-  private readonly bodyPartRepository: BodyPartRepository;
+export class EquipmentService {
+  private readonly equipmentRepository: EquipmentRepository;
 
-  constructor(bodyPartRepository: BodyPartRepository) {
-    this.bodyPartRepository = bodyPartRepository;
+  constructor(equipmentRepository: EquipmentRepository) {
+    this.equipmentRepository = equipmentRepository;
   }
 
   // =================== CREATE ===================
-  async createBodyPart(
+  async createEquipment(
     userId: string,
     file: Express.Multer.File | undefined,
-    data: Partial<IBodyPart>
+    data: Partial<IEquipment>
   ) {
     const session = await mongoose.startSession();
     session.startTransaction();
     try {
       let imageUrl: string | undefined;
       if (file) {
-        imageUrl = await uploadToCloudflare(file, "bodyparts", userId);
+        imageUrl = await uploadToCloudflare(file, "equipments", userId);
       }
 
-      const bodyPart = await this.bodyPartRepository.createWithSession(
+      const equipment = await this.equipmentRepository.createWithSession(
         {
           name: data.name,
           description: data.description || null,
@@ -45,18 +46,18 @@ export class BodyPartService {
 
       await logAudit({
         userId,
-        action: "createBodyPart",
-        message: `Tạo body part "${data.name}" thành công`,
+        action: "createEquipment",
+        message: `Tạo equipment "${data.name}" thành công`,
         status: StatusLogEnum.Success,
-        targetId: bodyPart._id.toString(),
+        targetId: equipment._id.toString(),
       });
 
-      return bodyPart;
+      return equipment;
     } catch (err: any) {
       await session.abortTransaction();
       await logError({
         userId,
-        action: "createBodyPart",
+        action: "createEquipment",
         message: err.message || err,
         errorMessage: err.stack || err,
       });
@@ -67,35 +68,35 @@ export class BodyPartService {
   }
 
   // =================== UPDATE ===================
-  async updateBodyPart(
+  async updateEquipment(
     userId: string,
     id: string,
     file: Express.Multer.File | undefined,
-    data: Partial<IBodyPart>
+    data: Partial<IEquipment>
   ) {
     const session = await mongoose.startSession();
     session.startTransaction();
     try {
-      const bodyPart = await this.bodyPartRepository.findById(id);
-      if (!bodyPart) throw new HttpError(404, "Body part không tồn tại");
+      const equipment = await this.equipmentRepository.findById(id);
+      if (!equipment) throw new HttpError(404, "Body part không tồn tại");
 
-      let imageUrl = bodyPart.imageUrl;
+      let imageUrl = equipment.imageUrl;
       if (file) {
         if (imageUrl) {
           imageUrl = await updateCloudflareImage(
             file,
             imageUrl,
-            "bodyparts",
+            "equipments",
             userId
           );
         } else {
-          imageUrl = await uploadToCloudflare(file, "bodyparts", userId);
+          imageUrl = await uploadToCloudflare(file, "equipments", userId);
         }
       }
 
-      const updated = await this.bodyPartRepository.update(id, {
-        name: data.name || bodyPart.name,
-        description: data.description ?? bodyPart.description,
+      const updated = await this.equipmentRepository.update(id, {
+        name: data.name || equipment.name,
+        description: data.description ?? equipment.description,
         imageUrl,
       });
 
@@ -103,8 +104,8 @@ export class BodyPartService {
 
       await logAudit({
         userId,
-        action: "updateBodyPart",
-        message: `Cập nhật body part "${updated?.name}" thành công`,
+        action: "updateEquipment",
+        message: `Cập nhật equipment "${updated?.name}" thành công`,
         status: StatusLogEnum.Success,
         targetId: id,
       });
@@ -114,7 +115,7 @@ export class BodyPartService {
       await session.abortTransaction();
       await logError({
         userId,
-        action: "updateBodyPart",
+        action: "updateEquipment",
         targetId: id,
         message: err.message || err,
         errorMessage: err.stack || err,
@@ -126,18 +127,18 @@ export class BodyPartService {
   }
 
   // =================== GET ALL ===================
-  async getAllBodyParts(options?: PaginationQueryOptions) {
+  async getAllEquipments(options?: PaginationQueryOptions) {
     try {
-      const list = await this.bodyPartRepository.findAll({}, options);
+      const list = await this.equipmentRepository.findAll({}, options);
       await logAudit({
-        action: "getAllBodyParts",
-        message: "Lấy danh sách body parts",
+        action: "getAllEquipments",
+        message: "Lấy danh sách equipments",
         status: StatusLogEnum.Success,
       });
       return list;
     } catch (err: any) {
       await logError({
-        action: "getAllBodyParts",
+        action: "getAllEquipments",
         message: err.message || err,
         errorMessage: err.stack || err,
       });
@@ -146,19 +147,18 @@ export class BodyPartService {
   }
 
   // =================== DELETE ===================
-  async deleteBodyPart(userId: string, id: string) {
+  async deleteEquipment(userId: string, id: string) {
     const session = await mongoose.startSession();
     session.startTransaction();
     try {
-      const bodyPart = await this.bodyPartRepository.findById(id);
-      if (!bodyPart) throw new HttpError(404, "Body part không tồn tại");
+      const equipment = await this.equipmentRepository.findById(id);
+      if (!equipment) throw new HttpError(404, "Body part không tồn tại");
 
-      if (bodyPart.imageUrl) {
-        // Trích xuất key từ URL nếu bạn lưu URL đầy đủ
-        await deleteFileFromCloudflare(bodyPart.imageUrl, "bodyparts");
+      if (equipment.imageUrl) {
+        await deleteFileFromCloudflare(equipment.imageUrl, "equipments");
       }
 
-      const deleted = await this.bodyPartRepository.deleteWithSession(
+      const deleted = await this.equipmentRepository.deleteWithSession(
         id,
         session
       );
@@ -168,8 +168,8 @@ export class BodyPartService {
 
       await logAudit({
         userId,
-        action: "deleteBodyPart",
-        message: `Xoá body part "${bodyPart.name}" thành công`,
+        action: "deleteEquipment",
+        message: `Xoá equipment "${equipment.name}" thành công`,
         status: StatusLogEnum.Success,
       });
 
@@ -178,7 +178,7 @@ export class BodyPartService {
       await session.abortTransaction();
       await logError({
         userId,
-        action: "deleteBodyPart",
+        action: "deleteEquipment",
         message: err.message || err,
         errorMessage: err.stack || err,
       });

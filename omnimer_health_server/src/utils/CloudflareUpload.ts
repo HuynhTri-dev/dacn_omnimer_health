@@ -1,9 +1,20 @@
 import r2 from "../common/configs/cloudflareConfig";
-import { PutObjectCommand } from "@aws-sdk/client-s3";
+import { DeleteObjectCommand, PutObjectCommand } from "@aws-sdk/client-s3";
 import { HttpError } from "./HttpError";
 import { logError } from "./LoggerUtil";
 import { v4 as uuidv4 } from "uuid";
 
+export function extractFileKey(urlOrKey: string): string {
+  try {
+    const parsedUrl = new URL(urlOrKey);
+    return parsedUrl.pathname.startsWith("/")
+      ? parsedUrl.pathname.slice(1)
+      : parsedUrl.pathname;
+  } catch {
+    // Nếu là key sẵn (ví dụ "users/123.jpg") thì giữ nguyên
+    return urlOrKey;
+  }
+}
 export async function uploadToCloudflare(
   file: Express.Multer.File,
   folder: string,
@@ -144,5 +155,37 @@ export async function updateUserAvatar(
       errorMessage: err.stack || err,
     });
     throw new HttpError(500, "Failed to update avatar on Cloudflare R2");
+  }
+}
+
+export async function deleteFileFromCloudflare(
+  filePath: string,
+  expectedFolder?: string
+): Promise<void> {
+  try {
+    // Chuẩn hóa key
+    const key = extractFileKey(filePath);
+
+    // Kiểm tra folder nếu có yêu cầu
+    if (expectedFolder && !key.startsWith(`${expectedFolder}/`)) {
+      throw new HttpError(
+        400,
+        `Tệp cần xóa không nằm trong folder "${expectedFolder}"`
+      );
+    }
+
+    const command = new DeleteObjectCommand({
+      Bucket: process.env.CLOUDFLARE_BUCKET_NAME,
+      Key: key,
+    });
+
+    await r2.send(command);
+  } catch (err: any) {
+    await logError({
+      action: "deleteFileFromCloudflare",
+      message: err.message || err,
+      errorMessage: err.stack || err,
+    });
+    throw new HttpError(500, "Không thể xóa file khỏi Cloudflare");
   }
 }

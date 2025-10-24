@@ -1,18 +1,18 @@
 import { Request, Response, NextFunction } from "express";
-import { BodyPartService } from "../services";
+import { MuscleService } from "../services";
 import {
   sendSuccess,
   sendCreated,
   sendUnauthorized,
 } from "../../utils/ResponseHelper";
-import { DecodePayload } from "../entities/DecodePayload";
+import { DecodePayload } from "../entities";
 import { buildQueryOptions } from "../../utils/BuildQueryOptions";
 
-export class BodyPartController {
-  private readonly equipmentController: BodyPartService;
+export class MuscleController {
+  private readonly muscleService: MuscleService;
 
-  constructor(equipmentController: BodyPartService) {
-    this.equipmentController = equipmentController;
+  constructor(muscleService: MuscleService) {
+    this.muscleService = muscleService;
   }
 
   // =================== CREATE ===================
@@ -23,13 +23,13 @@ export class BodyPartController {
       if (!userId) return sendUnauthorized(res);
 
       const file = req.file;
-      const bodyPart = await this.equipmentController.createBodyPart(
+      const muscle = await this.muscleService.createMuscle(
         userId,
         file,
         req.body
       );
 
-      return sendCreated(res, bodyPart, "Tạo nhóm cơ thành công");
+      return sendCreated(res, muscle, "Tạo cơ thành công");
     } catch (err) {
       next(err);
     }
@@ -45,14 +45,14 @@ export class BodyPartController {
       const file = req.file;
       const { id } = req.params;
 
-      const updated = await this.equipmentController.updateBodyPart(
+      const updated = await this.muscleService.updateMuscle(
         userId,
         id,
         file,
         req.body
       );
 
-      return sendSuccess(res, updated, "Cập nhật nhóm cơ thành công");
+      return sendSuccess(res, updated, "Cập nhật cơ thành công");
     } catch (err) {
       next(err);
     }
@@ -63,9 +63,9 @@ export class BodyPartController {
     try {
       const options = buildQueryOptions(req.query as any);
 
-      const list = await this.equipmentController.getAllBodyParts(options);
+      const list = await this.muscleService.getAllMuscles(options);
 
-      return sendSuccess(res, list, "Lấy danh sách nhóm cơ thành công");
+      return sendSuccess(res, list, "Lấy danh sách cơ thành công");
     } catch (err) {
       next(err);
     }
@@ -79,9 +79,9 @@ export class BodyPartController {
       if (!userId) return sendUnauthorized(res);
 
       const { id } = req.params;
-      await this.equipmentController.deleteBodyPart(userId, id);
+      await this.muscleService.deleteMuscle(userId, id);
 
-      return sendSuccess(res, true, "Xoá nhóm cơ thành công");
+      return sendSuccess(res, true, "Xoá cơ thành công");
     } catch (err) {
       next(err);
     }

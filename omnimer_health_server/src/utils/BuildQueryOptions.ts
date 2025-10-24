@@ -3,15 +3,8 @@ import {
   DEFAULT_PAGE,
   DEFAULT_SORT,
 } from "../common/constants/AppConstants";
+import { PaginationQueryOptions } from "../domain/entities";
 import DateUtils from "./DateUtils";
-
-export interface PaginationQueryOptions {
-  page: number;
-  limit: number;
-  sort?: Record<string, 1 | -1>;
-  filter?: Record<string, any>;
-  search?: string;
-}
 
 /**
  * Build query options (page, limit, sort, filter, search) từ request query

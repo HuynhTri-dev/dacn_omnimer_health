@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
-import { BodyPartRepository } from "../repositories";
-import { IBodyPart } from "../models";
+import { MuscleRepository } from "../repositories";
+import { IMuscle } from "../models";
 import {
   uploadToCloudflare,
   updateCloudflareImage,
@@ -11,32 +11,33 @@ import { StatusLogEnum } from "../../common/constants/AppConstants";
 import { HttpError } from "../../utils/HttpError";
 import { PaginationQueryOptions } from "../entities";
 
-export class BodyPartService {
-  private readonly bodyPartRepository: BodyPartRepository;
+export class MuscleService {
+  private readonly muscleRepository: MuscleRepository;
 
-  constructor(bodyPartRepository: BodyPartRepository) {
-    this.bodyPartRepository = bodyPartRepository;
+  constructor(muscleRepository: MuscleRepository) {
+    this.muscleRepository = muscleRepository;
   }
 
   // =================== CREATE ===================
-  async createBodyPart(
+  async createMuscle(
     userId: string,
     file: Express.Multer.File | undefined,
-    data: Partial<IBodyPart>
+    data: Partial<IMuscle>
   ) {
     const session = await mongoose.startSession();
     session.startTransaction();
     try {
       let imageUrl: string | undefined;
       if (file) {
-        imageUrl = await uploadToCloudflare(file, "bodyparts", userId);
+        imageUrl = await uploadToCloudflare(file, "muscles", userId);
       }
 
-      const bodyPart = await this.bodyPartRepository.createWithSession(
+      const muscle = await this.muscleRepository.createWithSession(
         {
           name: data.name,
-          description: data.description || null,
-          imageUrl: imageUrl || null,
+          bodyPartIds: data.bodyPartIds || [],
+          description: data.description,
+          imageUrl: imageUrl,
         },
         session
       );
@@ -45,18 +46,18 @@ export class BodyPartService {
 
       await logAudit({
         userId,
-        action: "createBodyPart",
-        message: `Tạo body part "${data.name}" thành công`,
+        action: "createMuscle",
+        message: `Tạo muscle "${data.name}" thành công`,
         status: StatusLogEnum.Success,
-        targetId: bodyPart._id.toString(),
+        targetId: muscle._id.toString(),
       });
 
-      return bodyPart;
+      return muscle;
     } catch (err: any) {
       await session.abortTransaction();
       await logError({
         userId,
-        action: "createBodyPart",
+        action: "createMuscle",
         message: err.message || err,
         errorMessage: err.stack || err,
       });
@@ -67,35 +68,36 @@ export class BodyPartService {
   }
 
   // =================== UPDATE ===================
-  async updateBodyPart(
+  async updateMuscle(
     userId: string,
     id: string,
     file: Express.Multer.File | undefined,
-    data: Partial<IBodyPart>
+    data: Partial<IMuscle>
   ) {
     const session = await mongoose.startSession();
     session.startTransaction();
     try {
-      const bodyPart = await this.bodyPartRepository.findById(id);
-      if (!bodyPart) throw new HttpError(404, "Body part không tồn tại");
+      const muscle = await this.muscleRepository.findById(id);
+      if (!muscle) throw new HttpError(404, "Muscle không tồn tại");
 
-      let imageUrl = bodyPart.imageUrl;
+      let imageUrl = muscle.imageUrl;
       if (file) {
         if (imageUrl) {
           imageUrl = await updateCloudflareImage(
             file,
             imageUrl,
-            "bodyparts",
+            "muscles",
             userId
           );
         } else {
-          imageUrl = await uploadToCloudflare(file, "bodyparts", userId);
+          imageUrl = await uploadToCloudflare(file, "muscles", userId);
         }
       }
 
-      const updated = await this.bodyPartRepository.update(id, {
-        name: data.name || bodyPart.name,
-        description: data.description ?? bodyPart.description,
+      const updated = await this.muscleRepository.update(id, {
+        name: data.name || muscle.name,
+        bodyPartIds: data.bodyPartIds || muscle.bodyPartIds,
+        description: data.description ?? muscle.description,
         imageUrl,
       });
 
@@ -103,8 +105,8 @@ export class BodyPartService {
 
       await logAudit({
         userId,
-        action: "updateBodyPart",
-        message: `Cập nhật body part "${updated?.name}" thành công`,
+        action: "updateMuscle",
+        message: `Cập nhật muscle "${updated?.name}" thành công`,
         status: StatusLogEnum.Success,
         targetId: id,
       });
@@ -114,7 +116,7 @@ export class BodyPartService {
       await session.abortTransaction();
       await logError({
         userId,
-        action: "updateBodyPart",
+        action: "updateMuscle",
         targetId: id,
         message: err.message || err,
         errorMessage: err.stack || err,
@@ -126,18 +128,18 @@ export class BodyPartService {
   }
 
   // =================== GET ALL ===================
-  async getAllBodyParts(options?: PaginationQueryOptions) {
+  async getAllMuscles(options?: PaginationQueryOptions) {
     try {
-      const list = await this.bodyPartRepository.findAll({}, options);
+      const list = await this.muscleRepository.findAll({}, options);
       await logAudit({
-        action: "getAllBodyParts",
-        message: "Lấy danh sách body parts",
+        action: "getAllMuscles",
+        message: "Lấy danh sách muscles",
         status: StatusLogEnum.Success,
       });
       return list;
     } catch (err: any) {
       await logError({
-        action: "getAllBodyParts",
+        action: "getAllMuscles",
         message: err.message || err,
         errorMessage: err.stack || err,
       });
@@ -146,19 +148,18 @@ export class BodyPartService {
   }
 
   // =================== DELETE ===================
-  async deleteBodyPart(userId: string, id: string) {
+  async deleteMuscle(userId: string, id: string) {
     const session = await mongoose.startSession();
     session.startTransaction();
     try {
-      const bodyPart = await this.bodyPartRepository.findById(id);
-      if (!bodyPart) throw new HttpError(404, "Body part không tồn tại");
+      const muscle = await this.muscleRepository.findById(id);
+      if (!muscle) throw new HttpError(404, "Muscle không tồn tại");
 
-      if (bodyPart.imageUrl) {
-        // Trích xuất key từ URL nếu bạn lưu URL đầy đủ
-        await deleteFileFromCloudflare(bodyPart.imageUrl, "bodyparts");
+      if (muscle.imageUrl) {
+        await deleteFileFromCloudflare(muscle.imageUrl, "muscles");
       }
 
-      const deleted = await this.bodyPartRepository.deleteWithSession(
+      const deleted = await this.muscleRepository.deleteWithSession(
         id,
         session
       );
@@ -168,8 +169,8 @@ export class BodyPartService {
 
       await logAudit({
         userId,
-        action: "deleteBodyPart",
-        message: `Xoá body part "${bodyPart.name}" thành công`,
+        action: "deleteMuscle",
+        message: `Xoá muscle "${muscle.name}" thành công`,
         status: StatusLogEnum.Success,
       });
 
@@ -178,7 +179,7 @@ export class BodyPartService {
       await session.abortTransaction();
       await logError({
         userId,
-        action: "deleteBodyPart",
+        action: "deleteMuscle",
         message: err.message || err,
         errorMessage: err.stack || err,
       });
