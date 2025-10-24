@@ -19,7 +19,9 @@ export class AuthController {
    */
   register = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const result = await this.authService.register(req.body);
+      const avatarImage = req.file;
+
+      const result = await this.authService.register(req.body, avatarImage);
 
       sendCreated(res, result, "Đăng ký thành công");
     } catch (err) {

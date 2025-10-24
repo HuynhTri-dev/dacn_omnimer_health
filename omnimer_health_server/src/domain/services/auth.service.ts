@@ -6,6 +6,9 @@ import { StatusLogEnum } from "../../common/constants/AppConstants";
 import admin from "../../common/configs/firebaseAdminConfig";
 import { HttpError } from "../../utils/HttpError";
 import { DecodePayload } from "../entities/DecodePayload";
+import { uploadUserAvatar } from "../../utils/CloudflareUpload";
+import mongoose from "mongoose";
+import { IAuthResponse, IUserResponse } from "../entities";
 
 export class AuthService {
   private readonly userRepo: UserRepository;
@@ -14,32 +17,60 @@ export class AuthService {
     this.userRepo = userRepo;
   }
 
+  private buildUserResponse(user: IUser): IUserResponse {
+    return {
+      fullname: user.fullname,
+      email: user.email,
+      imageUrl: user.imageUrl,
+      gender: user.gender,
+      birthday: user.birthday,
+    };
+  }
+
+  private generateTokens(user: IUser) {
+    const payload: DecodePayload = {
+      uid: user.uid,
+      id: user._id,
+      roleIds: user.roleIds,
+    };
+    return {
+      accessToken: JwtUtils.generateAccessToken(payload),
+      refreshToken: JwtUtils.generateRefreshToken(payload),
+    };
+  }
+
   /**
-   * Đăng ký tài khoản + auto login
+   * Đăng ký người dùng mới
    */
-  async register(data: Partial<IUser>): Promise<{
-    user: IUser;
-    accessToken: string;
-    refreshToken: string;
-  }> {
+  async register(
+    data: Partial<IUser>,
+    avatarImage?: Express.Multer.File
+  ): Promise<IAuthResponse> {
+    const session = await mongoose.startSession();
+    session.startTransaction();
+
     try {
-      // Check trùng UID
-      const existingByUid = await this.userRepo.findByUid(data.uid!);
-      if (existingByUid)
+      // 1. Kiểm tra trùng UID
+      if (await this.userRepo.findByUid(data.uid!))
         throw new HttpError(409, "Người dùng đã có tài khoản tồn tại");
 
-      const created = await this.userRepo.create(data);
+      // 2. Tạo user
+      const created = await this.userRepo.createWithSession(data, session);
 
-      // Sinh token
-      const payload: DecodePayload = {
-        uid: created.uid,
-        id: created._id,
-        roleIds: created.roleIds,
-      };
-      const accessToken = JwtUtils.generateAccessToken(payload);
-      const refreshToken = JwtUtils.generateRefreshToken(payload);
+      // 3. Upload avatar nếu có
+      if (avatarImage) {
+        created.imageUrl = await uploadUserAvatar(avatarImage, created.id);
+        await created.save({ session });
+      }
 
-      // Log audit
+      // 4. Commit transaction
+      await session.commitTransaction();
+      session.endSession();
+
+      // 5. Sinh token
+      const tokens = this.generateTokens(created);
+
+      // 6. Ghi log
       await logAudit({
         userId: created._id.toString(),
         action: "registerUser",
@@ -50,52 +81,42 @@ export class AuthService {
       });
 
       return {
-        user: created,
-        accessToken,
-        refreshToken,
+        user: this.buildUserResponse(created),
+        ...tokens,
       };
     } catch (err: any) {
-      // Log lỗi
+      await session.abortTransaction();
+      session.endSession();
+
       await logError({
-        // userId: data?.uid || null,
         action: "registerUser",
         message: err.message || err,
         errorMessage: err.stack || err,
       });
+
       throw err;
     }
   }
 
-  async login(idToken: string): Promise<{
-    user: IUser;
-    accessToken: string;
-    refreshToken: string;
-  }> {
+  /**
+   * Đăng nhập người dùng bằng Firebase ID Token
+   */
+  async login(idToken: string): Promise<IAuthResponse> {
     try {
       const decoded = await admin.auth().verifyIdToken(idToken);
       const { uid } = decoded;
 
-      let user = await this.userRepo.findByUid(uid);
+      const user = await this.userRepo.findByUid(uid);
+      if (!user) throw new HttpError(401, "Không có người dùng này");
 
-      if (!user) {
-        throw new HttpError(401, "Không có người dùng này");
-      }
-
-      // Sinh token
-      const payload: DecodePayload = {
-        uid: user.uid,
-        id: user._id,
-        roleIds: user.roleIds,
+      return {
+        user: this.buildUserResponse(user),
+        ...this.generateTokens(user),
       };
-      const accessToken = JwtUtils.generateAccessToken(payload);
-      const refreshToken = JwtUtils.generateRefreshToken(payload);
-
-      return { user, accessToken, refreshToken };
-    } catch (e) {
-      throw e;
+    } catch (err) {
+      throw err;
     }
   }
-
   async createNewAccessToken(refreshToken: string) {
     try {
       const decoded: any = JwtUtils.verifyRefreshToken(refreshToken);

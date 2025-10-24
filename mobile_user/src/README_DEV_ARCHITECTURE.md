@@ -1,194 +1,166 @@
-# OmniMer Health – Mobile User Architecture Guide
+# 🧩 Project Structure Overview
 
 ## 1. Mục tiêu kiến trúc
 
-Tài liệu này mô tả **nguyên lý và cấu trúc phát triển chuẩn** cho ứng dụng `mobile_user` của dự án **OmniMer Health**.  
-Mục tiêu: đảm bảo code **dễ mở rộng, dễ bảo trì, dễ test** và rõ ràng trong phân chia trách nhiệm giữa các dev.
+Cấu trúc dự án được thiết kế theo hướng **Clean Architecture**, giúp:
+
+- Dễ mở rộng, bảo trì và tái sử dụng code.
+- Phân tách rõ ràng giữa các **tầng (layers)**: `domain`, `data`, `presentation`.
+- Tối ưu khả năng **test**, **refactor**, và **scale** khi dự án phát triển.
 
 ---
 
-## 2. Tổng quan kiến trúc
+## 2. Sơ đồ thư mục
 
-Kiến trúc được xây theo hướng **Feature-based + Clean Architecture**.  
-Mỗi module (feature) là **một khối độc lập** gồm:
-
-- Giao diện (screens, components)
-- Logic (hooks, store)
-- Giao tiếp backend (api)
-
-Không có dependency vòng tròn giữa các module.
-
----
-
-## 3. Cấu trúc thư mục
-
-```
+```bash
 src/
-├── app/                  # Entry point, navigation, provider
-│   ├── navigation/       # Stack, Tab, Drawer Navigators
-│   └── providers/        # Theme, Auth, AI Context
-│
-├── features/             # Các module chức năng độc lập
-│   ├── auth/             # Đăng nhập, đăng ký, quên mật khẩu
-│   ├── health/           # Dữ liệu sức khỏe, biểu đồ
-│   ├── ai/               # Chatbot, gợi ý AI
-│   └── profile/          # Hồ sơ cá nhân
-│
-├── services/             # Kết nối API và hệ thống bên ngoài
-│   ├── apiClient.ts      # axios config chung
-│   ├── firebase.ts
-│   ├── storage.ts
-│   └── notification.ts
-│
-├── store/                # State management (Zustand / Redux)
-│   ├── useAuthStore.ts
-│   ├── useHealthStore.ts
-│   └── useThemeStore.ts
-│
-├── hooks/                # Hooks dùng chung (custom logic)
-│   ├── useFetch.ts
-│   ├── useDebounce.ts
-│   └── useNetwork.ts
-│
-├── utils/                # Hàm tiện ích, constant, validate
-│   ├── constants.ts
-│   ├── formatter.ts
-│   ├── validator.ts
-│   └── date.ts
-│
-├── assets/               # Ảnh, icon, font
-│
-└── types/                # Kiểu dữ liệu (TypeScript)
+┣ app/ # Entry & Core setup
+┃ ┣ context/ # Context Providers (Auth, Theme)
+┃ ┣ hook/ # App-level custom hooks
+┃ ┣ store/ # Redux store & slices
+┃ ┗ types/ # Global types & DTOs
+┣ config/ # Cấu hình Axios, env, và các config toàn cục
+┣ data/
+┃ ┣ api/ # API definitions (Axios-based)
+┃ ┣ models/ # Data models / entities
+┃ ┗ repositories/ # Repository layer (abstracted data access)
+┣ domain/
+┃ ┣ interfaces/ # Domain-level contracts
+┃ ┣ services/ # Business logic (use cases)
+┃ ┗ repositories/ # Repository interfaces for data access
+┣ presentation/
+┃ ┣ components/ # UI reusable components
+┃ ┣ navigation/ # Navigators (Stack, Tab, Drawer)
+┃ ┣ screens/ # Screens per feature
+┃ ┗ theme/ # Colors, typography, spacing
+┣ services/ # External services (Firebase, HealthKit, etc.)
+┣ utils/ # Helpers, formatters, validators
+┗ App.tsx # Root entry point
 ```
 
 ---
 
-## 4. Nguyên lý tổ chức
+## 3. Luồng dữ liệu tổng quát
 
-### 4.1. Mỗi feature độc lập
+### 1. Presentation Layer (UI)
 
-- Mọi phần liên quan đến chức năng (auth, health, profile...) **phải nằm gọn trong folder riêng**.
-- Không được import chéo giữa các feature.
-- Nếu cần chia sẻ logic hoặc UI → đưa vào `hooks/` hoặc `components/common/`.
+- Gồm `screens/` và `components/`.
+- Nhiệm vụ: **hiển thị dữ liệu và nhận input từ người dùng**.
+- Gọi đến các **domain services (use cases)** để thực thi logic.
 
-### 4.2. Layer logic rõ ràng
+**Ví dụ luồng:**
 
-```
-UI (screens/components)
+User Action (Button press)
 ↓
-Hook (useXxx.ts)
+Screen gọi Domain Service (use case)
 ↓
-Service/API
+Domain gọi Repository interface
 ↓
-Store (Zustand/Redux)
-```
+Data layer thực hiện gọi API hoặc DB
+↓
+Response trả về Domain → UI hiển thị kết quả
 
-### 4.3. Nguyên tắc import
-
-- Dùng alias trong `tsconfig.json`:
-  ```json
-  {
-    "compilerOptions": {
-      "paths": {
-        "@/*": ["src/*"],
-        "@features/*": ["src/features/*"]
-      }
-    }
-  }
-  ```
-- Import luôn từ alias, không dùng đường dẫn tương đối `../../`.
-
-### 4.4. Quy tắc đặt tên
-
-| Loại file | Quy tắc đặt tên       | Ví dụ                      |
-| --------- | --------------------- | -------------------------- |
-| Screen    | PascalCase + “Screen” | `HealthOverviewScreen.tsx` |
-| Component | PascalCase            | `HealthCard.tsx`           |
-| Hook      | camelCase + “use”     | `useHealthData.ts`         |
-| API       | lowercase + `.api.ts` | `health.api.ts`            |
-| Store     | `use<Name>Store.ts`   | `useAuthStore.ts`          |
+markdown
+Sao chép mã
 
 ---
 
-## 5. Quản lý API
+### 2. Domain Layer
 
-Tất cả API phải qua `services/apiClient.ts`:
+- Nằm giữa `presentation` và `data`, đảm nhận **logic nghiệp vụ (business logic)**.
+- Không phụ thuộc framework (React, Axios, Firebase...).
+- Bao gồm:
+  - `services/`: Chứa các **use cases**, ví dụ `RegisterUserService`, `FetchExerciseService`.
+  - `interfaces/`: Định nghĩa **interface** cho repository hoặc các đối tượng dịch vụ.
+  - `repositories/`: Interface trung gian giữa domain và data layer.
+
+**Ví dụ:**
 
 ```ts
-import axios from 'axios';
-
-const apiClient = axios.create({
-  baseURL: process.env.API_URL,
-  timeout: 10000,
-});
-
-apiClient.interceptors.request.use(config => {
-  // Gắn token Firebase hoặc Bearer token
-  const token = useAuthStore.getState().token;
-  if (token) config.headers.Authorization = `Bearer ${token}`;
-  return config;
-});
-
-export default apiClient;
+// domain/repositories/IUserRepository.ts
+export interface IUserRepository {
+  register(userData: User): Promise<User>;
+  getProfile(id: string): Promise<User>;
+}
 ```
 
-Mỗi feature có file riêng:
+### 3. Data Layer
 
-```ts
-// src/features/health/api/health.api.ts
-import apiClient from '@/services/apiClient';
+Xử lý giao tiếp dữ liệu từ API, database, hoặc local storage.
 
-export const healthApi = {
-  getOverview: (userId: string) => apiClient.get(`/health/${userId}`),
-  updateRecord: (data: any) => apiClient.post('/health/update', data),
-};
-```
+Bao gồm:
 
----
+api/: Gọi Axios hoặc fetch đến server.
 
-## 6. State management (Zustand)
+models/: Định nghĩa entity tương ứng với dữ liệu trả về.
 
-Zustand được chọn vì:
-
-- Dễ viết, không boilerplate.
-- Hiệu năng tốt hơn Redux cho mobile.
+repositories/: Triển khai interface từ domain/repositories.
 
 Ví dụ:
 
 ```ts
-// src/store/useHealthStore.ts
-import { create } from 'zustand';
+Sao chép mã
+// data/repositories/UserRepository.ts
+import { IUserRepository } from "../../domain/repositories/IUserRepository";
+import { api } from "../api/axiosInstance";
 
-export const useHealthStore = create(set => ({
-  data: [],
-  setData: (data: any[]) => set({ data }),
-}));
+export class UserRepository implements IUserRepository {
+async register(data) {
+const res = await api.post("/user/register", data);
+return res.data;
+}
+}
 ```
 
----
+### 4. App Layer
 
-## 7. Coding convention
+Xử lý entry logic, như context, Redux store, global hooks.
 
-- **Ngôn ngữ:** TypeScript
-- **Format:** Prettier + ESLint (setup sẵn)
-- **Component nhỏ:** luôn dùng `React.memo`
-- **Async:** luôn dùng `try/catch`
-- **Không console.log trong production**
+Cung cấp các providers (Auth, Theme, Store) cho toàn app.
 
----
+App.tsx là entry chính — nơi khởi tạo navigation, context, store, theme.
 
-## 8. Quy trình phát triển feature
+### 5. Services Layer
 
-1. Tạo folder mới trong `src/features/<feature_name>`
-2. Thêm API file nếu cần giao tiếp backend
-3. Tạo `hook` xử lý logic
-4. Viết `screen` render giao diện
-5. Kết nối với `store` (nếu cần state global)
-6. Thêm route vào `MainNavigator`
+Tích hợp các dịch vụ bên ngoài như:
 
----
+Firebase (auth, push notifications)
 
-## 9. Tài liệu tham khảo
+Apple HealthKit / Google Fit
 
-- [React Native Architecture Best Practices](https://reactnative.dev/docs/architecture-overview)
-- [Zustand Docs](https://docs.pmnd.rs/zustand/getting-started/introduction)
+Cloudflare / Storage SDKs
+
+### 6. Utils & Config
+
+utils/: Chứa các hàm tiện ích, định dạng dữ liệu, validate, logging.
+
+config/: Cấu hình Axios, base URL, token interceptor, hoặc .env.
+
+## 4. Ví dụ luồng xử lý cụ thể
+
+Tình huống: Người dùng đăng ký tài khoản.
+
+```css
+Sao chép mã
+[Screen: RegisterScreen]
+↓ (gọi)
+[Domain: RegisterUserService]
+↓ (sử dụng)
+[Repository Interface: IUserRepository]
+↓ (được implement bởi)
+[Data: UserRepository → Axios API]
+↓ (response)
+Trả về user data → UI cập nhật store & hiển thị thông báo thành công.
+```
+
+## 5. Quy tắc coding style (gợi ý)
+
+File đặt tên PascalCase cho component, class (UserRepository.ts, AuthContext.tsx).
+
+camelCase cho function, biến (getUserInfo, handleSubmit).
+
+snake_case chỉ dùng cho file JSON hoặc constant keys.
+
+Mỗi service hoặc repository chỉ làm 1 nhiệm vụ duy nhất.
+
+Không gọi API trực tiếp trong UI (screens).
