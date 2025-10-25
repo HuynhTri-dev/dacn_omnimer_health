@@ -56,6 +56,19 @@ export const DifficultyLevelTuple = Object.values(DifficultyLevelEnum) as [
   ...DifficultyLevelEnum[]
 ];
 
+//  =================== LOCATION EXERCISE/WORKOUT ===================
+export enum LocationEnum {
+  Home = "Home",
+  Gym = "Gym",
+  Outdoor = "Outdoor",
+  None = "None",
+}
+
+export const LocationTuple = Object.values(LocationEnum) as [
+  LocationEnum,
+  ...LocationEnum[]
+];
+
 //  =================== WORKOUT DETAIL ===================
 export enum WorkoutDetailTypeEnum {
   Reps = "reps",
