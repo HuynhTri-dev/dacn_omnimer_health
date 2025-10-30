@@ -13,12 +13,15 @@ import userRoute from "./user.route";
 import healthProfileRoute from "./health-profile.route";
 import goalRoute from "./goal.route";
 function setupRoutes(app: Express) {
+  // System
   app.use("/api/v1/permission", permissionRoute);
   app.use("/api/v1/role", roleRoute);
+  // Profile
   app.use("/api/v1/auth", authRoute);
   app.use("/api/v1/user", userRoute);
   app.use("/api/v1/health-profile", healthProfileRoute);
   app.use("/api/v1/goal", goalRoute);
+  // Exercise
   app.use("/api/v1/body-part", bodyPartRoute);
   app.use("/api/v1/equipment", equipmentRoute);
   app.use("/api/v1/exercise-type", exerciseTypeRoute);
@@ -26,5 +29,7 @@ function setupRoutes(app: Express) {
   app.use("/api/v1/exercise-category", exerciseCategoryRoute);
   app.use("/api/v1/exercise-rating", exerciseRatingRoute);
   app.use("/api/v1/exercise", exerciseRoute);
+  // Workout
+  // Deices
 }
 export default setupRoutes;

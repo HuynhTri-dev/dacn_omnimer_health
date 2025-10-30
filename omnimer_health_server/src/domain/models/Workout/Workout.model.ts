@@ -43,11 +43,12 @@ export interface IWorkoutDeviceSummary {
 export interface IWorkout extends Document {
   _id: Types.ObjectId;
   _userId: Types.ObjectId;
+  _workoutTemplateId?: Types.ObjectId;
   date: Date;
   totalDuration: number;
-  exerciseCategoryWantToDo?: string;
-  bodyPartTarget?: string[];
+
   notes?: string;
+
   workoutDetail: IWorkoutDetail[];
   deviceSummary?: IWorkoutDeviceSummary;
   createdAt?: Date;
@@ -65,11 +66,15 @@ const WorkoutSchema: Schema<IWorkout> = new Schema(
       type: Schema.Types.ObjectId,
       ref: "User",
       required: true,
+      index: true,
     },
+    _workoutTemplateId: {
+      type: Schema.Types.ObjectId,
+      ref: "WorkoutTemplate",
+    },
+
     date: { type: Date, default: Date.now },
     totalDuration: { type: Number, default: 0 },
-    exerciseCategoryWantToDo: { type: String },
-    bodyPartTarget: [{ type: String }],
     notes: { type: String },
 
     workoutDetail: {

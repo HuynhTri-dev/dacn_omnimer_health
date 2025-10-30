@@ -8,6 +8,10 @@ import { calculateHealthMetrics } from "../../../utils/HealthFunction/HealthCalc
 import { callOllamaEvaluation } from "../../../utils/HealthFunction/AiEvaluationUtil";
 import { Types } from "mongoose";
 
+/**
+ * Service class for handling HealthProfile-related operations.
+ * Provides CRUD functionality, metric calculations, and AI-assisted evaluations.
+ */
 export class HealthProfileService {
   private readonly healthProfileRepo: HealthProfileRepository;
   private readonly userRepo: UserRepository;
@@ -20,12 +24,27 @@ export class HealthProfileService {
     this.userRepo = userRepo;
   }
 
-  // =================== CREATE ===================
+  // =========================================================
+  // CREATE
+  // =========================================================
+
+  /**
+   * Create a new health profile for a user.
+   *
+   * @param userId - The ID of the user performing the operation.
+   * @param data - Partial health profile data provided by the client.
+   * @returns The newly created HealthProfile document.
+   *
+   * @throws HttpError - If user or health profile creation fails.
+   */
   async createHealthProfile(userId: string, data: Partial<IHealthProfile>) {
     try {
+      // Retrieve user information
       const user = await this.userRepo.findById(
         data.userId?.toString() ?? userId
       );
+
+      // Compute key health metrics (e.g., BMI, body fat, etc.)
       const metrics = calculateHealthMetrics({
         gender: user?.gender!,
         height: data.height!,
@@ -36,16 +55,17 @@ export class HealthProfileService {
         birthday: user?.birthday!,
       });
 
-      // 2. Chuẩn bị dữ liệu tổng hợp gửi sang AI
+      // Prepare input for AI model evaluation
       const aiInput = {
         ...data,
         ...metrics,
         healthStatus: data.healthStatus,
       };
 
-      // 3. Gọi mô hình AI đánh giá tổng quan
+      // Perform AI-based health evaluation
       const aiEvaluation = await callOllamaEvaluation(aiInput);
 
+      // Persist the record in database
       const healthProfile = await this.healthProfileRepo.create({
         ...data,
         ...metrics,
@@ -54,10 +74,11 @@ export class HealthProfileService {
         aiEvaluation,
       });
 
+      // Audit log
       await logAudit({
         userId,
         action: "createHealthProfile",
-        message: `Tạo HealthProfile "${data.userId}-${data.checkupDate}" thành công`,
+        message: `Created HealthProfile for user "${data.userId}" successfully`,
         status: StatusLogEnum.Success,
         targetId: healthProfile._id.toString(),
       });
@@ -74,7 +95,17 @@ export class HealthProfileService {
     }
   }
 
-  // =================== GET ALL ===================
+  // =========================================================
+  // READ
+  //! For Admin
+  // =========================================================
+
+  /**
+   * Retrieve all health profiles with optional pagination and filters.
+   *
+   * @param option - Pagination and query options.
+   * @returns A list of HealthProfile documents.
+   */
   async getHealthProfiles(option?: PaginationQueryOptions) {
     try {
       return await this.healthProfileRepo.findAll({}, option);
@@ -88,14 +119,45 @@ export class HealthProfileService {
     }
   }
 
-  // =================== GET BY ID ===================
+  //! For User
+  /**
+   * Retrieve all health profiles for a specific user.
+   *
+   * @param userId - The ID of the target user.
+   * @param option - Pagination and query options.
+   * @returns A list of HealthProfile documents for the specified user.
+   */
+  async getHealthProfilesByUserId(
+    userId: string,
+    option?: PaginationQueryOptions
+  ) {
+    try {
+      return await this.healthProfileRepo.findAll({ userId }, option);
+    } catch (err: any) {
+      await logError({
+        action: "getHealthProfilesByUserId",
+        message: err.message || err,
+        errorMessage: err.stack || err,
+      });
+      throw err;
+    }
+  }
+
+  /**
+   * Retrieve a specific health profile by ID.
+   *
+   * @param healthProfileId - The ID of the health profile.
+   * @returns The corresponding HealthProfile document.
+   *
+   * @throws HttpError - If the profile does not exist.
+   */
   async getHealthProfileById(healthProfileId: string) {
     try {
       const healthProfile = await this.healthProfileRepo.findById(
         healthProfileId
       );
       if (!healthProfile) {
-        throw new HttpError(404, "HealthProfile không tồn tại");
+        throw new HttpError(404, "HealthProfile not found");
       }
       return healthProfile;
     } catch (err: any) {
@@ -108,28 +170,45 @@ export class HealthProfileService {
     }
   }
 
-  // =================== UPDATE ===================
+  // =========================================================
+  // UPDATE
+  // =========================================================
+
+  /**
+   * Update an existing health profile and trigger re-evaluation.
+   *
+   * @param healthProfileId - The ID of the profile to update.
+   * @param data - Updated partial data.
+   * @param userId - The ID of the user performing the update.
+   * @returns The updated HealthProfile document.
+   *
+   * @throws HttpError - If the profile or user does not exist.
+   */
   async updateHealthProfile(
     healthProfileId: string,
     data: Partial<IHealthProfile>,
-    userId?: string
+    userId: string
   ) {
     try {
-      // 1. Tìm HealthProfile hiện tại
+      // Retrieve existing profile
       const existing = await this.healthProfileRepo.findById(healthProfileId);
       if (!existing) {
-        throw new HttpError(404, "HealthProfile không tồn tại");
+        throw new HttpError(404, "Hồ sơ không tìm thấy");
       }
 
-      // 2. Lấy thông tin người dùng để tái tính toán
+      if (userId !== existing.userId?.toString()) {
+        throw new HttpError(403, "Không có quyền cập nhật hồ sơ này");
+      }
+
+      // Retrieve user data for recalculations
       const user = await this.userRepo.findById(
         data.userId?.toString() ?? existing.userId?.toString() ?? userId
       );
       if (!user) {
-        throw new HttpError(404, "Người dùng không tồn tại");
+        throw new HttpError(404, "Không tìm thấy người dùng");
       }
 
-      // 3. Tính lại chỉ số sức khỏe (metrics)
+      // Recalculate health metrics
       const metrics = calculateHealthMetrics({
         gender: user.gender!,
         height: data.height ?? existing.height!,
@@ -140,7 +219,7 @@ export class HealthProfileService {
         birthday: user.birthday!,
       });
 
-      // 4. Chuẩn bị dữ liệu gửi sang AI đánh giá tổng quan
+      // Prepare AI evaluation input
       const aiInput = {
         ...(existing.toObject?.() ?? existing),
         ...data,
@@ -150,7 +229,7 @@ export class HealthProfileService {
 
       const aiEvaluation = await callOllamaEvaluation(aiInput);
 
-      // 5. Cập nhật vào DB
+      // Update database record
       const updated = await this.healthProfileRepo.update(healthProfileId, {
         ...data,
         ...metrics,
@@ -158,11 +237,11 @@ export class HealthProfileService {
         updatedAt: new Date(),
       });
 
-      // 6. Ghi log audit
+      // Audit log
       await logAudit({
         userId,
         action: "updateHealthProfile",
-        message: `Cập nhật HealthProfile "${healthProfileId}" thành công`,
+        message: `Updated HealthProfile "${healthProfileId}" successfully`,
         status: StatusLogEnum.Success,
         targetId: healthProfileId,
       });
@@ -179,25 +258,41 @@ export class HealthProfileService {
     }
   }
 
-  // =================== DELETE ===================
-  async deleteHealthProfile(healthProfileId: string, userId?: string) {
-    try {
-      const deleted = await this.healthProfileRepo.delete(healthProfileId);
+  // =========================================================
+  // DELETE
+  // =========================================================
 
-      if (!deleted) {
+  /**
+   * Delete a health profile by ID.
+   *
+   * @param healthProfileId - The ID of the profile to delete.
+   * @param userId - The ID of the user performing the deletion.
+   * @returns The deleted HealthProfile document.
+   *
+   * @throws HttpError - If the profile does not exist.
+   */
+  async deleteHealthProfile(healthProfileId: string, userId: string) {
+    try {
+      const existing = await this.healthProfileRepo.findById(healthProfileId);
+      if (!existing) {
         await logAudit({
           userId,
           action: "deleteHealthProfile",
-          message: `HealthProfile "${healthProfileId}" không tồn tại`,
+          message: `HealthProfile "${healthProfileId}" not found`,
           status: StatusLogEnum.Failure,
         });
-        throw new HttpError(404, "HealthProfile không tồn tại");
+        throw new HttpError(404, "Không tùm thấy hồ sơ");
       }
+      if (userId !== existing.userId?.toString()) {
+        throw new HttpError(403, "Không có quyền xoá hồ sơ này");
+      }
+
+      const deleted = await this.healthProfileRepo.delete(healthProfileId);
 
       await logAudit({
         userId,
         action: "deleteHealthProfile",
-        message: `Xóa HealthProfile "${healthProfileId}" thành công`,
+        message: `Deleted HealthProfile "${healthProfileId}" successfully`,
         status: StatusLogEnum.Success,
         targetId: healthProfileId,
       });

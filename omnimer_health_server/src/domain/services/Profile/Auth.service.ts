@@ -16,7 +16,13 @@ export class AuthService {
   constructor(userRepo: UserRepository) {
     this.userRepo = userRepo;
   }
-
+  /**
+   * Xây dựng đối tượng phản hồi người dùng trả về cho client.
+   * (Ẩn các trường nhạy cảm, chỉ giữ lại thông tin hiển thị cơ bản).
+   *
+   * @param {IUser} user - Đối tượng người dùng trong cơ sở dữ liệu.
+   * @returns {IUserResponse} Thông tin người dùng được định dạng để phản hồi cho client.
+   */
   private buildUserResponse(user: IUser): IUserResponse {
     return {
       fullname: user.fullname,
@@ -26,7 +32,13 @@ export class AuthService {
       birthday: user.birthday,
     };
   }
-
+  /**
+   * Sinh cặp accessToken và refreshToken cho người dùng.
+   * (Payload bao gồm uid, id, và danh sách roleIds).
+   *
+   * @param {IUser} user - Đối tượng người dùng được xác thực.
+   * @returns {{ accessToken: string; refreshToken: string }} Access và refresh token.
+   */
   private generateTokens(user: IUser) {
     const payload: DecodePayload = {
       uid: user.uid,
@@ -40,7 +52,17 @@ export class AuthService {
   }
 
   /**
-   * Đăng ký người dùng mới
+   * Đăng ký người dùng mới.
+   * - Kiểm tra UID trùng lặp trong hệ thống.
+   * - Tạo người dùng mới trong transaction an toàn.
+   * - Upload ảnh đại diện nếu có.
+   * - Sinh accessToken và refreshToken cho tài khoản mới.
+   * - Ghi log audit và trả về thông tin người dùng cùng token.
+   *
+   * @param {Partial<IUser>} data - Thông tin người dùng cần đăng ký (uid, email, fullname, ...).
+   * @param {Express.Multer.File} [avatarImage] - File ảnh đại diện người dùng (tùy chọn).
+   * @returns {Promise<IAuthResponse>} Thông tin người dùng và token sau khi đăng ký.
+   * @throws {HttpError} Nếu UID đã tồn tại hoặc có lỗi khi ghi dữ liệu.
    */
   async register(
     data: Partial<IUser>,
@@ -99,7 +121,14 @@ export class AuthService {
   }
 
   /**
-   * Đăng nhập người dùng bằng Firebase ID Token
+   * Đăng nhập người dùng bằng Firebase ID Token.
+   * - Xác minh ID Token thông qua Firebase Admin SDK.
+   * - Kiểm tra người dùng có tồn tại trong cơ sở dữ liệu.
+   * - Sinh và trả về accessToken và refreshToken.
+   *
+   * @param {string} idToken - Firebase ID Token được gửi từ client.
+   * @returns {Promise<IAuthResponse>} Thông tin người dùng và cặp token sau khi đăng nhập.
+   * @throws {HttpError} Nếu token không hợp lệ hoặc người dùng không tồn tại.
    */
   async login(idToken: string): Promise<IAuthResponse> {
     try {
@@ -117,6 +146,17 @@ export class AuthService {
       throw err;
     }
   }
+
+  /**
+   * Tạo mới accessToken từ refreshToken hợp lệ.
+   * - Xác minh refreshToken.
+   * - Kiểm tra người dùng có tồn tại.
+   * - Phát hành accessToken mới cho phiên hiện tại.
+   *
+   * @param {string} refreshToken - Refresh token do hệ thống phát hành trước đó.
+   * @returns {Promise<string>} Access token mới hợp lệ.
+   * @throws {HttpError} Nếu refreshToken không hợp lệ hoặc đã hết hạn.
+   */
   async createNewAccessToken(refreshToken: string) {
     try {
       const decoded: any = JwtUtils.verifyRefreshToken(refreshToken);

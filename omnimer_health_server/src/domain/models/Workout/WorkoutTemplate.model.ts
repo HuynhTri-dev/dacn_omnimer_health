@@ -1,49 +1,80 @@
 import mongoose, { Schema, Document, Types, Model } from "mongoose";
 import {
+  LocationEnum,
+  LocationTuple,
   WorkoutDetailTypeEnum,
   WorkoutDetailTypeTuple,
 } from "../../../common/constants/EnumConstants";
 
-// 🔹 Interface cho từng set trong template
+// ================== INTERFACES ==================
+
+/**
+ * Một set trong bài tập (ví dụ: 3 hiệp, 12 reps mỗi hiệp, nghỉ 30s,...)
+ */
 export interface IWorkoutTemplateSet {
   setOrder: number;
   reps?: number;
   weight?: number;
-  duration?: number; // giây
-  distance?: number; // mét
+  duration?: number; // Giây
+  distance?: number; // Mét
   restAfterSetSeconds?: number;
   notes?: string;
 }
 
-// 🔹 Interface cho từng bài tập trong template
+/**
+ * Một bài tập trong template
+ */
 export interface IWorkoutTemplateDetail {
   exerciseId: Types.ObjectId;
   title?: string;
   type: WorkoutDetailTypeEnum;
   sets: IWorkoutTemplateSet[];
-  createdByAI?: boolean;
 }
 
-// 🔹 Interface tổng cho Workout Template
+/**
+ * Tổng thể template buổi tập
+ */
 export interface IWorkoutTemplate extends Document {
-  name: string; // tên template, ví dụ "Full Body Strength"
+  name: string;
   description?: string;
-  exerciseCategory?: string; // ví dụ "strength", "cardio", "HIIT"
-  bodyPartTarget?: string[];
   notes?: string;
+
+  equipments?: Types.ObjectId[];
+  bodyPartsTarget?: Types.ObjectId[];
+  exerciseTypes?: Types.ObjectId[];
+  exerciseCategories?: Types.ObjectId[];
+  musclesTarget?: Types.ObjectId[];
+  location?: LocationEnum;
+
   workOutDetail: IWorkoutTemplateDetail[];
+
+  createdByAI?: boolean;
+  createdForUserId?: Types.ObjectId;
+
   createdAt?: Date;
   updatedAt?: Date;
 }
 
-// 🔹 Schema cho Workout Template
+// ================== SCHEMA DEFINITION ==================
+
 const WorkoutTemplateSchema: Schema<IWorkoutTemplate> = new Schema(
   {
     name: { type: String, required: true },
     description: { type: String },
-    exerciseCategory: { type: String },
-    bodyPartTarget: [{ type: String }],
     notes: { type: String },
+
+    equipments: [{ type: Schema.Types.ObjectId, ref: "Equipment" }],
+    bodyPartsTarget: [{ type: Schema.Types.ObjectId, ref: "BodyPart" }],
+    exerciseTypes: [{ type: Schema.Types.ObjectId, ref: "ExerciseType" }],
+    exerciseCategories: [
+      { type: Schema.Types.ObjectId, ref: "ExerciseCategory" },
+    ],
+    musclesTarget: [{ type: Schema.Types.ObjectId, ref: "Muscle" }],
+
+    location: {
+      type: String,
+      enum: LocationTuple,
+    },
 
     workOutDetail: {
       type: [
@@ -73,17 +104,26 @@ const WorkoutTemplateSchema: Schema<IWorkoutTemplate> = new Schema(
             ],
             default: [],
           },
-          createdByAI: { type: Boolean, default: false },
         },
       ],
       default: [],
     },
+
+    createdByAI: { type: Boolean, default: false },
+
+    // * Nếu createdForUserId = null thì của hệ thống dành tất cả
+    createdForUserId: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      default: null,
+      index: true,
+    },
   },
   {
-    timestamps: true, // createdAt & updatedAt
+    timestamps: true,
   }
 );
 
-// 🔹 Export model
+// ================== MODEL EXPORT ==================
 export const WorkoutTemplate: Model<IWorkoutTemplate> =
   mongoose.model<IWorkoutTemplate>("WorkoutTemplate", WorkoutTemplateSchema);

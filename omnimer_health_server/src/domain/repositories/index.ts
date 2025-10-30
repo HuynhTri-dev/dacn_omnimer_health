@@ -14,3 +14,7 @@ export * from "./Exercise/Muscle.repository";
 export * from "./Exercise/ExerciseCategory.repository";
 export * from "./Exercise/ExerciseRating.repository";
 export * from "./Exercise/Exercise.repository";
+
+export * from "./Workout/WorkoutTemplate.repository";
+export * from "./Workout/Workout.repository";
+export * from "./Workout/WorkoutFeedback.repository";

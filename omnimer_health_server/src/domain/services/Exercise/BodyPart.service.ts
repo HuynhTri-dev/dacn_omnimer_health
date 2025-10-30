@@ -18,7 +18,18 @@ export class BodyPartService {
     this.bodyPartRepository = bodyPartRepository;
   }
 
-  // =================== CREATE ===================
+  /**
+   * Tạo mới một body part.
+   * - Upload hình ảnh (nếu có) lên Cloudflare.
+   * - Lưu thông tin body part vào cơ sở dữ liệu trong transaction.
+   * - Ghi log audit khi tạo thành công.
+   *
+   * @param {string} userId - ID của người thực hiện hành động.
+   * @param {Express.Multer.File} [file] - File hình ảnh body part (tuỳ chọn).
+   * @param {Partial<IBodyPart>} data - Dữ liệu body part cần tạo (name, description, ...).
+   * @returns {Promise<IBodyPart>} Thông tin body part đã được tạo.
+   * @throws {HttpError} Nếu xảy ra lỗi trong quá trình tạo hoặc ghi dữ liệu.
+   */
   async createBodyPart(
     userId: string,
     file: Express.Multer.File | undefined,
@@ -66,7 +77,20 @@ export class BodyPartService {
     }
   }
 
-  // =================== UPDATE ===================
+  /**
+   * Cập nhật thông tin body part.
+   * - Kiểm tra body part tồn tại.
+   * - Nếu có file hình mới, cập nhật hoặc upload lên Cloudflare.
+   * - Cập nhật thông tin trong transaction.
+   * - Ghi log audit khi cập nhật thành công.
+   *
+   * @param {string} userId - ID của người thực hiện hành động.
+   * @param {string} id - ID của body part cần cập nhật.
+   * @param {Express.Multer.File} [file] - File hình ảnh mới (tuỳ chọn).
+   * @param {Partial<IBodyPart>} data - Dữ liệu cần cập nhật (name, description, ...).
+   * @returns {Promise<IBodyPart | null>} Thông tin body part sau khi cập nhật.
+   * @throws {HttpError} Nếu body part không tồn tại hoặc có lỗi trong quá trình cập nhật.
+   */
   async updateBodyPart(
     userId: string,
     id: string,
@@ -129,7 +153,14 @@ export class BodyPartService {
     }
   }
 
-  // =================== GET ALL ===================
+  /**
+   * Lấy danh sách tất cả body parts (hỗ trợ phân trang, tìm kiếm).
+   * - Ghi log audit khi truy vấn thành công.
+   *
+   * @param {PaginationQueryOptions} [options] - Tuỳ chọn truy vấn (phân trang, sắp xếp, lọc, ...).
+   * @returns {Promise<IBodyPart[]>} Danh sách body parts.
+   * @throws {HttpError} Nếu xảy ra lỗi khi truy vấn dữ liệu.
+   */
   async getAllBodyParts(options?: PaginationQueryOptions) {
     try {
       const list = await this.bodyPartRepository.findAll({}, options);
@@ -149,7 +180,18 @@ export class BodyPartService {
     }
   }
 
-  // =================== DELETE ===================
+  /**
+   * Xoá một body part khỏi hệ thống.
+   * - Kiểm tra body part tồn tại.
+   * - Xoá hình ảnh khỏi Cloudflare (nếu có).
+   * - Xoá record trong cơ sở dữ liệu bằng transaction.
+   * - Ghi log audit khi xoá thành công.
+   *
+   * @param {string} userId - ID của người thực hiện hành động xoá.
+   * @param {string} id - ID của body part cần xoá.
+   * @returns {Promise<boolean>} Trả về `true` nếu xoá thành công.
+   * @throws {HttpError} Nếu body part không tồn tại hoặc có lỗi trong quá trình xoá.
+   */
   async deleteBodyPart(userId: string, id: string) {
     const session = await mongoose.startSession();
     session.startTransaction();

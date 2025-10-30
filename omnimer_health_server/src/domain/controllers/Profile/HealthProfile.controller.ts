@@ -4,6 +4,8 @@ import {
   sendSuccess,
   sendCreated,
   sendUnauthorized,
+  sendForbidden,
+  sendBadRequest,
 } from "../../../utils/ResponseHelper";
 import { DecodePayload } from "../../entities";
 import { buildQueryOptions } from "../../../utils/BuildQueryOptions";
@@ -34,6 +36,7 @@ export class HealthProfileController {
   };
 
   // =================== GET ALL ===================
+  //! GET ALL FOR ADMIN
   getAll = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const options = buildQueryOptions(req.query as any);
@@ -41,6 +44,30 @@ export class HealthProfileController {
       const list = await this.healthProfileService.getHealthProfiles(options);
 
       return sendSuccess(res, list, "Lấy danh sách hồ sơ sức khỏe thành công");
+    } catch (err) {
+      next(err);
+    }
+  };
+
+  //! GET ALL FOR USER
+  getAllByUserId = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const options = buildQueryOptions(req.query as any);
+      const userId = req.params.userId;
+      const actorId = (req.user as DecodePayload)?.id?.toString();
+      if (!actorId && !userId) return sendUnauthorized(res);
+      if (actorId !== userId) return sendForbidden(res);
+
+      const list = await this.healthProfileService.getHealthProfilesByUserId(
+        userId,
+        options
+      );
+
+      return sendSuccess(
+        res,
+        list,
+        "Lấy danh sách hồ sơ sức khỏe cá nhân thành công"
+      );
     } catch (err) {
       next(err);
     }
@@ -67,6 +94,7 @@ export class HealthProfileController {
       if (!userId) return sendUnauthorized(res);
 
       const { id } = req.params;
+      if (!id) return sendBadRequest(res);
 
       const updated = await this.healthProfileService.updateHealthProfile(
         id,
@@ -88,6 +116,7 @@ export class HealthProfileController {
       if (!userId) return sendUnauthorized(res);
 
       const { id } = req.params;
+      if (!id) return sendBadRequest(res);
 
       const deleted = await this.healthProfileService.deleteHealthProfile(
         id,
