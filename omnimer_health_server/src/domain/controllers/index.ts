@@ -13,3 +13,5 @@ export * from "./Exercise/Muscle.controller";
 export * from "./Exercise/ExerciseCategory.controller";
 export * from "./Exercise/ExerciseRating.controller";
 export * from "./Exercise/Exercise.controller";
+
+export * from "./Workout/WorkoutTemplate.controller";

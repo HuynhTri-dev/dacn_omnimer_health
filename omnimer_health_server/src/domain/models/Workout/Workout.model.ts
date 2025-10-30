@@ -18,7 +18,6 @@ export interface IWorkoutSet {
 // 🔹 Interface cho từng bài tập trong buổi tập
 export interface IWorkoutDetail {
   _exerciseId: Types.ObjectId;
-  title?: string;
   type: WorkoutDetailTypeEnum;
   sets: IWorkoutSet[];
   summary?: {
@@ -29,7 +28,6 @@ export interface IWorkoutDetail {
     caloriesBurned?: number;
     distance?: number;
   };
-  createdByAI?: boolean;
 }
 
 // 🔹 Interface cho device summary
@@ -85,7 +83,6 @@ const WorkoutSchema: Schema<IWorkout> = new Schema(
             ref: "Exercise",
             required: true,
           },
-          title: { type: String },
           type: {
             type: String,
             enum: WorkoutDetailTypeTuple,
@@ -113,7 +110,6 @@ const WorkoutSchema: Schema<IWorkout> = new Schema(
             caloriesBurned: { type: Number },
             distance: { type: Number },
           },
-          createdByAI: { type: Boolean, default: false },
         },
       ],
       default: [],

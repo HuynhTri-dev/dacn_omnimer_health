@@ -13,3 +13,5 @@ export * from "./Exercise/Muscle.service";
 export * from "./Exercise/ExerciseCategory.service";
 export * from "./Exercise/ExerciseRating.service";
 export * from "./Exercise/Exercise.service";
+
+export * from "./Workout/WorkoutTemplate.service";

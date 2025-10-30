@@ -26,7 +26,6 @@ export interface IWorkoutTemplateSet {
  */
 export interface IWorkoutTemplateDetail {
   exerciseId: Types.ObjectId;
-  title?: string;
   type: WorkoutDetailTypeEnum;
   sets: IWorkoutTemplateSet[];
 }
@@ -35,6 +34,8 @@ export interface IWorkoutTemplateDetail {
  * Tổng thể template buổi tập
  */
 export interface IWorkoutTemplate extends Document {
+  _id: Types.ObjectId;
+
   name: string;
   description?: string;
   notes?: string;
@@ -59,6 +60,8 @@ export interface IWorkoutTemplate extends Document {
 
 const WorkoutTemplateSchema: Schema<IWorkoutTemplate> = new Schema(
   {
+    _id: { type: Schema.Types.ObjectId, auto: true },
+
     name: { type: String, required: true },
     description: { type: String },
     notes: { type: String },
@@ -84,7 +87,6 @@ const WorkoutTemplateSchema: Schema<IWorkoutTemplate> = new Schema(
             ref: "Exercise",
             required: true,
           },
-          title: { type: String },
           type: {
             type: String,
             enum: WorkoutDetailTypeTuple,
