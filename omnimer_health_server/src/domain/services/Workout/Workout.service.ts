@@ -1,25 +1,37 @@
 import { logError, logAudit } from "../../../utils/LoggerUtil";
 import { StatusLogEnum } from "../../../common/constants/AppConstants";
-import { IWorkout, IWorkoutDetail, IWorkoutSet } from "../../models";
 import {
+  IWorkout,
+  IWorkoutDetail,
+  IWorkoutDeviceData,
+  IWorkoutSet,
+} from "../../models";
+import {
+  HealthProfileRepository,
   WorkoutRepository,
   WorkoutTemplateRepository,
 } from "../../repositories";
 import { HttpError } from "../../../utils/HttpError";
 import { PaginationQueryOptions } from "../../entities";
 import { Types } from "mongoose";
-import { calculateWorkoutSummary } from "../../../utils/Workout/WorkoutSummaryUtil";
+import {
+  calculateCaloriesByMET,
+  calculateWorkoutSummary,
+} from "../../../utils/Workout/WorkoutUtil";
 
 export class WorkoutService {
   private readonly workoutRepo: WorkoutRepository;
   private readonly workoutTemplateRepo: WorkoutTemplateRepository;
+  private readonly healthProfileRepo: HealthProfileRepository;
 
   constructor(
     workoutRepo: WorkoutRepository,
-    workoutTemplateRepo: WorkoutTemplateRepository
+    workoutTemplateRepo: WorkoutTemplateRepository,
+    healthProfileRepo: HealthProfileRepository
   ) {
     this.workoutRepo = workoutRepo;
     this.workoutTemplateRepo = workoutTemplateRepo;
+    this.healthProfileRepo = healthProfileRepo;
   }
 
   // ======================================================
@@ -217,10 +229,7 @@ export class WorkoutService {
    */
   async getWorkoutsByUserId(userId: string, options?: PaginationQueryOptions) {
     try {
-      return await this.workoutRepo.findAllWorkout(
-        { createdForUserId: userId },
-        options
-      );
+      return await this.workoutRepo.findAllWorkout({ userId: userId }, options);
     } catch (err: any) {
       await logError({
         userId,
@@ -262,10 +271,15 @@ export class WorkoutService {
    */
   async createWorkoutByTemplateId(userId: string, workoutTemplateId: string) {
     try {
+      const healthProfileId =
+        await this.healthProfileRepo.findEarliestIdByUserId(userId);
+      if (!healthProfileId)
+        throw new HttpError(404, "Không tìm thấy hồ sơ người dùng");
+
       const template = await this.workoutTemplateRepo.findById(
         workoutTemplateId
       );
-      if (!template) throw new HttpError(404, "Không tìm thấy template");
+      if (!template) throw new HttpError(404, "Không tìm thấy mẫu bài tập");
 
       if (!template.workOutDetail || template.workOutDetail.length === 0) {
         throw new HttpError(400, "Mẫu buổi tập không có bài tập nào");
@@ -283,6 +297,7 @@ export class WorkoutService {
 
       const newWorkout = await this.workoutRepo.create({
         userId: new Types.ObjectId(userId),
+        healthProfileId: healthProfileId,
         workoutTemplateId: new Types.ObjectId(workoutTemplateId),
         workoutDetail,
         summary: {},
@@ -403,14 +418,54 @@ export class WorkoutService {
     workoutId: string,
     workoutDetailId: string,
     durationMin: number,
-    deviceData?: any
+    deviceData?: IWorkoutDeviceData
   ) {
     try {
+      let finalDeviceData = deviceData;
+      if (!deviceData) {
+        /**
+         * Nếu không có dữ liệu thiết bị, ta vẫn gọi hàm lấy MET và cân nặng người dùng
+         * để đảm bảo quy trình tính toán calo được thực hiện đầy đủ.
+         * result: {
+         * met: number; // MET của bài tập
+         * weight: number; // Cân nặng người dùng (kg)
+         * }
+         */
+        const metaInfo =
+          await this.workoutRepo.getExerciseMetAndUserWeightAndDetail(
+            workoutId,
+            workoutDetailId
+          );
+
+        if (!metaInfo) {
+          throw new HttpError(
+            404,
+            "Không tìm thấy thông tin bài tập hoặc người dùng"
+          );
+        }
+
+        const { met, weight, detail } = metaInfo;
+
+        console.log("MET và Weight lấy được:", met, weight, detail);
+
+        const caloriesBurned = calculateCaloriesByMET(
+          met,
+          weight,
+          durationMin,
+          detail
+        );
+
+        console.log("caloriesBurned:", caloriesBurned);
+
+        finalDeviceData = {
+          caloriesBurned,
+        };
+      }
       const result = await this.workoutRepo.updateExerciseInfo(
         workoutId,
         workoutDetailId,
         durationMin,
-        deviceData
+        finalDeviceData
       );
 
       if (result.matchedCount === 0)

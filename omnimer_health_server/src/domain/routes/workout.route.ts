@@ -1,14 +1,19 @@
 import express from "express";
 
 import { WorkoutController } from "../controllers";
-import { Workout, WorkoutTemplate } from "../models";
-import { WorkoutRepository, WorkoutTemplateRepository } from "../repositories";
+import { HealthProfile, Workout, WorkoutTemplate } from "../models";
+import {
+  HealthProfileRepository,
+  WorkoutRepository,
+  WorkoutTemplateRepository,
+} from "../repositories";
 import { WorkoutService } from "../services";
 import { verifyAccessToken } from "../../common/middlewares/auth.middleware";
 
 const service = new WorkoutService(
   new WorkoutRepository(Workout),
-  new WorkoutTemplateRepository(WorkoutTemplate)
+  new WorkoutTemplateRepository(WorkoutTemplate),
+  new HealthProfileRepository(HealthProfile)
 );
 
 const controller = new WorkoutController(service);

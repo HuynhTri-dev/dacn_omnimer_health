@@ -49,10 +49,11 @@ export class WorkoutController {
       const user = req.user as DecodePayload;
       const userId = user?.id?.toString();
       if (!userId) return sendUnauthorized(res);
+      const { id } = req.params;
 
       const workout = await this.workoutService.updateWorkout(
         userId,
-        req.params.id,
+        id,
         req.body
       );
       return sendSuccess(res, workout, "Cập nhật buổi tập thành công");
@@ -73,11 +74,9 @@ export class WorkoutController {
       const user = req.user as DecodePayload;
       const userId = user?.id?.toString();
       if (!userId) return sendUnauthorized(res);
+      const { id } = req.params;
 
-      const deleted = await this.workoutService.deleteWorkout(
-        userId,
-        req.params.id
-      );
+      const deleted = await this.workoutService.deleteWorkout(userId, id);
       return sendSuccess(res, deleted, "Xóa buổi tập thành công");
     } catch (err) {
       next(err);
@@ -133,7 +132,8 @@ export class WorkoutController {
    */
   getById = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const workout = await this.workoutService.getWorkoutById(req.params.id);
+      const { id } = req.params;
+      const workout = await this.workoutService.getWorkoutById(id);
       return sendSuccess(res, workout, "Chi tiết buổi tập");
     } catch (err) {
       next(err);
@@ -176,7 +176,8 @@ export class WorkoutController {
    */
   start = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const workout = await this.workoutService.startWorkout(req.params.id);
+      const { id } = req.params;
+      const workout = await this.workoutService.startWorkout(id);
       return sendSuccess(res, workout, "Bắt đầu buổi tập");
     } catch (err) {
       next(err);
@@ -191,11 +192,12 @@ export class WorkoutController {
    */
   completeSet = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { workoutId, detailId, setId } = req.params;
+      const { id } = req.params;
+      const { workoutDetailId, workoutSetId } = req.body;
       const result = await this.workoutService.completeSet(
-        workoutId,
-        detailId,
-        setId
+        id,
+        workoutDetailId,
+        workoutSetId
       );
       return sendSuccess(res, result, "Hoàn thành set thành công");
     } catch (err) {
@@ -215,12 +217,12 @@ export class WorkoutController {
     next: NextFunction
   ) => {
     try {
-      const { workoutId, detailId } = req.params;
-      const { durationMin, deviceData } = req.body;
+      const { id } = req.params;
+      const { workoutDetailId, durationMin, deviceData } = req.body;
 
       const result = await this.workoutService.completeExercise(
-        workoutId,
-        detailId,
+        id,
+        workoutDetailId,
         durationMin,
         deviceData
       );
@@ -238,7 +240,8 @@ export class WorkoutController {
    */
   finish = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const result = await this.workoutService.finishWorkout(req.params.id);
+      const { id } = req.params;
+      const result = await this.workoutService.finishWorkout(id);
       return sendSuccess(res, result, "Đã hoàn thành buổi tập");
     } catch (err) {
       next(err);

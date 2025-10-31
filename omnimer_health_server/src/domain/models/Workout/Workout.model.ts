@@ -19,7 +19,7 @@ export interface IWorkoutSet {
 
 // 🔹 Interface cho dữ liệu thiết bị ở từng bài tập
 export interface IWorkoutDeviceData {
-  _id: Types.ObjectId;
+  _id?: Types.ObjectId;
   heartRateAvg?: number;
   heartRateMax?: number;
   caloriesBurned?: number;
@@ -51,6 +51,7 @@ export interface IWorkoutSummary {
 export interface IWorkout extends Document {
   _id: Types.ObjectId;
   userId: Types.ObjectId;
+  healthProfileId?: Types.ObjectId;
   workoutTemplateId?: Types.ObjectId;
   timeStart: Date;
   notes?: string;
@@ -68,6 +69,12 @@ const WorkoutSchema: Schema<IWorkout> = new Schema(
     userId: {
       type: Schema.Types.ObjectId,
       ref: "User",
+      required: true,
+      index: true,
+    },
+    healthProfileId: {
+      type: Schema.Types.ObjectId,
+      ref: "HealthProfile",
       required: true,
       index: true,
     },

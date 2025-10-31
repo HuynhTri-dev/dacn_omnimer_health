@@ -1,7 +1,8 @@
 import { FilterQuery, Model, Types } from "mongoose";
-import { IWorkout } from "../../models";
+import { IWorkout, IWorkoutDeviceData } from "../../models";
 import { BaseRepository } from "../Base.repository";
 import { PaginationQueryOptions } from "../../entities";
+import { IWorkoutDetailInfo } from "../../../utils/Workout/WorkoutUtil";
 
 export class WorkoutRepository extends BaseRepository<IWorkout> {
   constructor(model: Model<IWorkout>) {
@@ -51,7 +52,7 @@ export class WorkoutRepository extends BaseRepository<IWorkout> {
 
       return this.model
         .find(finalFilter, projection)
-        .populate([{ path: "workouttemplates", select: "_id name" }])
+        .populate([{ path: "workoutTemplateId", select: "_id name" }])
         .skip(skip)
         .limit(limit)
         .sort(sort)
@@ -89,7 +90,7 @@ export class WorkoutRepository extends BaseRepository<IWorkout> {
     workoutId: string,
     workoutDetailId: string,
     durationMin: number,
-    deviceData?: any
+    deviceData?: IWorkoutDeviceData
   ) {
     const updateFields: any = {
       "workoutDetail.$[detail].durationMin": durationMin,
@@ -106,5 +107,93 @@ export class WorkoutRepository extends BaseRepository<IWorkout> {
         arrayFilters: [{ "detail._id": new Types.ObjectId(workoutDetailId) }],
       }
     );
+  }
+
+  /**
+   * 🔹 Lấy MET và cân nặng người dùng cho 1 bài tập cụ thể trong buổi tập
+   * @param workoutId - ID của buổi tập
+   * @param workoutDetailId - ID của bài tập trong buổi tập
+   * @returns { met, weight }
+   */
+  async getExerciseMetAndUserWeightAndDetail(
+    workoutId: string,
+    workoutDetailId: string
+  ): Promise<{
+    met: number;
+    weight: number;
+    detail: IWorkoutDetailInfo;
+  } | null> {
+    const result = await this.model.aggregate([
+      { $match: { _id: new Types.ObjectId(workoutId) } },
+      { $unwind: "$workoutDetail" },
+      { $match: { "workoutDetail._id": new Types.ObjectId(workoutDetailId) } },
+
+      // 🔹 Lấy thông tin bài tập (exercise)
+      {
+        $lookup: {
+          from: "exercises",
+          localField: "workoutDetail.exerciseId",
+          foreignField: "_id",
+          as: "exercise",
+        },
+      },
+      { $unwind: "$exercise" },
+
+      // 🔹 Lấy thông tin health profile (cân nặng)
+      {
+        $lookup: {
+          from: "healthprofiles",
+          localField: "healthProfileId",
+          foreignField: "_id",
+          as: "healthProfile",
+        },
+      },
+      { $unwind: "$healthProfile" },
+
+      // 🔹 Lọc các set done === true
+      {
+        $addFields: {
+          doneSets: {
+            $filter: {
+              input: "$workoutDetail.sets",
+              as: "s",
+              cond: { $eq: ["$$s.done", true] },
+            },
+          },
+        },
+      },
+
+      // 🔹 Tính toán các tổng đúng theo IWorkoutDetailInfo
+      {
+        $addFields: {
+          "detail.sets": { $size: "$doneSets" },
+          "detail.reps": { $sum: "$doneSets.reps" },
+          "detail.weight": {
+            $sum: {
+              $map: {
+                input: "$doneSets",
+                as: "s",
+                in: { $multiply: ["$$s.weight", "$$s.reps"] },
+              },
+            },
+          },
+          "detail.duration": { $sum: "$doneSets.duration" },
+          "detail.distance": { $sum: "$doneSets.distance" },
+        },
+      },
+
+      // 🔹 Chỉ giữ lại trường cần thiết
+      {
+        $project: {
+          _id: 0,
+          met: { $ifNull: ["$exercise.met", 3] },
+          weight: { $ifNull: ["$healthProfile.weight", 60] },
+          detail: 1,
+        },
+      },
+      { $limit: 1 },
+    ]);
+
+    return result.length > 0 ? result[0] : null;
   }
 }
