@@ -17,3 +17,5 @@ export * from "./Exercise/Exercise.controller";
 export * from "./Workout/WorkoutTemplate.controller";
 export * from "./Workout/Workout.controller";
 export * from "./Workout/WorkoutFeedback.controller";
+
+export * from "./Devices/WatchLog.controller";

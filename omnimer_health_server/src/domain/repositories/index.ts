@@ -18,3 +18,5 @@ export * from "./Exercise/Exercise.repository";
 export * from "./Workout/WorkoutTemplate.repository";
 export * from "./Workout/Workout.repository";
 export * from "./Workout/WorkoutFeedback.repository";
+
+export * from "./Devices/WatchLog.repository";

@@ -17,11 +17,8 @@ export class WorkoutRepository extends BaseRepository<IWorkout> {
     return this.model
       .findById(id)
       .populate([
-        { path: "workouttemplates", select: "_id name" },
-        {
-          path: "workOutDetail.exerciseId",
-          select: "_id name difficulty met",
-        },
+        { path: "workoutTemplateId", select: "_id name" },
+        { path: "workoutDetail.exerciseId", select: "_id name difficulty met" },
       ])
       .lean()
       .exec();

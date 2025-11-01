@@ -1,0 +1,47 @@
+[
+  {
+    "HealthKitSampleKey": "84aeb80c-c27f-5972-9514-192a7305f71d",
+    "ParticipantIdentifier": "e794c47e-438e-4d7b-9b24-99ce68c75300",
+    "StartDate": "2021-10-26T08:24:09-04:00",
+    "Date": "2021-10-26T08:24:09-04:00",
+    "Value": "49.530000000000001",
+    "Units": "ml/(kg*min)",
+    "Source": {
+      "Name": "Sample’s Apple Watch S4",
+      "Identifier": "com.apple.health.FA902D86-1FDE-492D-B25A-3EB99A9BC6A6",
+      "Version": "2663.1.1",
+      "OperatingSystemVersion": "8.0.1",
+      "ProductType": "Watch4,4"
+    },
+    "Device": null,
+    "Metadata": {
+      "HKMetadataKeySyncVersion": "1",
+      "HKVO2MaxTestType": "2",
+      "HKMetadataKeySyncIdentifier": "3B0C822F-1389-413F-B5EA-B93E0E9F2634"
+    },
+    "InsertedDate": "2021-11-05T14:20:39Z"
+  },
+
+  {
+    "HealthKitSampleKey": "1422059e-6dcd-5872-8621-7b822e5e3c69",
+    "ParticipantIdentifier": "e794c47e-438e-4d7b-9b24-99ce68c75300",
+    "StartDate": "2021-10-28T08:25:47-04:00",
+    "Date": "2021-10-28T08:25:47-04:00",
+    "Value": "49.68",
+    "Units": "ml/(kg*min)",
+    "Source": {
+      "Name": "Sample’s Apple Watch S4",
+      "Identifier": "com.apple.health.FA902D86-1FDE-492D-B25A-3EB99A9BC6A6",
+      "Version": "2664.0.8.1.1",
+      "OperatingSystemVersion": "8.1.0",
+      "ProductType": "Watch4,4"
+    },
+    "Device": null,
+    "Metadata": {
+      "HKMetadataKeySyncVersion": "1",
+      "HKVO2MaxTestType": "2",
+      "HKMetadataKeySyncIdentifier": "720FC6FE-B451-433C-90B8-8784595F980F"
+    },
+    "InsertedDate": "2021-11-05T14:20:39Z"
+  }
+]

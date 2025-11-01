@@ -94,3 +94,25 @@ export const RiskLevelTuple = Object.values(RiskLevelEnum) as [
   RiskLevelEnum,
   ...RiskLevelEnum[]
 ];
+
+//  =================== NAME DEVICES ===================
+export enum NameDeviceEnum {
+  AppleWatch = "Apple Watch",
+  Garmin = "Garmin",
+  Fitbit = "Fitbit",
+  Samsung = "Samsung Galaxy Watch",
+  Huawei = "Huawei Watch",
+  Polar = "Polar",
+  Amazfit = "Amazfit",
+  Withings = "Withings",
+  Suunto = "Suunto",
+  Xiaomi = "Xiaomi Watch",
+  OuraRing = "Oura Ring",
+  Whoop = "Whoop Strap",
+  Unknown = "",
+}
+
+export const NameDeviceTuple = Object.values(NameDeviceEnum) as [
+  NameDeviceEnum,
+  ...NameDeviceEnum[]
+];

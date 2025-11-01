@@ -1,4 +1,8 @@
 import mongoose, { Schema, Document, Types } from "mongoose";
+import {
+  NameDeviceEnum,
+  NameDeviceTuple,
+} from "../../../common/constants/EnumConstants";
 
 export interface IWatchLog extends Document {
   _id: Types.ObjectId;
@@ -7,6 +11,7 @@ export interface IWatchLog extends Document {
   exerciseId?: Types.ObjectId; // liên kết Exercise
   date: Date;
 
+  nameDevice: NameDeviceEnum;
   // Vital Signs
   heartRateRest?: number; // nhịp tim nghỉ
   heartRateAvg?: number; // nhịp tim trung bình trong bài tập
@@ -30,11 +35,13 @@ export interface IWatchLog extends Document {
 const watchLogSchema = new Schema<IWatchLog>(
   {
     _id: { type: Schema.Types.ObjectId, auto: true },
+
     userId: { type: Schema.Types.ObjectId, ref: "User", required: true },
     workoutId: { type: Schema.Types.ObjectId, ref: "Workout" },
     exerciseId: { type: Schema.Types.ObjectId, ref: "Exercise" },
     date: { type: Date, default: Date.now },
 
+    nameDevice: { type: String, enum: NameDeviceTuple, required: true },
     // Vital Signs
     heartRateRest: Number,
     heartRateAvg: Number,
@@ -61,5 +68,6 @@ const watchLogSchema = new Schema<IWatchLog>(
 
 // Index _userId và date để query nhanh theo user và ngày
 watchLogSchema.index({ _userId: 1, date: -1 });
+watchLogSchema.index({ nameDevice: 1 });
 
 export const WatchLog = mongoose.model<IWatchLog>("WatchLog", watchLogSchema);

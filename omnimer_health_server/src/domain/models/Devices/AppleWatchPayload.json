@@ -1,0 +1,37 @@
+{
+  "heartRateSamples": [
+    { "startDate": "2025‑11‑01T08:00:05Z", "value": 82, "unit": "count/min" },
+    { "startDate": "2025‑11‑01T08:00:12Z", "value": 85, "unit": "count/min" }
+    // * ... nhiều mẫu từng giây hoặc từng 5‑10 giây
+  ],
+  "stepCount": 600,
+  "distanceWalkingRunning": 1.2, // km
+  "activeEnergyBurned": 75, // kcal
+  "vo2Max": 45.3, // ml/(kg*min)
+  "heartRateAvg": 88,
+  "heartRateMax": 110,
+  "heartRateRest": 70,
+  "hrvSamples": [
+    { "startDate": "2025‑11‑01T07:50:00Z", "value": 55, "unit": "ms" }
+  ],
+  "sleepAnalysis": [
+    {
+      "startDate": "2025‑11‑01T07:55:00Z",
+      "endDate": "2025‑11‑01T08:05:00Z",
+      "value": "asleep"
+    }
+  ],
+  "workoutSession": {
+    "activityType": "Traditional Strength Training",
+    // Seconds
+    "duration": 600,
+    "start": "2025‑11‑01T08:00:00Z",
+    "end": "2025‑11‑01T08:10:00Z",
+    "deviceName": "Apple Watch Series 9"
+  },
+  "metadata": {
+    "sourceName": "Apple Watch",
+    "sourceVersion": "…",
+    "deviceType": "Watch9,1"
+  }
+}

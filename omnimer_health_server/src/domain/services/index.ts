@@ -17,3 +17,5 @@ export * from "./Exercise/Exercise.service";
 export * from "./Workout/WorkoutTemplate.service";
 export * from "./Workout/Workout.service";
 export * from "./Workout/WorkoutFeedback.service";
+
+export * from "./Devices/WatchLog.service";
