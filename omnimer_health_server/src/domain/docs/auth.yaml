@@ -1,0 +1,129 @@
+openapi: 3.0.3
+info:
+  title: OmniMer Health - Auth API
+  version: 1.0.0
+  description: API xác thực người dùng (đăng ký, đăng nhập, cấp lại access token)
+tags:
+  - name: Auth
+    description: Các API liên quan đến xác thực người dùng
+
+paths:
+  /api/auth/register:
+    post:
+      tags: [Auth]
+      summary: Đăng ký tài khoản người dùng mới
+      description: Tạo tài khoản mới, có thể kèm ảnh đại diện.
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                fullName:
+                  type: string
+                  example: "Huynh Minh Tri"
+                email:
+                  type: string
+                  example: "example@gmail.com"
+                password:
+                  type: string
+                  example: "12345678"
+                image:
+                  type: string
+                  format: binary
+                  description: Ảnh đại diện (tùy chọn)
+      responses:
+        "201":
+          description: Tạo tài khoản thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "User registered successfully"
+                  data:
+                    type: object
+                    properties:
+                      userId:
+                        type: string
+                        example: "6724b7f3b15c904dd85a92f4"
+                      email:
+                        type: string
+                        example: "example@gmail.com"
+        "400":
+          description: Dữ liệu không hợp lệ
+        "409":
+          description: Email đã tồn tại
+
+  /api/auth/login:
+    post:
+      tags: [Auth]
+      summary: Đăng nhập người dùng
+      description: Trả về accessToken và refreshToken khi đăng nhập thành công.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  example: "example@gmail.com"
+                password:
+                  type: string
+                  example: "12345678"
+      responses:
+        "200":
+          description: Đăng nhập thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Login successful"
+                  data:
+                    type: object
+                    properties:
+                      accessToken:
+                        type: string
+                        example: "eyJhbGciOiJIUzI1NiIsInR5..."
+                      refreshToken:
+                        type: string
+                        example: "eyJhbGciOiJIUzI1NiIsInR5..."
+        "401":
+          description: Sai email hoặc mật khẩu
+
+  /api/auth/new-access-token:
+    post:
+      tags: [Auth]
+      summary: Cấp lại access token mới
+      description: Dùng refresh token hợp lệ để lấy access token mới.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                refreshToken:
+                  type: string
+                  example: "eyJhbGciOiJIUzI1NiIsInR5..."
+      responses:
+        "200":
+          description: Cấp lại access token thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  accessToken:
+                    type: string
+                    example: "eyJhbGciOiJIUzI1NiIsInR5..."
+        "403":
+          description: Refresh token không hợp lệ hoặc hết hạn

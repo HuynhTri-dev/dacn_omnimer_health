@@ -12,6 +12,7 @@ import { errorHandler } from "./common/middlewares/errorHandler.middleware";
 import { loadRolePermissionsToCache } from "./redis/RoleCache";
 import { connectRedis } from "./common/configs/redisConnect";
 import { initializeFirebaseAdmin } from "./common/configs/firebaseAdminConfig";
+import { setupSwagger } from "./common/configs/swagger";
 
 dotenv.config();
 
@@ -50,5 +51,7 @@ const initializeApp = async () => {
 };
 
 initializeApp();
+
+setupSwagger(app);
 
 export default app;

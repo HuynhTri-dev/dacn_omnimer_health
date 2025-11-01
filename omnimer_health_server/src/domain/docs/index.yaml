@@ -1,0 +1,23 @@
+openapi: 3.0.3
+info:
+  title: OmniMer Health API
+  version: 1.0.0
+  description: Tài liệu API cho hệ thống OmniMer Health
+servers:
+  - url: http://localhost:8000
+    description: Local server
+  - url: https://api.omnimer-health.com/api
+    description: Production
+
+tags:
+  - name: Auth
+    description: Xác thực người dùng
+
+paths:
+  # Import từng module
+  /api/auth/register:
+    $ref: "./auth.yaml#/paths/~1api~1auth~1register/post"
+  /api/auth/login:
+    $ref: "./auth.yaml#/paths/~1api~1auth~1login/post"
+  /api/auth/new-access-token:
+    $ref: "./auth.yaml#/paths/~1api~1auth~1new-access-token/post"
