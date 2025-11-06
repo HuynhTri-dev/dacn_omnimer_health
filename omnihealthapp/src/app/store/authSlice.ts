@@ -3,7 +3,7 @@ import { encryptedStorage, STORAGE_KEYS } from '@/config/storageManager';
 import { RegisterUserService } from '@/domain/services/registerUserService';
 import { UserRepository } from '@/data/repositories/userRepository';
 import { ApiResponse } from '@/app/types/ApiResponse';
-import { IAuthResponse } from '@/data/entities/AuthReponse';
+import { IAuthResponse } from '@/data/entities/AuthResponse';
 
 // State
 
@@ -72,9 +72,38 @@ export const authSlice = createSlice({
       .addCase(registerUser.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error ?? 'Đăng ký thất bại';
+      })
+      .addCase(loginUser.pending, state => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(
+        loginUser.fulfilled,
+        (state, action: PayloadAction<ApiResponse<IAuthResponse>>) => {
+          state.loading = false;
+          state.authRes = action.payload.data ?? null;
+        },
+      )
+      .addCase(loginUser.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error ?? 'Đăng nhập thất bại';
       });
   },
 });
 
 export const { logout } = authSlice.actions;
 export default authSlice.reducer;
+
+// Async thunk đăng nhập
+export const loginUser = createAsyncThunk(
+  'auth/loginUser',
+  async (payload: { email: string; password: string }, thunkAPI) => {
+    try {
+      const repo = new UserRepository();
+      const res = await repo.login(payload.email, payload.password);
+      return res;
+    } catch (err: any) {
+      return thunkAPI.rejectWithValue(err.message ?? 'Đăng nhập thất bại');
+    }
+  },
+);

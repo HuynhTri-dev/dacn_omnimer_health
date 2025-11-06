@@ -1,11 +1,9 @@
 import React, { useState } from 'react';
 import {
   View,
-  TextInput,
   Text,
   TouchableOpacity,
   StyleSheet,
-  Image,
   SafeAreaView,
   KeyboardAvoidingView,
   Platform,
@@ -15,6 +13,11 @@ import { useDispatch, useSelector } from 'react-redux';
 import { registerUser } from '@/app/store/authSlice';
 import { RootState, AppDispatch } from '@/app/store';
 import { useNavigation } from '@react-navigation/native';
+import { COLORS } from '@/presentation/theme/colors';
+import { Input } from '@/presentation/components/Input';
+import { Button } from '@/presentation/components/Button';
+import { AuthFooter } from '@/presentation/components/AuthFooter';
+import { GenderSelector } from '@/presentation/components/GenderSelector';
 
 export const RegisterScreen = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -25,10 +28,12 @@ export const RegisterScreen = () => {
   const [password, setPassword] = useState('');
   const [fullname, setFullname] = useState('');
   const [birthday, setBirthday] = useState('');
-  const [gender, setGender] = useState<'male' | 'female' | ''>('');
+  const [gender, setGender] = useState('');
 
   const handleRegister = () => {
-    dispatch(registerUser({ email, password, fullname, birthday, gender }));
+    // Note: current registerUser thunk expects { email, password, fullname, avatar? }
+    // birthday and gender are collected locally but not sent to the current service.
+    dispatch(registerUser({ email, password, fullname }));
   };
 
   const navigateToLogin = () => {
@@ -41,93 +46,87 @@ export const RegisterScreen = () => {
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.keyboardAvoidingView}
       >
-        <ScrollView contentContainerStyle={styles.scrollView}>
+        <ScrollView
+          contentContainerStyle={styles.scrollView}
+          showsVerticalScrollIndicator={false}
+        >
           <View style={styles.headerContainer}>
-            <Text style={styles.headerTitle}>ĐĂNG KÝ</Text>
-            <TouchableOpacity style={styles.addPhotoButton}>
+            <TouchableOpacity
+              style={styles.addPhotoButton}
+              accessibilityLabel="Thêm ảnh"
+            >
               <Text style={styles.addPhotoIcon}>+</Text>
             </TouchableOpacity>
+            <Text style={styles.headerTitle}>Tạo tài khoản mới</Text>
           </View>
 
           <View style={styles.formContainer}>
             <View style={styles.inputContainer}>
-              <Text style={styles.inputLabel}>Input email</Text>
-              <TextInput
-                style={styles.input}
+              <Text style={styles.inputLabel}>Email</Text>
+              <Input
+                placeholder="Nhập email của bạn"
                 value={email}
                 onChangeText={setEmail}
                 keyboardType="email-address"
                 autoCapitalize="none"
+                containerStyle={styles.customInput}
               />
             </View>
 
             <View style={styles.inputContainer}>
-              <Text style={styles.inputLabel}>Input password</Text>
-              <TextInput
-                style={styles.input}
+              <Text style={styles.inputLabel}>Mật khẩu</Text>
+              <Input
+                placeholder="Tạo mật khẩu"
                 value={password}
                 onChangeText={setPassword}
                 secureTextEntry
+                containerStyle={styles.customInput}
               />
             </View>
 
             <View style={styles.inputContainer}>
-              <Text style={styles.inputLabel}>Fullname</Text>
-              <TextInput
-                style={styles.input}
+              <Text style={styles.inputLabel}>Họ và tên</Text>
+              <Input
+                placeholder="Nhập họ và tên của bạn"
                 value={fullname}
                 onChangeText={setFullname}
+                containerStyle={styles.customInput}
               />
             </View>
 
             <View style={styles.inputContainer}>
-              <Text style={styles.inputLabel}>Birthday</Text>
-              <TextInput
-                style={styles.input}
+              <Text style={styles.inputLabel}>Ngày sinh</Text>
+              <Input
+                placeholder="DD/MM/YYYY"
                 value={birthday}
                 onChangeText={setBirthday}
-                placeholder="DD/MM/YYYY"
+                keyboardType="numbers-and-punctuation"
+                containerStyle={styles.customInput}
               />
             </View>
 
-            <View style={styles.genderContainer}>
-              <Text style={styles.inputLabel}>Gender combo box</Text>
-              <View style={styles.genderOptions}>
-                <TouchableOpacity
-                  style={[
-                    styles.genderOption,
-                    gender === 'male' && styles.genderOptionSelected,
-                  ]}
-                  onPress={() => setGender('male')}
-                >
-                  <Text style={styles.genderText}>Nam</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={[
-                    styles.genderOption,
-                    gender === 'female' && styles.genderOptionSelected,
-                  ]}
-                  onPress={() => setGender('female')}
-                >
-                  <Text style={styles.genderText}>Nữ</Text>
-                </TouchableOpacity>
-              </View>
+            <View style={styles.inputContainer}>
+              <Text style={styles.inputLabel}>Giới tính</Text>
+              <GenderSelector value={gender} onSelect={setGender} />
             </View>
 
-            <TouchableOpacity style={styles.registerButton} onPress={handleRegister}>
-              <Text style={styles.registerButtonText}>Tạo tài khoản</Text>
-            </TouchableOpacity>
+            <Button
+              title="Tạo tài khoản"
+              onPress={handleRegister}
+              style={styles.registerButton}
+            />
 
-            {auth.loading && <Text style={styles.loadingText}>Loading...</Text>}
+            {auth.loading && (
+              <Text style={styles.loadingText}>Đang xử lý...</Text>
+            )}
             {auth.error && <Text style={styles.errorText}>{auth.error}</Text>}
           </View>
 
-          <View style={styles.footer}>
-            <Text style={styles.footerText}>Đã có tài khoản? </Text>
-            <TouchableOpacity onPress={navigateToLogin}>
-              <Text style={styles.loginLink}>Đăng nhập</Text>
-            </TouchableOpacity>
-          </View>
+          <AuthFooter
+            questionText="Đã có tài khoản?"
+            actionText="Đăng nhập"
+            onPress={navigateToLogin}
+          />
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
@@ -137,7 +136,7 @@ export const RegisterScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'white',
+    backgroundColor: COLORS.WHITE,
   },
   keyboardAvoidingView: {
     flex: 1,
@@ -154,18 +153,19 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 20,
+    color: COLORS.TEXT_PRIMARY,
   },
   addPhotoButton: {
     width: 70,
     height: 70,
     borderRadius: 35,
-    backgroundColor: '#f0f0f0',
+    backgroundColor: COLORS.GRAY_500,
     justifyContent: 'center',
     alignItems: 'center',
   },
   addPhotoIcon: {
     fontSize: 30,
-    color: '#333',
+    color: COLORS.TEXT_SECONDARY,
   },
   formContainer: {
     width: '100%',
@@ -176,73 +176,23 @@ const styles = StyleSheet.create({
   },
   inputLabel: {
     fontSize: 14,
-    color: '#333',
+    color: COLORS.TEXT_SECONDARY,
     marginBottom: 5,
   },
-  input: {
-    height: 50,
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 5,
-    paddingHorizontal: 15,
-    backgroundColor: 'white',
+  customInput: {
+    marginBottom: 0,
   },
-  genderContainer: {
-    marginBottom: 15,
-  },
-  genderOptions: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  genderOption: {
-    flex: 1,
-    height: 40,
-    borderWidth: 1,
-    borderColor: '#ddd',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginHorizontal: 5,
-  },
-  genderOptionSelected: {
-    backgroundColor: '#4EACEA',
-    borderColor: '#4EACEA',
-  },
-  genderText: {
-    color: '#333',
-  },
+
   registerButton: {
-    backgroundColor: '#4EACEA',
-    borderRadius: 5,
-    height: 50,
-    justifyContent: 'center',
-    alignItems: 'center',
     marginTop: 20,
-  },
-  registerButtonText: {
-    color: 'white',
-    fontSize: 16,
-    fontWeight: 'bold',
   },
   loadingText: {
     textAlign: 'center',
     marginTop: 10,
   },
   errorText: {
-    color: 'red',
+    color: COLORS.VERY_HARD,
     textAlign: 'center',
     marginTop: 10,
-  },
-  footer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: 20,
-  },
-  footerText: {
-    color: '#333',
-  },
-  loginLink: {
-    color: '#4EACEA',
-    fontWeight: 'bold',
   },
 });

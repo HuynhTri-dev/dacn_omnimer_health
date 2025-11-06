@@ -2,7 +2,7 @@
   "extends": "@react-native/typescript-config",
   "compilerOptions": {
     "strict": true,
-    "ignoreDeprecations": "6.0",
+    "ignoreDeprecations": "5.0",
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"],
@@ -12,7 +12,8 @@
       "@presentation/*": ["src/presentation/*"],
       "@services/*": ["src/services/*"],
       "@utils/*": ["src/utils/*"],
-      "@types/*": ["src/app/types/*"]
+      "@types/*": ["src/app/types/*"],
+      "@assets/*": ["./src/assets/*"]
     },
     "noImplicitAny": true,
     "noUnusedLocals": true,

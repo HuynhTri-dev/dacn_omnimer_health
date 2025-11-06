@@ -7,7 +7,7 @@ import {
   STORAGE_KEYS,
 } from '@/config/storageManager';
 import { post } from '../api/callAPI';
-import { IAuthResponse } from '../entities/AuthReponse';
+import { IAuthResponse } from '../entities/AuthResponse';
 import { API_ENDPOINTS } from '../api/endPoint';
 import { IUserRepository } from '@/domain/interfaces/IUserRepository';
 
@@ -25,7 +25,7 @@ export class UserRepository implements IUserRepository {
     if (avatarFile) formData.append('image', avatarFile);
     formData.append('password', password);
 
-    const res = await post<IAuthResponse>(API_ENDPOINTS.AUTH.LOGIN, {
+    const res = await post<IAuthResponse>(API_ENDPOINTS.AUTH.REGISTER, {
       body: formData,
       isFormData: true,
     });
@@ -42,6 +42,34 @@ export class UserRepository implements IUserRepository {
         res.data.refreshToken,
       );
 
+      await asyncStorage.set(STORAGE_KEYS.USER_PROFILE, res.data.user);
+    }
+
+    return res;
+  }
+
+  async login(
+    email: string,
+    password: string,
+  ): Promise<ApiResponse<IAuthResponse>> {
+    const formData = new FormData();
+    formData.append('email', email);
+    formData.append('password', password);
+
+    const res = await post<IAuthResponse>(API_ENDPOINTS.AUTH.LOGIN, {
+      body: formData,
+      isFormData: true,
+    });
+
+    if (res.success) {
+      await encryptedStorage.set(
+        STORAGE_KEYS.ACCESS_TOKEN,
+        res.data.accessToken,
+      );
+      await encryptedStorage.set(
+        STORAGE_KEYS.REFRESH_TOKEN,
+        res.data.refreshToken,
+      );
       await asyncStorage.set(STORAGE_KEYS.USER_PROFILE, res.data.user);
     }
 

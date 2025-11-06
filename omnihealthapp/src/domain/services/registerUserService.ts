@@ -2,7 +2,7 @@ import { FirebaseAuthService } from '@/services/firebaseAuthService';
 import { IUserRepository } from '@/domain/interfaces/IUserRepository';
 import { ApiResponse } from '@/app/types/ApiResponse';
 import { IUser } from '@/data/models/User.model';
-import { IAuthResponse } from '@/data/entities/AuthReponse';
+import { IAuthResponse } from '@/data/entities/AuthResponse';
 
 export class RegisterUserService {
   constructor(private userRepo: IUserRepository) {}

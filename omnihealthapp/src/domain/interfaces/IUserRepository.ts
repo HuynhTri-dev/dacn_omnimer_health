@@ -1,6 +1,6 @@
 import { IUser } from '@/data/models/User.model';
 import { ApiResponse } from '@/app/types/ApiResponse';
-import { IAuthResponse } from '@/data/entities/AuthReponse';
+import { IAuthResponse } from '@/data/entities/AuthResponse';
 
 export interface IUserRepository {
   register(
