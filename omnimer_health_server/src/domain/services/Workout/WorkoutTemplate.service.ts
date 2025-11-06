@@ -1,9 +1,15 @@
 import { logError, logAudit } from "../../../utils/LoggerUtil";
 import { StatusLogEnum } from "../../../common/constants/AppConstants";
-import { IWorkoutTemplate } from "../../models";
+import { IWorkoutTemplate, IWorkoutTemplateDetail } from "../../models";
 import { WorkoutTemplateRepository } from "../../repositories";
 import { HttpError } from "../../../utils/HttpError";
-import { PaginationQueryOptions } from "../../entities";
+import {
+  IRAGAIResponse,
+  PaginationQueryOptions,
+  UserRAGRequest,
+} from "../../entities";
+import { Types } from "mongoose";
+import { mapAIResponseToWorkoutDetail } from "../../../utils/Workout/MapAIToDatabase";
 
 export class WorkoutTemplateService {
   private readonly workoutTemplateRepo: WorkoutTemplateRepository;
@@ -232,6 +238,63 @@ export class WorkoutTemplateService {
         500,
         "Không thể lấy danh sách mẫu buổi tập của người dùng"
       );
+    }
+  }
+
+  /**
+   * Create a workout template for a user from AI-generated recommendation.
+   *
+   * @param userId - User ID
+   * @param userRequest - Original request data (equipment, muscles, etc.)
+   * @param aiResponse - AI response containing exercises, sets, HR, etc.
+   * @returns The created workout template
+   */
+  async createWorkoutTemplateByAI(
+    userId: string,
+    userRequest: UserRAGRequest,
+    aiResponse: IRAGAIResponse
+  ): Promise<IWorkoutTemplate> {
+    try {
+      // Convert AI exercises to WorkoutTemplateDetail using your utils
+      const workOutDetail: IWorkoutTemplateDetail[] =
+        mapAIResponseToWorkoutDetail(aiResponse);
+
+      const newTemplateData: Partial<IWorkoutTemplate> = {
+        name: `AI Generated Workout - ${
+          new Date().toISOString().split("T")[0]
+        }`,
+        description: `Generated based on user profile and AI recommendation`,
+        createdByAI: true,
+        createdForUserId: new Types.ObjectId(userId),
+        location: userRequest.location,
+        equipments: userRequest.equipmentIds,
+        bodyPartsTarget: userRequest.bodyPartIds,
+        exerciseTypes: userRequest.exerciseTypes,
+        exerciseCategories: userRequest.exerciseCategories,
+        workOutDetail,
+      };
+
+      const newTemplate = await this.workoutTemplateRepo.create(
+        newTemplateData
+      );
+
+      await logAudit({
+        userId,
+        action: "createWorkoutTemplateByAI",
+        message: `Created AI workout template "${newTemplate.name}" successfully`,
+        status: StatusLogEnum.Success,
+        targetId: newTemplate._id.toString(),
+      });
+
+      return newTemplate;
+    } catch (err: any) {
+      await logError({
+        userId,
+        action: "createWorkoutTemplateByAI",
+        message: err.message || err,
+        errorMessage: err.stack || err,
+      });
+      throw new HttpError(500, "Failed to create AI workout template");
     }
   }
 }

@@ -7,7 +7,7 @@ import {
   sendBadRequest,
 } from "../../../utils/ResponseHelper";
 import { HttpError } from "../../../utils/HttpError";
-import { DecodePayload } from "../../entities/DecodePayload";
+import { DecodePayload } from "../../entities/DecodePayload.entity";
 
 export class RoleController {
   private readonly service: RoleService;

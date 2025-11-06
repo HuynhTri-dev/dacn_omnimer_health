@@ -185,4 +185,28 @@ export class GoalService {
       throw err;
     }
   }
+
+  // ======================================================
+  // =============== GET ALL GOALS =========================
+  // ======================================================
+  /**
+   * Retrieve all goals in the system.
+   * - Supports pagination and sorting via query options.
+   *
+   * @param option - Optional pagination and filtering options
+   * @returns A paginated list of goals
+   * @throws HttpError if retrieval fails
+   */
+  async findActiveGoalsForRAG(userId: string) {
+    try {
+      return await this.goalRepo.findActiveGoalsForRAG(userId);
+    } catch (err: any) {
+      await logError({
+        action: "getGoals",
+        message: err.message || err,
+        errorMessage: err.stack || err,
+      });
+      throw err;
+    }
+  }
 }

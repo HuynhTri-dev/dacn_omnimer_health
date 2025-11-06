@@ -19,3 +19,5 @@ export * from "./Workout/Workout.controller";
 export * from "./Workout/WorkoutFeedback.controller";
 
 export * from "./Devices/WatchLog.controller";
+
+export * from "./AI/RAG.controller";

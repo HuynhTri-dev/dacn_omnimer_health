@@ -45,6 +45,7 @@ export interface IHealthProfile extends Document {
   waist?: number;
   neck?: number;
   hip?: number;
+  whr?: number;
   bmi?: number;
   bmr?: number;
   bodyFatPercentage?: number;
@@ -52,10 +53,10 @@ export interface IHealthProfile extends Document {
   maxPushUps?: number;
   maxWeightLifted?: number;
   activityLevel?: number;
-  restingHeartRate?: number;
   experienceLevel?: ExperienceLevelEnum;
   workoutFrequency?: number;
 
+  restingHeartRate?: number;
   bloodPressure?: IBloodPressure;
   cholesterol?: ICholesterol;
   bloodSugar?: number;
@@ -77,6 +78,7 @@ const healthProfileSchema = new Schema<IHealthProfile>(
     waist: Number,
     neck: Number,
     hip: Number,
+    whr: Number,
     bmi: Number,
     bmr: Number,
     bodyFatPercentage: Number,

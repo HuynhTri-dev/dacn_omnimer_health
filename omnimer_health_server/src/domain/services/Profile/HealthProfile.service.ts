@@ -3,7 +3,7 @@ import { StatusLogEnum } from "../../../common/constants/AppConstants";
 import { IHealthProfile } from "../../models";
 import { HttpError } from "../../../utils/HttpError";
 import { HealthProfileRepository, UserRepository } from "../../repositories";
-import { PaginationQueryOptions } from "../../entities";
+import { IRAGHealthProfile, PaginationQueryOptions } from "../../entities";
 import { calculateHealthMetrics } from "../../../utils/HealthFunction/HealthCalculationUtil";
 import { callOllamaEvaluation } from "../../../utils/HealthFunction/AiEvaluationUtil";
 import { Types } from "mongoose";
@@ -46,13 +46,18 @@ export class HealthProfileService {
 
       // Compute key health metrics (e.g., BMI, body fat, etc.)
       const metrics = calculateHealthMetrics({
-        gender: user?.gender!,
-        height: data.height!,
-        weight: data.weight!,
-        neck: data.neck!,
-        waist: data.waist!,
-        hip: data.hip!,
+        gender: user?.gender,
+        height: data.height,
+        weight: data.weight,
+        neck: data.neck,
+        waist: data.waist,
+        hip: data.hip,
         birthday: user?.birthday!,
+        bmi: data.bmi,
+        bmr: data.bmr,
+        bodyFatPercentage: data.bodyFatPercentage,
+        muscleMass: data.muscleMass,
+        whr: data.whr,
       });
 
       // Prepare input for AI model evaluation
@@ -306,6 +311,45 @@ export class HealthProfileService {
         errorMessage: err.stack || err,
       });
       throw err;
+    }
+  }
+
+  /**
+   * Lấy hồ sơ sức khỏe mới nhất của người dùng cho mô hình RAG.
+   *
+   * @param userId - ID người dùng.
+   * @returns Hồ sơ RAG hoặc null nếu không tìm thấy.
+   */
+  async findProfileForRAG(userId: string): Promise<IRAGHealthProfile | null> {
+    try {
+      const profile = await this.healthProfileRepo.findProfileForRAG(userId);
+
+      if (!profile) {
+        await logAudit({
+          userId,
+          action: "findProfileForRAG",
+          message: `Không tìm thấy hồ sơ sức khỏe RAG cho user "${userId}"`,
+          status: StatusLogEnum.Failure,
+        });
+        return null;
+      }
+
+      await logAudit({
+        userId,
+        action: "findProfileForRAG",
+        message: `Truy vấn hồ sơ RAG thành công cho user "${userId}"`,
+        status: StatusLogEnum.Success,
+      });
+
+      return profile;
+    } catch (err: any) {
+      await logError({
+        userId,
+        action: "findProfileForRAG",
+        message: "Lỗi khi truy vấn hồ sơ RAG",
+        errorMessage: err.stack || err,
+      });
+      throw new HttpError(500, "Không thể truy vấn hồ sơ sức khỏe RAG");
     }
   }
 }

@@ -19,3 +19,5 @@ export * from "./Workout/Workout.service";
 export * from "./Workout/WorkoutFeedback.service";
 
 export * from "./Devices/WatchLog.service";
+
+export * from "./AI.service";

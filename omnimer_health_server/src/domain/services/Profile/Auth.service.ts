@@ -5,7 +5,7 @@ import { logAudit, logError } from "../../../utils/LoggerUtil";
 import { StatusLogEnum } from "../../../common/constants/AppConstants";
 import admin from "../../../common/configs/firebaseAdminConfig";
 import { HttpError } from "../../../utils/HttpError";
-import { DecodePayload } from "../../entities/DecodePayload";
+import { DecodePayload } from "../../entities/DecodePayload.entity";
 import { uploadUserAvatar } from "../../../utils/CloudflareUpload";
 import mongoose from "mongoose";
 import { IAuthResponse, IUserResponse } from "../../entities";
