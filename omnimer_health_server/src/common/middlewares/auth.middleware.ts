@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 import { User } from "../../domain/models";
-import { DecodePayload } from "../../domain/entities/DecodePayload";
+import { DecodePayload } from "../../domain/entities/DecodePayload.entity";
 import { sendError } from "../../utils/ResponseHelper";
 
 /**

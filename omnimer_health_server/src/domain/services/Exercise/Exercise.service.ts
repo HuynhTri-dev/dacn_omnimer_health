@@ -9,7 +9,11 @@ import {
 import { logError, logAudit } from "../../../utils/LoggerUtil";
 import { StatusLogEnum } from "../../../common/constants/AppConstants";
 import { HttpError } from "../../../utils/HttpError";
-import { PaginationQueryOptions } from "../../entities";
+import {
+  IRAGHealthProfile,
+  PaginationQueryOptions,
+  UserRAGRequest,
+} from "../../entities";
 
 export class ExerciseService {
   private readonly exerciseRepository: ExerciseRepository;
@@ -235,6 +239,34 @@ export class ExerciseService {
       throw err;
     } finally {
       session.endSession();
+    }
+  }
+
+  async getAllExercisesForRAG(
+    userId: string,
+    filter?: UserRAGRequest,
+    profile?: IRAGHealthProfile
+  ) {
+    try {
+      const list = await this.exerciseRepository.filterExerciseForRAG(
+        filter,
+        profile
+      );
+      await logAudit({
+        userId,
+        action: "getAllExercisesForRAG",
+        message: "Lấy danh sách exercises",
+        status: StatusLogEnum.Success,
+      });
+      return list;
+    } catch (err: any) {
+      await logError({
+        userId,
+        action: "getAllExercisesForRAG",
+        message: err.message || err,
+        errorMessage: err.stack || err,
+      });
+      throw err;
     }
   }
 }

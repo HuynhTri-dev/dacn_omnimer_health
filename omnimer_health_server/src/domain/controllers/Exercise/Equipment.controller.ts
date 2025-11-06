@@ -5,7 +5,7 @@ import {
   sendCreated,
   sendUnauthorized,
 } from "../../../utils/ResponseHelper";
-import { DecodePayload } from "../../entities/DecodePayload";
+import { DecodePayload } from "../../entities/DecodePayload.entity";
 import { buildQueryOptions } from "../../../utils/BuildQueryOptions";
 
 export class EquipmentController {

@@ -2,7 +2,7 @@ import { BaseRepository } from "../Base.repository";
 import { IUser } from "../../models";
 import { FilterQuery, Model } from "mongoose";
 import { PaginationQueryOptions } from "../../entities";
-import { ListUserResponse } from "../../entities/ListUserResponse";
+import { ListUserResponse } from "../../entities";
 
 export class UserRepository extends BaseRepository<IUser> {
   constructor(model: Model<IUser>) {

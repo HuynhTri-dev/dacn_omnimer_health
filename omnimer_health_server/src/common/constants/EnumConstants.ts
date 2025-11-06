@@ -61,6 +61,7 @@ export enum LocationEnum {
   Home = "Home",
   Gym = "Gym",
   Outdoor = "Outdoor",
+  Pool = "Pool",
   None = "None",
 }
 
