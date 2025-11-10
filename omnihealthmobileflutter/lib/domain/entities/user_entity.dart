@@ -1,11 +1,12 @@
 import 'package:equatable/equatable.dart';
+import 'package:omnihealthmobileflutter/core/constants/enum_constant.dart';
 
 class UserEntity extends Equatable {
   final String? uid;
   final String? email;
   final String? fullname;
   final String? birthday;
-  final String? gender;
+  final GenderEnum? gender;
   final List<String>? roleIds;
   final String? imageUrl;
 

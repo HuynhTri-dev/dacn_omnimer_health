@@ -1,55 +1,71 @@
+import 'package:omnihealthmobileflutter/core/api/api_response.dart';
 import 'package:omnihealthmobileflutter/data/datasources/auth_datasource.dart';
+import 'package:omnihealthmobileflutter/data/models/auth/login_model.dart';
 import 'package:omnihealthmobileflutter/data/models/user_model.dart';
 import 'package:omnihealthmobileflutter/domain/abstracts/auth_repository.dart';
+import 'package:omnihealthmobileflutter/domain/abstracts/auth_repository_abs.dart';
+import 'package:omnihealthmobileflutter/domain/entities/auth_entity.dart';
 import 'package:omnihealthmobileflutter/domain/entities/user_entity.dart';
-import 'package:omnihealthmobileflutter/services/firebase_auth_service.dart';
 
-class AuthRepositoryImpl implements AuthRepository {
+/// Implementation of [AuthRepository].
+/// Converts between domain entities and data models.
+/// Delegates data operations to [AuthDataSource].
+class AuthRepositoryImpl implements AuthRepositoryAbs {
   final AuthDataSource authDataSource;
-  final FirebaseAuthService firebaseAuth;
 
-  AuthRepositoryImpl({
-    required this.authDataSource,
-    required this.firebaseAuth,
-  });
+  AuthRepositoryImpl({required this.authDataSource});
 
   @override
-  Future<UserEntity> login(LoginEntity loginEntity) async {
-    try {
-      // Convert entity to model
-      final loginModel = LoginRequestModel.fromEntity(loginEntity);
+  Future<ApiResponse<AuthEntity>> register(UserEntity user) async {
+    // Convert Entity -> Model
+    final userModel = UserModel.fromEntity(user);
 
-      // Call API through data source
-      final userModel = await authDataSource.login(loginModel);
+    // Call DataSource
+    final response = await authDataSource.register(userModel);
 
-      // Convert model back to entity
-      return userModel.toEntity();
-    } catch (e) {
-      // Re-throw with meaningful message
-      throw Exception('Đăng nhập thất bại: ${e.toString()}');
+    // Map Model -> Entity
+    if (response.data != null) {
+      final authEntity = response.data?.toEntity();
+      return ApiResponse<AuthEntity>(
+        success: response.success,
+        message: response.message,
+        data: authEntity,
+      );
     }
-  }
 
-  @override
-  Future<void> logout() async {
-    await authDataSource.logout();
-  }
-
-  @override
-  UserEntity? getCurrentUser() {
-    final firebaseUser = firebaseAuth.getCurrentUser();
-    if (firebaseUser == null) return null;
-
-    return UserEntity(
-      email: firebaseUser.email ?? '',
-      displayName: firebaseUser.displayName,
-      photoUrl: firebaseUser.photoURL,
-      phoneNumber: firebaseUser.phoneNumber,
+    // Return same structure (null data)
+    return ApiResponse<AuthEntity>(
+      success: response.success,
+      message: response.message,
+      data: null,
     );
   }
 
   @override
-  Future<void> sendPasswordResetEmail(String email) async {
-    await firebaseAuth.sendPasswordResetEmail(email);
+  Future<ApiResponse<AuthEntity>> login(LoginEntity login) async {
+    final loginModel = LoginModel.fromEntity(login);
+    final response = await authDataSource.login(loginModel);
+
+    if (response.data != null) {
+      final authEntity = response.data?.toEntity();
+      return ApiResponse<AuthEntity>(
+        success: response.success,
+        message: response.message,
+        data: authEntity,
+      );
+    }
+
+    return ApiResponse<AuthEntity>(
+      success: response.success,
+      message: response.message,
+      data: null,
+    );
+  }
+
+  @override
+  Future<ApiResponse<String>> createNewAccessToken() async {
+    // No conversion needed, returns String directly
+    final response = await authDataSource.createNewAccessToken();
+    return response;
   }
 }

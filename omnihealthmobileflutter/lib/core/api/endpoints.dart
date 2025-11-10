@@ -6,7 +6,5 @@ class Endpoints {
   // ================== AUTH ==================
   static const String login = "/v1/auth/login";
   static const String register = "/v1/auth/register";
-  static const String logout = "/v1/auth/logout";
-  static const String changePassword = "/v1/auth/change-password";
-  static const String forgetPassword = "/v1/auth/forget-password";
+  static const String createNewAccessToken = "/v1/auth/new-access-token";
 }

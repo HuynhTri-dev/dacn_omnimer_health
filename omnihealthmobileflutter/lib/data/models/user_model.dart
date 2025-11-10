@@ -1,67 +1,74 @@
 import 'package:omnihealthmobileflutter/domain/entities/user_entity.dart';
+import 'package:omnihealthmobileflutter/core/constants/enum_constant.dart';
 
 class UserModel {
-  final String email;
-  final String? displayName;
-  final String? photoUrl;
-  final String? phoneNumber;
-  final String? accessToken;
-  final String? refreshToken;
+  final String? uid;
+  final String? email;
+  final String? fullname;
+  final String? birthday;
+  final GenderEnum? gender; // lưu dạng string để dễ (de)serialize với API
+  final List<String>? roleIds;
+  final String? imageUrl;
 
-  UserModel({
-    required this.email,
-    this.displayName,
-    this.photoUrl,
-    this.phoneNumber,
-    this.accessToken,
-    this.refreshToken,
+  const UserModel({
+    this.uid,
+    this.email,
+    this.fullname,
+    this.birthday,
+    this.gender,
+    this.roleIds,
+    this.imageUrl,
   });
 
+  /// Tạo từ JSON (API → Model)
   factory UserModel.fromJson(Map<String, dynamic> json) {
     return UserModel(
-      email: json['email'] as String,
-      displayName: json['display_name'] as String?,
-      photoUrl: json['photo_url'] as String?,
-      phoneNumber: json['phone_number'] as String?,
-      accessToken: json['access_token'] as String?,
-      refreshToken: json['refresh_token'] as String?,
+      uid: json['uid'] as String?,
+      email: json['email'] as String?,
+      fullname: json['fullname'] as String?,
+      birthday: json['birthday'] as String?,
+      gender: GenderEnum.fromString(json['gender']),
+      roleIds: (json['roleIds'] as List?)?.map((e) => e.toString()).toList(),
+      imageUrl: json['imageUrl'] as String?,
     );
   }
 
+  /// Chuyển sang JSON (Model → API)
   Map<String, dynamic> toJson() {
     return {
+      'uid': uid,
       'email': email,
-      'display_name': displayName,
-      'photo_url': photoUrl,
-      'phone_number': phoneNumber,
-      'access_token': accessToken,
-      'refresh_token': refreshToken,
+      'fullname': fullname,
+      'birthday': birthday,
+      'gender': gender,
+      'roleIds': roleIds,
+      'imageUrl': imageUrl,
     };
   }
 
-  // Convert to Entity
+  /// Chuyển sang Entity (Model → Domain)
   UserEntity toEntity() {
     return UserEntity(
+      uid: uid,
       email: email,
-      displayName: displayName,
-      photoUrl: photoUrl,
-      phoneNumber: phoneNumber,
+      fullname: fullname,
+      birthday: birthday,
+      gender: gender,
+      roleIds: roleIds,
+      imageUrl: imageUrl,
     );
   }
-}
 
-class LoginRequestModel {
-  final String email;
-  final String password;
-
-  LoginRequestModel({required this.email, required this.password});
-
-  Map<String, dynamic> toJson() {
-    return {'email': email, 'password': password};
-  }
-
-  // Convert from Entity
-  factory LoginRequestModel.fromEntity(LoginEntity entity) {
-    return LoginRequestModel(email: entity.email, password: entity.password);
+  /// Chuyển từ Entity sang Model (Domain → Data)
+  factory UserModel.fromEntity(UserEntity entity) {
+    return UserModel(
+      uid: entity.uid,
+      email: entity.email,
+      fullname: entity.fullname,
+      birthday: entity.birthday,
+      gender: entity.gender,
+      roleIds: entity.roleIds,
+      imageUrl: entity.imageUrl,
+    );
   }
 }
