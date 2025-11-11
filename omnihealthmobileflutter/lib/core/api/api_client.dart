@@ -1,7 +1,5 @@
 import 'dart:io';
-
 import 'package:dio/dio.dart';
-import 'package:omnihealthmobileflutter/utils/logger.dart';
 import 'api_response.dart';
 import 'api_exception.dart';
 import 'endpoints.dart';

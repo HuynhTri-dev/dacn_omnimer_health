@@ -5,6 +5,7 @@ import 'package:omnihealthmobileflutter/core/theme/app_colors.dart';
 import 'package:omnihealthmobileflutter/core/theme/app_radius.dart';
 import 'package:omnihealthmobileflutter/core/theme/app_spacing.dart';
 import 'package:omnihealthmobileflutter/core/theme/app_typography.dart';
+import 'package:omnihealthmobileflutter/core/validation/field_validator.dart';
 
 enum DatePickerVariant { primary, secondary }
 
@@ -24,7 +25,7 @@ class DatePickerField extends StatefulWidget {
   final String? error;
   final String? helperText;
   final DatePickerVariant variant;
-  final List<ValidationRule> validators;
+  final List<FieldValidator<DateTime>> validators;
   final Widget? leftIcon;
   final String? format;
 
@@ -84,19 +85,10 @@ class _DatePickerFieldState extends State<DatePickerField> {
   }
 
   void _validate(DateTime? value) {
+    final error = ValidationRunner.validate(value, widget.validators);
     setState(() {
-      _internalError = null;
+      _internalError = error;
     });
-
-    for (final validator in widget.validators) {
-      final error = validator(value);
-      if (error != null) {
-        setState(() {
-          _internalError = error;
-        });
-        break;
-      }
-    }
   }
 
   Future<void> _showPicker() async {

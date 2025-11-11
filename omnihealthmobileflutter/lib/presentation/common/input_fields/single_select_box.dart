@@ -5,10 +5,9 @@ import 'package:omnihealthmobileflutter/core/theme/app_colors.dart';
 import 'package:omnihealthmobileflutter/core/theme/app_radius.dart';
 import 'package:omnihealthmobileflutter/core/theme/app_spacing.dart';
 import 'package:omnihealthmobileflutter/core/theme/app_typography.dart';
+import 'package:omnihealthmobileflutter/core/validation/field_validator.dart';
 
 enum SelectVariant { primary, secondary }
-
-typedef ValidationRule<T> = String? Function(T?);
 
 class SelectOption<T> {
   final String label;
@@ -27,7 +26,7 @@ class SingleSelectBox<T> extends StatefulWidget {
   final String? error;
   final String? helperText;
   final SelectVariant variant;
-  final List<ValidationRule<T>> validators;
+  final List<FieldValidator<T>> validators;
   final Widget? leftIcon;
   final bool searchable;
   final double maxHeight;
@@ -73,19 +72,10 @@ class _SingleSelectBoxState<T> extends State<SingleSelectBox<T>> {
   }
 
   void _validate(T? value) {
+    final error = ValidationRunner.validate(value, widget.validators);
     setState(() {
-      _internalError = null;
+      _internalError = error;
     });
-
-    for (final validator in widget.validators) {
-      final error = validator(value);
-      if (error != null) {
-        setState(() {
-          _internalError = error;
-        });
-        break;
-      }
-    }
   }
 
   void _handleChange(T? value) {

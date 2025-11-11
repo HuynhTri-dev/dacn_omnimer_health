@@ -4,7 +4,7 @@ import 'package:omnihealthmobileflutter/core/theme/app_colors.dart';
 import 'package:omnihealthmobileflutter/core/theme/app_radius.dart';
 import 'package:omnihealthmobileflutter/core/theme/app_typography.dart';
 
-enum ButtonVariant {
+enum ButtonIconVariant {
   primarySolid,
   secondarySolid,
   dangerSolid,
@@ -13,10 +13,10 @@ enum ButtonVariant {
   dangerOutline,
 }
 
-enum ButtonSize { small, medium, large }
+enum ButtonIconSize { small, medium, large }
 
 class ButtonIcon extends StatefulWidget {
-  final ButtonVariant variant;
+  final ButtonIconVariant variant;
   final String? title;
   final Widget icon;
   final bool disabled;
@@ -25,12 +25,12 @@ class ButtonIcon extends StatefulWidget {
   final double? fontSize;
   final FontWeight fontWeight;
   final EdgeInsetsGeometry? padding;
-  final ButtonSize size;
+  final ButtonIconSize size;
   final bool fullWidth;
 
   const ButtonIcon({
     Key? key,
-    this.variant = ButtonVariant.primarySolid,
+    this.variant = ButtonIconVariant.primarySolid,
     this.title,
     required this.icon,
     this.disabled = false,
@@ -39,7 +39,7 @@ class ButtonIcon extends StatefulWidget {
     this.fontSize,
     this.fontWeight = FontWeight.w700,
     this.padding,
-    this.size = ButtonSize.medium,
+    this.size = ButtonIconSize.medium,
     this.fullWidth = false,
   }) : super(key: key);
 
@@ -56,30 +56,30 @@ class _ButtonIconState extends State<ButtonIcon> {
   // Lấy size theo preset với ScreenUtil
   Map<String, double> _getSizeConfig() {
     switch (widget.size) {
-      case ButtonSize.small:
+      case ButtonIconSize.small:
         return {
-          'fontSize': 14.0,
-          'iconSize': 16.0,
-          'paddingH': 10.0,
-          'paddingV': 6.0,
-          'spacing': 6.0,
+          'fontSize': 14.0.sp,
+          'iconSize': 16.0.sp,
+          'paddingH': 10.0.h,
+          'paddingV': 6.0.w,
+          'spacing': 6.0.h,
         };
-      case ButtonSize.large:
+      case ButtonIconSize.large:
         return {
-          'fontSize': 20.0,
-          'iconSize': 24.0,
-          'paddingH': 16.0,
-          'paddingV': 12.0,
-          'spacing': 10.0,
+          'fontSize': 20.0.sp,
+          'iconSize': 24.0.sp,
+          'paddingH': 16.0.h,
+          'paddingV': 12.0.w,
+          'spacing': 10.0.h,
         };
-      case ButtonSize.medium:
+      case ButtonIconSize.medium:
       default:
         return {
-          'fontSize': 16.0,
-          'iconSize': 20.0,
-          'paddingH': 12.0,
-          'paddingV': 8.0,
-          'spacing': 8.0,
+          'fontSize': 16.0.sp,
+          'iconSize': 20.0.sp,
+          'paddingH': 12.0.h,
+          'paddingV': 8.0.w,
+          'spacing': 8.0.h,
         };
     }
   }
@@ -95,11 +95,11 @@ class _ButtonIconState extends State<ButtonIcon> {
 
     if (_isPressed) {
       switch (widget.variant) {
-        case ButtonVariant.primarySolid:
+        case ButtonIconVariant.primarySolid:
           return AppColors.secondary;
-        case ButtonVariant.secondarySolid:
+        case ButtonIconVariant.secondarySolid:
           return AppColors.gray800;
-        case ButtonVariant.dangerSolid:
+        case ButtonIconVariant.dangerSolid:
           return AppColors.dangerHover;
         default:
           return AppColors.primary;
@@ -107,11 +107,11 @@ class _ButtonIconState extends State<ButtonIcon> {
     }
 
     switch (widget.variant) {
-      case ButtonVariant.primarySolid:
+      case ButtonIconVariant.primarySolid:
         return AppColors.primary;
-      case ButtonVariant.secondarySolid:
+      case ButtonIconVariant.secondarySolid:
         return AppColors.gray600;
-      case ButtonVariant.dangerSolid:
+      case ButtonIconVariant.dangerSolid:
         return AppColors.danger;
       default:
         return AppColors.primary;
@@ -127,11 +127,11 @@ class _ButtonIconState extends State<ButtonIcon> {
 
     if (_isPressed) {
       switch (widget.variant) {
-        case ButtonVariant.primaryOutline:
+        case ButtonIconVariant.primaryOutline:
           return AppColors.secondary;
-        case ButtonVariant.secondaryOutline:
+        case ButtonIconVariant.secondaryOutline:
           return AppColors.gray800;
-        case ButtonVariant.dangerOutline:
+        case ButtonIconVariant.dangerOutline:
           return AppColors.dangerHover;
         default:
           return AppColors.primary;
@@ -139,11 +139,11 @@ class _ButtonIconState extends State<ButtonIcon> {
     }
 
     switch (widget.variant) {
-      case ButtonVariant.primaryOutline:
+      case ButtonIconVariant.primaryOutline:
         return AppColors.primary;
-      case ButtonVariant.secondaryOutline:
+      case ButtonIconVariant.secondaryOutline:
         return AppColors.gray600;
-      case ButtonVariant.dangerOutline:
+      case ButtonIconVariant.dangerOutline:
         return AppColors.danger;
       default:
         return AppColors.primary;
@@ -158,11 +158,11 @@ class _ButtonIconState extends State<ButtonIcon> {
     if (_isOutline) {
       if (_isPressed) {
         switch (widget.variant) {
-          case ButtonVariant.primaryOutline:
+          case ButtonIconVariant.primaryOutline:
             return AppColors.secondary;
-          case ButtonVariant.secondaryOutline:
+          case ButtonIconVariant.secondaryOutline:
             return AppColors.gray800;
-          case ButtonVariant.dangerOutline:
+          case ButtonIconVariant.dangerOutline:
             return AppColors.dangerHover;
           default:
             return AppColors.primary;
@@ -170,11 +170,11 @@ class _ButtonIconState extends State<ButtonIcon> {
       }
 
       switch (widget.variant) {
-        case ButtonVariant.primaryOutline:
+        case ButtonIconVariant.primaryOutline:
           return AppColors.primary;
-        case ButtonVariant.secondaryOutline:
+        case ButtonIconVariant.secondaryOutline:
           return AppColors.gray600;
-        case ButtonVariant.dangerOutline:
+        case ButtonIconVariant.dangerOutline:
           return AppColors.danger;
         default:
           return AppColors.primary;

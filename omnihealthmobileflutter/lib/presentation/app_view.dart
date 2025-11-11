@@ -81,7 +81,8 @@ class AuthWrapper extends StatelessWidget {
       builder: (context, state) {
         if (state is AuthenticationAuthenticated) {
           // User đã đăng nhập -> vào MainScreen
-          return const MainScreen();
+          // return const MainScreen();
+          return const LoginScreen();
         } else if (state is AuthenticationUnauthenticated) {
           // User chưa đăng nhập -> LoginScreen
           return BlocProvider(

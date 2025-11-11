@@ -12,18 +12,12 @@ Future<void> main() async {
   // Đảm bảo Flutter bindings được khởi tạo
   WidgetsFlutterBinding.ensureInitialized();
 
-  // ==================== ENVIRONMENT SETUP ====================
-  const env = String.fromEnvironment("ENV", defaultValue: "DEV");
-  debugPrint('🚀 Running in $env mode');
-
   // ==================== SYSTEM UI SETUP ====================
-  // Cố định orientation (nếu cần)
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]);
 
-  // Setup status bar và navigation bar
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
@@ -35,7 +29,6 @@ Future<void> main() async {
   );
 
   // ==================== LOCALIZATION SETUP ====================
-  // Initialize date formatting cho tiếng Việt
   await initializeDateFormatting('vi_VN', null);
 
   // ==================== FIREBASE SETUP ====================
@@ -50,10 +43,10 @@ Future<void> main() async {
 
   // ==================== ENV FILE SETUP ====================
   try {
-    await dotenv.load(fileName: env == "PROD" ? ".env.production" : ".env");
-    debugPrint('✅ Environment file loaded successfully');
+    await dotenv.load(fileName: ".env");
+    debugPrint('✅ .env file loaded successfully');
   } catch (e) {
-    debugPrint('❌ Environment file loading failed: $e');
+    debugPrint('❌ .env file loading failed: $e');
   }
 
   // ==================== DEPENDENCY INJECTION SETUP ====================
@@ -65,7 +58,6 @@ Future<void> main() async {
   }
 
   // ==================== ERROR HANDLING ====================
-  // Catch Flutter framework errors
   FlutterError.onError = (FlutterErrorDetails details) {
     FlutterError.presentError(details);
     debugPrint('❌ Flutter Error: ${details.exception}');
