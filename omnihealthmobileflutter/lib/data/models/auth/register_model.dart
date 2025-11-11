@@ -1,22 +1,28 @@
+import 'dart:io';
+
+import 'package:dio/dio.dart';
+import 'package:omnihealthmobileflutter/core/constants/enum_constant.dart';
 import 'package:omnihealthmobileflutter/domain/entities/auth_entity.dart';
 
 class RegisterModel {
   final String? email;
   final String? password;
+  final String? uid;
   final String? fullname;
   final String? birthday;
-  final String? gender;
+  final GenderEnum? gender;
   final List<String>? roleIds;
-  final String? imageUrl;
+  final File? image;
 
   const RegisterModel({
     this.email,
     this.password,
+    this.uid,
     this.fullname,
     this.birthday,
     this.gender,
     this.roleIds,
-    this.imageUrl,
+    this.image,
   });
 
   // Từ Entity → Model
@@ -24,24 +30,33 @@ class RegisterModel {
     return RegisterModel(
       email: entity.email,
       password: entity.password,
+      uid: entity.uid,
       fullname: entity.fullname,
       birthday: entity.birthday,
-      gender: entity.gender?.toString().split('.').last,
+      gender: entity.gender,
       roleIds: entity.roleIds,
-      imageUrl: entity.imageUrl,
+      image: entity.image,
     );
   }
 
-  // Model → JSON (để gửi lên API)
-  Map<String, dynamic> toJson() {
-    return {
+  /// Chuyển Model → FormData để gửi lên API (có file)
+  Future<FormData> toFormData() async {
+    final Map<String, dynamic> fields = {
       'email': email,
-      'password': password,
+      'uid': uid,
       'fullname': fullname,
       'birthday': birthday,
-      'gender': gender,
+      'gender': gender?.name, // enum → string
       'roleIds': roleIds,
-      'imageUrl': imageUrl,
     };
+
+    if (image != null) {
+      fields['image'] = await MultipartFile.fromFile(
+        image!.path,
+        filename: image!.uri.pathSegments.last,
+      );
+    }
+
+    return FormData.fromMap(fields);
   }
 }

@@ -7,7 +7,7 @@ import 'package:omnihealthmobileflutter/domain/entities/user_entity.dart';
 abstract class AuthRepositoryAbs {
   /// Register a new user using a [UserEntity].
   /// Returns ApiResponse<AuthEntity> containing tokens or error message.
-  Future<ApiResponse<AuthEntity>> register(UserEntity user);
+  Future<ApiResponse<AuthEntity>> register(RegisterEntity user);
 
   /// Login using [LoginEntity].
   /// Returns ApiResponse<AuthEntity> containing tokens or error message.
@@ -16,4 +16,11 @@ abstract class AuthRepositoryAbs {
   /// Create a new access token using stored refresh token.
   /// Returns ApiResponse<String> where data = new token.
   Future<ApiResponse<String>> createNewAccessToken();
+
+  /// Log out account
+  Future<ApiResponse<void>> logout();
+
+  /// Get AuthEntity
+  /// Returns ApiResponse<AuthEntity>
+  Future<ApiResponse<AuthEntity>> getAuth();
 }

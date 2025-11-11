@@ -5,8 +5,9 @@ class UserAuthModel {
   final String fullname;
   final String? email;
   final String? imageUrl;
-  final String? gender; // lưu dạng string để (de)serialize JSON
-  final String? birthday; // lưu dạng string (ISO date)
+  final GenderEnum? gender;
+  final String? birthday;
+  final String roleName;
 
   const UserAuthModel({
     required this.fullname,
@@ -14,6 +15,7 @@ class UserAuthModel {
     this.imageUrl,
     this.gender,
     this.birthday,
+    required this.roleName,
   });
 
   /// JSON → Model
@@ -22,8 +24,9 @@ class UserAuthModel {
       fullname: json['fullname'] ?? '',
       email: json['email'],
       imageUrl: json['imageUrl'],
-      gender: json['gender'],
+      gender: GenderEnum.fromString(json['gender']),
       birthday: json['birthday'],
+      roleName: json['roleName'],
     );
   }
 
@@ -35,6 +38,7 @@ class UserAuthModel {
       'imageUrl': imageUrl,
       'gender': gender,
       'birthday': birthday,
+      'roleName': roleName,
     };
   }
 
@@ -44,8 +48,9 @@ class UserAuthModel {
       fullname: fullname,
       email: email,
       imageUrl: imageUrl,
-      gender: gender != null ? GenderEnum.fromString(gender) : null,
+      gender: gender,
       birthday: birthday != null ? DateTime.tryParse(birthday!) : null,
+      roleName: roleName,
     );
   }
 
@@ -55,8 +60,9 @@ class UserAuthModel {
       fullname: entity.fullname,
       email: entity.email,
       imageUrl: entity.imageUrl,
-      gender: entity.gender?.asString,
+      gender: entity.gender,
       birthday: entity.birthday?.toIso8601String(),
+      roleName: entity.roleName,
     );
   }
 }

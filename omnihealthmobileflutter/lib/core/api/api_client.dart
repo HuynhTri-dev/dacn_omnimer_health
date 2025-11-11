@@ -84,7 +84,7 @@ class ApiClient {
 
   Future<ApiResponse<T>> post<T>(
     String path, {
-    Map<String, dynamic>? data,
+    dynamic data,
     Map<String, dynamic>? query,
     Map<String, dynamic>? headers,
     T Function(dynamic)? parser,

@@ -6,17 +6,9 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 /// - Dữ liệu được mã hóa tự động bởi OS (Android Keystore / iOS Keychain)
 /// - Dùng để lưu: accessToken, refreshToken, password, private keys,...
 class SecureStorageService {
-  // Singleton pattern
-  static final SecureStorageService _instance =
-      SecureStorageService._internal();
-  factory SecureStorageService() => _instance;
-  SecureStorageService._internal();
-
   // Secure Storage instance
-  final FlutterSecureStorage _storage = const FlutterSecureStorage(
-    aOptions: AndroidOptions(
-      encryptedSharedPreferences: true, // Bắt buộc Android API >= 23
-    ),
+  final FlutterSecureStorage _storage = FlutterSecureStorage(
+    aOptions: AndroidOptions(encryptedSharedPreferences: true),
     iOptions: IOSOptions(accessibility: KeychainAccessibility.first_unlock),
   );
 

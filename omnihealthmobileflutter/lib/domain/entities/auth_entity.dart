@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:equatable/equatable.dart';
 import 'package:omnihealthmobileflutter/core/constants/enum_constant.dart';
 
@@ -7,6 +9,7 @@ class UserAuth extends Equatable {
   final String? imageUrl;
   final GenderEnum? gender;
   final DateTime? birthday;
+  final String roleName;
 
   const UserAuth({
     required this.fullname,
@@ -14,10 +17,18 @@ class UserAuth extends Equatable {
     this.imageUrl,
     this.gender,
     this.birthday,
+    required this.roleName,
   });
 
   @override
-  List<Object?> get props => [fullname, email, imageUrl, gender, birthday];
+  List<Object?> get props => [
+    fullname,
+    email,
+    imageUrl,
+    gender,
+    birthday,
+    roleName,
+  ];
 }
 
 class AuthEntity extends Equatable {
@@ -48,29 +59,33 @@ class LoginEntity extends Equatable {
 class RegisterEntity extends Equatable {
   final String? email;
   final String? password;
+  final String? uid;
   final String? fullname;
   final String? birthday;
   final GenderEnum? gender;
   final List<String>? roleIds;
-  final String? imageUrl;
+  final File? image;
 
   const RegisterEntity({
     this.email,
     this.password,
+    this.uid,
     this.fullname,
     this.birthday,
     this.gender,
     this.roleIds,
-    this.imageUrl,
+    this.image,
   });
 
   @override
   List<Object?> get props => [
     password,
     email,
+    uid,
     fullname,
     birthday,
     gender,
     roleIds,
+    image,
   ];
 }
