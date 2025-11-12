@@ -38,7 +38,7 @@ class LoginCubit extends Cubit<LoginState> {
 
         emit(LoginSuccess(response.data!));
       } else {
-        emit(LoginFailure(response.message ?? 'Đăng nhập thất bại'));
+        emit(LoginFailure(response.message));
       }
     } catch (e) {
       emit(LoginFailure('Có lỗi xảy ra: ${e.toString()}'));

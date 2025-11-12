@@ -9,6 +9,7 @@ import 'package:omnihealthmobileflutter/presentation/common/blocs/auth/authentic
 import 'package:omnihealthmobileflutter/presentation/common/cubits/theme_cubit.dart';
 import 'package:omnihealthmobileflutter/presentation/screen/auth/login/cubits/login_cubit.dart';
 import 'package:omnihealthmobileflutter/presentation/screen/auth/login/login_screen.dart';
+import 'package:omnihealthmobileflutter/presentation/screen/home_screen.dart';
 
 class AppView extends StatelessWidget {
   const AppView({super.key});
@@ -80,9 +81,8 @@ class AuthWrapper extends StatelessWidget {
           previous.runtimeType != current.runtimeType,
       builder: (context, state) {
         if (state is AuthenticationAuthenticated) {
-          // User đã đăng nhập -> vào MainScreen
-          // return const MainScreen();
-          return const LoginScreen();
+          // User đã đăng nhập -> vào HomeScreen
+          return const HomeScreen();
         } else if (state is AuthenticationUnauthenticated) {
           // User chưa đăng nhập -> LoginScreen
           return BlocProvider(

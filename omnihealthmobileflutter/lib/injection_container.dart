@@ -14,7 +14,6 @@ import 'package:omnihealthmobileflutter/presentation/common/cubits/theme_cubit.d
 import 'package:omnihealthmobileflutter/presentation/screen/auth/login/cubits/login_cubit.dart';
 import 'package:omnihealthmobileflutter/presentation/screen/auth/register/cubits/register_cubit.dart';
 import 'package:omnihealthmobileflutter/services/firebase_auth_service.dart';
-import 'package:omnihealthmobileflutter/services/firebase_storage_uploader.dart';
 import 'package:omnihealthmobileflutter/services/secure_storage_service.dart';
 import 'package:omnihealthmobileflutter/services/shared_preferences_service.dart';
 
@@ -31,9 +30,6 @@ Future<void> init() async {
   // ======================
   sl.registerLazySingleton<FirebaseAuthService>(
     () => FirebaseAuthServiceImpl(firebaseAuth: FirebaseAuth.instance),
-  );
-  sl.registerLazySingleton<FirebaseStorageUploader>(
-    () => FirebaseStorageUploader(),
   );
   sl.registerLazySingleton<SecureStorageService>(() => SecureStorageService());
   sl.registerLazySingleton<SharedPreferencesService>(

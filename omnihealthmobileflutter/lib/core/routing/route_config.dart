@@ -5,7 +5,10 @@ import 'package:omnihealthmobileflutter/core/routing/role_guard.dart';
 import 'package:omnihealthmobileflutter/injection_container.dart';
 import 'package:omnihealthmobileflutter/presentation/common/blocs/auth/authentication_bloc.dart';
 import 'package:omnihealthmobileflutter/presentation/screen/auth/login/cubits/login_cubit.dart';
+import 'package:omnihealthmobileflutter/presentation/screen/auth/login/login_screen.dart';
 import 'package:omnihealthmobileflutter/presentation/screen/auth/register/cubits/register_cubit.dart';
+import 'package:omnihealthmobileflutter/presentation/screen/auth/register/register_screen.dart';
+import 'package:omnihealthmobileflutter/presentation/screen/home_screen.dart';
 
 class RouteConfig {
   // ==================== ROUTE NAMES ====================
@@ -20,26 +23,6 @@ class RouteConfig {
   static const String profile = '/profile';
   static const String settings = '/settings';
 
-  // Admin routes
-  static const String adminDashboard = '/admin/dashboard';
-  static const String adminUsers = '/admin/users';
-  static const String adminReports = '/admin/reports';
-
-  // Teacher routes
-  static const String teacherCourses = '/teacher/courses';
-  static const String teacherStudents = '/teacher/students';
-  static const String teacherAssignments = '/teacher/assignments';
-
-  // Student routes
-  static const String studentCourses = '/student/courses';
-  static const String studentAssignments = '/student/assignments';
-  static const String studentGrades = '/student/grades';
-
-  // Coach routes
-  static const String coachClients = '/coach/clients';
-  static const String coachSessions = '/coach/sessions';
-  static const String coachPrograms = '/coach/programs';
-
   // ==================== BUILD AUTH PAGES ====================
   static Widget buildAuthPage(String? routeName) {
     switch (routeName) {
@@ -49,7 +32,7 @@ class RouteConfig {
             registerUseCase: sl(),
             authenticationBloc: sl<AuthenticationBloc>(),
           ),
-          //child: const RegisterScreen(),
+          child: const RegisterScreen(),
         );
 
       case forgetPassword:
@@ -63,7 +46,7 @@ class RouteConfig {
             loginUseCase: sl(),
             authenticationBloc: sl<AuthenticationBloc>(),
           ),
-          //child: const LoginScreen(),
+          child: const LoginScreen(),
         );
     }
   }
@@ -92,46 +75,6 @@ class RouteConfig {
       case settings:
         return _buildSettingsScreen(role, arguments);
 
-      // ===== Admin Routes =====
-      case adminDashboard:
-        return _buildAdminDashboard(arguments);
-
-      case adminUsers:
-        return _buildAdminUsers(arguments);
-
-      case adminReports:
-        return _buildAdminReports(arguments);
-
-      // ===== Teacher Routes =====
-      case teacherCourses:
-        return _buildTeacherCourses(arguments);
-
-      case teacherStudents:
-        return _buildTeacherStudents(arguments);
-
-      case teacherAssignments:
-        return _buildTeacherAssignments(arguments);
-
-      // ===== Student Routes =====
-      case studentCourses:
-        return _buildStudentCourses(arguments);
-
-      case studentAssignments:
-        return _buildStudentAssignments(arguments);
-
-      case studentGrades:
-        return _buildStudentGrades(arguments);
-
-      // ===== Coach Routes =====
-      case coachClients:
-        return _buildCoachClients(arguments);
-
-      case coachSessions:
-        return _buildCoachSessions(arguments);
-
-      case coachPrograms:
-        return _buildCoachPrograms(arguments);
-
       default:
         return _ErrorPage(message: 'Không tìm thấy trang: $routeName');
     }
@@ -139,21 +82,23 @@ class RouteConfig {
 
   // ==================== BUILD MAIN SCREEN BY ROLE ====================
   static Widget? _buildMainScreenByRole(String? role) {
-    final normalizedRole = RoleGuard.getNormalizedRole(role);
+    // TODO: Return AdminMainScreen by role
+    // final normalizedRole = RoleGuard.getNormalizedRole(role);
 
-    switch (normalizedRole) {
-      case 'admin':
-      // TODO: Return AdminMainScreen
-      // return const MainScreen(); // Placeholder
+    // switch (normalizedRole) {
+    //   case 'admin':
 
-      case 'coach':
-      // TODO: Return CoachMainScreen
-      // return const MainScreen(); // Placeholder
+    // return const MainScreen(); // Placeholder
 
-      case 'user':
-      default:
-      // return const MainScreen();
-    }
+    //   case 'coach':
+    // return const MainScreen(); // Placeholder
+
+    //   case 'user':
+    //   default:
+    // return const MainScreen();
+    // }
+
+    return const HomeScreen();
   }
 
   // ==================== COMMON SCREENS ====================
@@ -171,70 +116,6 @@ class RouteConfig {
   ) {
     // TODO: Implement settings screen
     return const Scaffold(body: Center(child: Text('Settings Screen')));
-  }
-
-  // ==================== ADMIN SCREENS ====================
-  static Widget _buildAdminDashboard(Map<String, dynamic>? arguments) {
-    // TODO: Implement admin dashboard
-    return const Scaffold(body: Center(child: Text('Admin Dashboard')));
-  }
-
-  static Widget _buildAdminUsers(Map<String, dynamic>? arguments) {
-    // TODO: Implement admin users management
-    return const Scaffold(body: Center(child: Text('Admin Users')));
-  }
-
-  static Widget _buildAdminReports(Map<String, dynamic>? arguments) {
-    // TODO: Implement admin reports
-    return const Scaffold(body: Center(child: Text('Admin Reports')));
-  }
-
-  // ==================== TEACHER SCREENS ====================
-  static Widget _buildTeacherCourses(Map<String, dynamic>? arguments) {
-    // TODO: Implement teacher courses
-    return const Scaffold(body: Center(child: Text('Teacher Courses')));
-  }
-
-  static Widget _buildTeacherStudents(Map<String, dynamic>? arguments) {
-    // TODO: Implement teacher students
-    return const Scaffold(body: Center(child: Text('Teacher Students')));
-  }
-
-  static Widget _buildTeacherAssignments(Map<String, dynamic>? arguments) {
-    // TODO: Implement teacher assignments
-    return const Scaffold(body: Center(child: Text('Teacher Assignments')));
-  }
-
-  // ==================== STUDENT SCREENS ====================
-  static Widget _buildStudentCourses(Map<String, dynamic>? arguments) {
-    // TODO: Implement student courses
-    return const Scaffold(body: Center(child: Text('Student Courses')));
-  }
-
-  static Widget _buildStudentAssignments(Map<String, dynamic>? arguments) {
-    // TODO: Implement student assignments
-    return const Scaffold(body: Center(child: Text('Student Assignments')));
-  }
-
-  static Widget _buildStudentGrades(Map<String, dynamic>? arguments) {
-    // TODO: Implement student grades
-    return const Scaffold(body: Center(child: Text('Student Grades')));
-  }
-
-  // ==================== COACH SCREENS ====================
-  static Widget _buildCoachClients(Map<String, dynamic>? arguments) {
-    // TODO: Implement coach clients
-    return const Scaffold(body: Center(child: Text('Coach Clients')));
-  }
-
-  static Widget _buildCoachSessions(Map<String, dynamic>? arguments) {
-    // TODO: Implement coach sessions
-    return const Scaffold(body: Center(child: Text('Coach Sessions')));
-  }
-
-  static Widget _buildCoachPrograms(Map<String, dynamic>? arguments) {
-    // TODO: Implement coach programs
-    return const Scaffold(body: Center(child: Text('Coach Programs')));
   }
 
   // ==================== NAVIGATION HELPERS ====================
@@ -267,26 +148,6 @@ class RouteConfig {
 
   static void navigateToSettings(BuildContext context) {
     Navigator.of(context).pushNamed(settings);
-  }
-
-  // Admin navigation
-  static void navigateToAdminDashboard(BuildContext context) {
-    Navigator.of(context).pushNamed(adminDashboard);
-  }
-
-  // Teacher navigation
-  static void navigateToTeacherCourses(BuildContext context) {
-    Navigator.of(context).pushNamed(teacherCourses);
-  }
-
-  // Student navigation
-  static void navigateToStudentCourses(BuildContext context) {
-    Navigator.of(context).pushNamed(studentCourses);
-  }
-
-  // Coach navigation
-  static void navigateToCoachClients(BuildContext context) {
-    Navigator.of(context).pushNamed(coachClients);
   }
 }
 

@@ -4,13 +4,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:omnihealthmobileflutter/core/theme/app_colors.dart';
 import 'package:omnihealthmobileflutter/core/theme/app_spacing.dart';
 import 'package:omnihealthmobileflutter/core/theme/app_typography.dart';
-import 'package:omnihealthmobileflutter/presentation/common/button/button_icon.dart';
-import 'package:omnihealthmobileflutter/presentation/common/button/button_primary.dart';
-import 'package:omnihealthmobileflutter/presentation/common/input_fields/text_field.dart';
 import 'package:omnihealthmobileflutter/presentation/screen/auth/login/cubits/login_cubit.dart';
 import 'package:omnihealthmobileflutter/presentation/screen/auth/login/cubits/login_state.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-
 import 'widgets/login_form.dart';
 import 'widgets/login_header.dart';
 

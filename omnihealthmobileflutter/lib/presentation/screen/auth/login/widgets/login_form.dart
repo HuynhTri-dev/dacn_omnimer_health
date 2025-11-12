@@ -6,7 +6,7 @@ import 'package:omnihealthmobileflutter/core/theme/app_typography.dart';
 import 'package:omnihealthmobileflutter/core/validation/field_validator.dart';
 import 'package:omnihealthmobileflutter/presentation/common/button/button_icon.dart';
 import 'package:omnihealthmobileflutter/presentation/common/button/button_primary.dart';
-import 'package:omnihealthmobileflutter/presentation/common/input_fields/text_field.dart';
+import 'package:omnihealthmobileflutter/presentation/common/input_fields/custom_text_field.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class LoginForm extends StatefulWidget {

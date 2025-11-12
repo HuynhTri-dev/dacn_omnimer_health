@@ -67,7 +67,7 @@ class RegisterCubit extends Cubit<RegisterState> {
 
         emit(RegisterSuccess(response.data!));
       } else {
-        emit(RegisterFailure(response.message ?? 'Đăng ký thất bại'));
+        emit(RegisterFailure(response.message));
       }
     } catch (e) {
       emit(RegisterFailure('Có lỗi xảy ra: ${e.toString()}'));

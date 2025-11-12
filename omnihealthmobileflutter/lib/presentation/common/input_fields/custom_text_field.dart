@@ -107,12 +107,12 @@ class _CustomTextFieldState extends State<CustomTextField>
     setState(() => _internalError = error);
   }
 
-  Color _getFillColor(BuildContext context) {
-    if (!_isFocused && widget.enabled) return AppColors.gray300;
-    if (_isFocused) return AppColors.white;
-    if (!widget.enabled) return AppColors.gray100;
-    return AppColors.gray300;
-  }
+  // Color _getFillColor(BuildContext context) {
+  //   if (!_isFocused && widget.enabled) return AppColors.gray300;
+  //   if (_isFocused) return AppColors.white;
+  //   if (!widget.enabled) return AppColors.gray100;
+  //   return AppColors.gray300;
+  // }
 
   Color _getBorderColor(BuildContext context) {
     if (!widget.enabled) return AppColors.gray300;

@@ -94,10 +94,10 @@ class _SingleSelectBoxState<T> extends State<SingleSelectBox<T>> {
   @override
   Widget build(BuildContext context) {
     final displayError = widget.error ?? _internalError;
-    final selectedOption = widget.options.firstWhere(
-      (opt) => opt.value == widget.value,
-      orElse: () => SelectOption(label: '', value: widget.value as T),
-    );
+    // final selectedOption = widget.options.firstWhere(
+    //   (opt) => opt.value == widget.value,
+    //   orElse: () => SelectOption(label: '', value: widget.value as T),
+    // );
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
