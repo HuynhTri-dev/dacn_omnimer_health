@@ -30,12 +30,3 @@ export const ExerciseType = mongoose.model<IExerciseType>(
   "ExerciseType",
   exerciseTypeSchema
 );
-
-// [
-//   {
-//     _id: "652f8f1a2b3c4d5e6f7a8901",
-//     name: "Strength Training",
-//     description: "Bài tập giúp tăng sức mạnh cơ bắp, nâng tạ hoặc bodyweight.",
-//     suitableGoals: ["Strength", "MuscleGain"]
-//   },
-// ]

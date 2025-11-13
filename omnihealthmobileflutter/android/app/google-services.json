@@ -1,0 +1,82 @@
+{
+  "project_info": {
+    "project_number": "296807026441",
+    "project_id": "omnimerhealth",
+    "storage_bucket": "omnimerhealth.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:296807026441:android:2bba87116175721e050dd8",
+        "android_client_info": {
+          "package_name": "com.example.omnihealthmobileflutter"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "296807026441-ajjmqu8r8ku86s4nt7bc0ar96rtfmo50.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB9V2PR0CI40HImkOJ5NpF3y9S-UYjIgSo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "296807026441-ajjmqu8r8ku86s4nt7bc0ar96rtfmo50.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "296807026441-k5g5ua49o6oekp87bmie88kse2vr0fi4.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.omnihealthapp.app"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:296807026441:android:25e192c066acf0c8050dd8",
+        "android_client_info": {
+          "package_name": "com.omnihealthapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "296807026441-ajjmqu8r8ku86s4nt7bc0ar96rtfmo50.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB9V2PR0CI40HImkOJ5NpF3y9S-UYjIgSo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "296807026441-ajjmqu8r8ku86s4nt7bc0ar96rtfmo50.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "296807026441-k5g5ua49o6oekp87bmie88kse2vr0fi4.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.omnihealthapp.app"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

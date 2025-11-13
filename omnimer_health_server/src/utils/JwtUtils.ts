@@ -12,7 +12,7 @@ export const JwtUtils = {
     return jwt.sign(payload, ACCESS_TOKEN_SECRET, options);
   },
 
-  generateRefreshToken(payload: any, expiresIn: StringValue | number = "7d") {
+  generateRefreshToken(payload: any, expiresIn: StringValue | number = "1y") {
     const options: SignOptions = { expiresIn };
     return jwt.sign(payload, REFRESH_TOKEN_SECRET, options);
   },
