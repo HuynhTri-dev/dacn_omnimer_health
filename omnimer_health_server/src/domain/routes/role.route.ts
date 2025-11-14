@@ -12,6 +12,7 @@ const roleController = new RoleController(roleService);
 const router = Router();
 
 router.get("/", verifyAccessToken, roleController.getAll);
+router.get("/without-admin", roleController.getRolesWithoutAdmin);
 router.post("/", roleController.create);
 router.delete("/:id", roleController.delete);
 router.get("/:id", roleController.getById);

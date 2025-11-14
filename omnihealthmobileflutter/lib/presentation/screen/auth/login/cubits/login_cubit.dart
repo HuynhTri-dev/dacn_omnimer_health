@@ -2,7 +2,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:omnihealthmobileflutter/domain/entities/auth_entity.dart';
 import 'package:omnihealthmobileflutter/domain/usecases/auth/login_usecase.dart';
 import 'package:omnihealthmobileflutter/presentation/common/blocs/auth/authentication_bloc.dart';
-import 'package:omnihealthmobileflutter/presentation/common/blocs/auth/authentication_state.dart';
+import 'package:omnihealthmobileflutter/presentation/common/blocs/auth/authentication_event.dart';
 import 'package:omnihealthmobileflutter/presentation/screen/auth/login/cubits/login_state.dart';
 
 // ==================== CUBIT ====================
@@ -34,7 +34,7 @@ class LoginCubit extends Cubit<LoginState> {
         // }
 
         // Cập nhật authentication bloc
-        authenticationBloc.add(AuthenticationLoggedIn(response.data!));
+        authenticationBloc.add(AuthenticationLoggedIn(response.data!.user));
 
         emit(LoginSuccess(response.data!));
       } else {

@@ -3,6 +3,7 @@ import jwt from "jsonwebtoken";
 import { User } from "../../domain/models";
 import { DecodePayload } from "../../domain/entities/DecodePayload.entity";
 import { sendError } from "../../utils/ResponseHelper";
+import { JwtUtils } from "../../utils/JwtUtils";
 
 /**
  * Middleware: verifyAccessToken
@@ -26,10 +27,7 @@ export const verifyAccessToken = async (
     }
 
     const token = authHeader.split(" ")[1];
-    const payload = jwt.verify(
-      token,
-      process.env.ACCESS_TOKEN_SECRET!
-    ) as DecodePayload;
+    const payload = JwtUtils.verifyAccessToken(token) as DecodePayload;
 
     // Gán payload (DecodePayload) vào req.user
     req.user = payload;

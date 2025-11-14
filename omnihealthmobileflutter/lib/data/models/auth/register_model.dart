@@ -7,7 +7,6 @@ import 'package:omnihealthmobileflutter/domain/entities/auth_entity.dart';
 class RegisterModel {
   final String? email;
   final String? password;
-  final String? uid;
   final String? fullname;
   final String? birthday;
   final GenderEnum? gender;
@@ -17,7 +16,6 @@ class RegisterModel {
   const RegisterModel({
     this.email,
     this.password,
-    this.uid,
     this.fullname,
     this.birthday,
     this.gender,
@@ -30,7 +28,6 @@ class RegisterModel {
     return RegisterModel(
       email: entity.email,
       password: entity.password,
-      uid: entity.uid,
       fullname: entity.fullname,
       birthday: entity.birthday,
       gender: entity.gender,
@@ -43,10 +40,10 @@ class RegisterModel {
   Future<FormData> toFormData() async {
     final Map<String, dynamic> fields = {
       'email': email,
-      'uid': uid,
+      'password': password,
       'fullname': fullname,
       'birthday': birthday,
-      'gender': gender?.name, // enum → string
+      'gender': gender?.name,
       'roleIds': roleIds,
     };
 

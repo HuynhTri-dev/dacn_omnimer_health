@@ -9,7 +9,7 @@ class UserAuth extends Equatable {
   final String? imageUrl;
   final GenderEnum? gender;
   final DateTime? birthday;
-  final String roleName;
+  final List<String> roleName;
 
   const UserAuth({
     required this.fullname,
@@ -59,7 +59,6 @@ class LoginEntity extends Equatable {
 class RegisterEntity extends Equatable {
   final String? email;
   final String? password;
-  final String? uid;
   final String? fullname;
   final String? birthday;
   final GenderEnum? gender;
@@ -69,7 +68,6 @@ class RegisterEntity extends Equatable {
   const RegisterEntity({
     this.email,
     this.password,
-    this.uid,
     this.fullname,
     this.birthday,
     this.gender,
@@ -81,7 +79,6 @@ class RegisterEntity extends Equatable {
   List<Object?> get props => [
     password,
     email,
-    uid,
     fullname,
     birthday,
     gender,

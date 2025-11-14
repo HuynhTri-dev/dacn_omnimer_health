@@ -38,7 +38,7 @@ app.use(errorHandler);
 const initializeApp = async () => {
   try {
     await connectMongoDB();
-    await initializeFirebaseAdmin();
+    // await initializeFirebaseAdmin();
 
     const redisClient = await connectRedis(); // connect trước
     await loadRolePermissionsToCache(redisClient); // truyền client vào

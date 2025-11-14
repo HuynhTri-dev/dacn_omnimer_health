@@ -1,5 +1,5 @@
-import { UserRepository } from "../../repositories";
-import { IUser } from "../../models";
+import { RoleRepository, UserRepository } from "../../repositories";
+import { IRole, IUser } from "../../models";
 import { JwtUtils } from "../../../utils/JwtUtils";
 import { logAudit, logError } from "../../../utils/LoggerUtil";
 import { StatusLogEnum } from "../../../common/constants/AppConstants";
@@ -7,43 +7,42 @@ import admin from "../../../common/configs/firebaseAdminConfig";
 import { HttpError } from "../../../utils/HttpError";
 import { DecodePayload } from "../../entities/DecodePayload.entity";
 import { uploadUserAvatar } from "../../../utils/CloudflareUpload";
-import mongoose from "mongoose";
+import mongoose, { Types } from "mongoose";
 import { IAuthResponse, IUserResponse } from "../../entities";
+import { comparePassword, hashPassword } from "../../../utils/PasswordUtil";
 
 export class AuthService {
   private readonly userRepo: UserRepository;
+  private readonly roleRepo: RoleRepository;
 
-  constructor(userRepo: UserRepository) {
+  constructor(userRepo: UserRepository, roleRepo: RoleRepository) {
     this.userRepo = userRepo;
+    this.roleRepo = roleRepo;
   }
+
   /**
    * Xây dựng đối tượng phản hồi người dùng trả về cho client.
    * (Ẩn các trường nhạy cảm, chỉ giữ lại thông tin hiển thị cơ bản).
-   *
-   * @param {IUser} user - Đối tượng người dùng trong cơ sở dữ liệu.
-   * @returns {IUserResponse} Thông tin người dùng được định dạng để phản hồi cho client.
    */
-  private buildUserResponse(user: IUser): IUserResponse {
+  private buildUserResponse(user: IUserResponse): IUserResponse {
     return {
       fullname: user.fullname,
       email: user.email,
       imageUrl: user.imageUrl,
       gender: user.gender,
       birthday: user.birthday,
+      roleName: user.roleName, // Danh sách tên vai trò
     };
   }
+
   /**
    * Sinh cặp accessToken và refreshToken cho người dùng.
-   * (Payload bao gồm uid, id, và danh sách roleIds).
-   *
-   * @param {IUser} user - Đối tượng người dùng được xác thực.
-   * @returns {{ accessToken: string; refreshToken: string }} Access và refresh token.
    */
-  private generateTokens(user: IUser) {
+  private generateTokens(user: IUserResponse) {
+    // Đảm bảo user có _id và roleIds để tạo payload
     const payload: DecodePayload = {
-      uid: user.uid,
-      id: user._id,
-      roleIds: user.roleIds,
+      id: user._id as Types.ObjectId,
+      roleIds: user.roleIds as Types.ObjectId[], // Giả định roleIds là Types.ObjectId[] sau khi tạo
     };
     return {
       accessToken: JwtUtils.generateAccessToken(payload),
@@ -53,60 +52,93 @@ export class AuthService {
 
   /**
    * Đăng ký người dùng mới.
-   * - Kiểm tra UID trùng lặp trong hệ thống.
-   * - Tạo người dùng mới trong transaction an toàn.
-   * - Upload ảnh đại diện nếu có.
-   * - Sinh accessToken và refreshToken cho tài khoản mới.
-   * - Ghi log audit và trả về thông tin người dùng cùng token.
-   *
-   * @param {Partial<IUser>} data - Thông tin người dùng cần đăng ký (uid, email, fullname, ...).
+   * @param {IUser} data - Thông tin người dùng cần đăng ký (email, fullname, password...).
    * @param {Express.Multer.File} [avatarImage] - File ảnh đại diện người dùng (tùy chọn).
    * @returns {Promise<IAuthResponse>} Thông tin người dùng và token sau khi đăng ký.
-   * @throws {HttpError} Nếu UID đã tồn tại hoặc có lỗi khi ghi dữ liệu.
+   * @throws {HttpError} Nếu Email đã tồn tại hoặc có lỗi khi ghi dữ liệu.
    */
   async register(
-    data: Partial<IUser>,
+    data: Omit<IUser, "passwordHashed" | "_id"> & { password: string },
     avatarImage?: Express.Multer.File
   ): Promise<IAuthResponse> {
     const session = await mongoose.startSession();
     session.startTransaction();
 
     try {
-      // 1. Kiểm tra trùng UID
-      if (await this.userRepo.findByUid(data.uid!))
-        throw new HttpError(409, "Người dùng đã có tài khoản tồn tại");
+      //! Kiểm tra thông tin email đã có và role có trong dữ liệu
+      if (await this.userRepo.findByEmail(data.email))
+        throw new HttpError(409, "Người dùng đã có tài khoản tồn tại.");
 
-      // 2. Tạo user
-      const created = await this.userRepo.createWithSession(data, session);
+      const defaultRole = await this.roleRepo.findRoleNamesAndIdsByRoleIds(
+        data.roleIds
+      );
 
-      // 3. Upload avatar nếu có
+      if (!defaultRole) {
+        throw new HttpError(
+          500,
+          "Lỗi hệ thống: Không tìm thấy vai trò mặc định 'User'."
+        );
+      }
+
+      const defaultRoleIds = defaultRole
+        .filter((role): role is IRole => !!role)
+        .map((role) => role._id);
+
+      const defaultRoleNames = defaultRole
+        .filter((role): role is IRole => !!role)
+        .map((role) => role.name);
+
+      //! Mã hóa mật khẩu
+      const passwordHashed = await hashPassword(data.password);
+
+      const newUserData = {
+        ...data,
+        passwordHashed: passwordHashed,
+        roleIds: defaultRoleIds,
+      };
+
+      const created = await this.userRepo.createWithSession(
+        newUserData,
+        session
+      );
+
+      // Upload avatar
       if (avatarImage) {
-        created.imageUrl = await uploadUserAvatar(avatarImage, created.id);
+        created.imageUrl = await uploadUserAvatar(
+          avatarImage,
+          created._id.toString()
+        );
         await created.save({ session });
       }
 
-      // 4. Commit transaction
       await session.commitTransaction();
       session.endSession();
 
-      // 5. Sinh token
-      const tokens = this.generateTokens(created);
+      const userResponse: IUserResponse = {
+        fullname: created.fullname,
+        email: created.email,
+        imageUrl: created.imageUrl,
+        gender: created.gender,
+        birthday: created.birthday,
+        roleName: defaultRoleNames,
+      };
 
-      // 6. Ghi log
       await logAudit({
         userId: created._id.toString(),
         action: "registerUser",
         message: `User "${created.fullname}" đăng ký thành công`,
         status: StatusLogEnum.Success,
         targetId: created._id.toString(),
-        metadata: { uid: created.uid, email: created.email },
+        metadata: { email: created.email, roleNames: defaultRoleNames },
       });
 
+      // 10. Trả về
       return {
-        user: this.buildUserResponse(created),
-        ...tokens,
+        user: this.buildUserResponse(userResponse),
+        ...this.generateTokens(created),
       };
     } catch (err: any) {
+      //! Hủy session khi có lỗi
       await session.abortTransaction();
       session.endSession();
 
@@ -121,28 +153,44 @@ export class AuthService {
   }
 
   /**
-   * Đăng nhập người dùng bằng Firebase ID Token.
-   * - Xác minh ID Token thông qua Firebase Admin SDK.
-   * - Kiểm tra người dùng có tồn tại trong cơ sở dữ liệu.
+   * Đăng nhập người dùng bằng Email và Password.
+   * - Tìm kiếm người dùng trong cơ sở dữ liệu dựa trên email.
+   * - So sánh mật khẩu được gửi lên với hash đã lưu trong DB.
    * - Sinh và trả về accessToken và refreshToken.
    *
-   * @param {string} idToken - Firebase ID Token được gửi từ client.
+   * @param {string} email - Email của người dùng.
+   * @param {string} password - Mật khẩu của người dùng (dạng chuỗi chưa được hash).
    * @returns {Promise<IAuthResponse>} Thông tin người dùng và cặp token sau khi đăng nhập.
-   * @throws {HttpError} Nếu token không hợp lệ hoặc người dùng không tồn tại.
+   * @throws {HttpError} Nếu email hoặc password không đúng.
    */
-  async login(idToken: string): Promise<IAuthResponse> {
+  async login(email: string, password: string): Promise<IAuthResponse> {
     try {
-      const decoded = await admin.auth().verifyIdToken(idToken);
-      const { uid } = decoded;
+      const userWithHash = await this.userRepo.userByEmailWithPassword(email);
+      console.log("User With Hash", userWithHash);
+      if (!userWithHash) {
+        throw new HttpError(401, "Email hoặc password không đúng");
+      }
 
-      const user = await this.userRepo.findByUid(uid);
-      if (!user) throw new HttpError(401, "Không có người dùng này");
+      const isPasswordValid = await comparePassword(
+        password,
+        userWithHash.passwordHashed
+      );
+
+      if (!isPasswordValid) {
+        throw new HttpError(401, "Email hoặc password không đúng");
+      }
 
       return {
-        user: this.buildUserResponse(user),
-        ...this.generateTokens(user),
+        user: this.buildUserResponse(userWithHash.userResponse),
+        ...this.generateTokens(userWithHash.userResponse),
       };
-    } catch (err) {
+    } catch (err: any) {
+      await logError({
+        action: "loginUser",
+        message: err.message || err,
+        errorMessage: err.stack || err,
+      });
+
       throw err;
     }
   }
@@ -172,6 +220,19 @@ export class AuthService {
       });
 
       return accessToken;
+    } catch (e) {
+      throw new HttpError(401, "Invalid or expired refresh token");
+    }
+  }
+
+  async getAuth(id: string) {
+    try {
+      const user = await this.userRepo.getUserById(id);
+      if (!user) {
+        throw new HttpError(404, "User not found");
+      }
+
+      return user;
     } catch (e) {
       throw new HttpError(401, "Invalid or expired refresh token");
     }

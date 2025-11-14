@@ -5,7 +5,7 @@ import 'package:omnihealthmobileflutter/core/routing/route_config.dart';
 import 'package:omnihealthmobileflutter/core/theme/app_theme.dart';
 import 'package:omnihealthmobileflutter/injection_container.dart';
 import 'package:omnihealthmobileflutter/presentation/common/blocs/auth/authentication_bloc.dart';
-import 'package:omnihealthmobileflutter/presentation/common/blocs/auth/authentication_event.dart';
+import 'package:omnihealthmobileflutter/presentation/common/blocs/auth/authentication_state.dart';
 import 'package:omnihealthmobileflutter/presentation/common/cubits/theme_cubit.dart';
 import 'package:omnihealthmobileflutter/presentation/screen/auth/login/cubits/login_cubit.dart';
 import 'package:omnihealthmobileflutter/presentation/screen/auth/login/login_screen.dart';
@@ -41,7 +41,7 @@ class AppView extends StatelessWidget {
             return MaterialPageRoute(
               builder: (_) => RouteConfig.buildPage(
                 routeName: settings.name ?? RouteConfig.main,
-                role: authState.authEntity.user.roleName,
+                role: authState.user.roleName,
                 arguments: settings.arguments as Map<String, dynamic>?,
               ),
               settings: settings,

@@ -1,12 +1,13 @@
 import { Router } from "express";
 import { AuthController } from "../controllers";
-import { UserRepository } from "../repositories";
-import { User } from "../models";
+import { RoleRepository, UserRepository } from "../repositories";
+import { Role, User } from "../models";
 import { AuthService } from "../services";
 import { uploadImage } from "../../common/middlewares/upload.middleware";
+import { verifyAccessToken } from "../../common/middlewares/auth.middleware";
 
 const userRepository = new UserRepository(User);
-const authService = new AuthService(userRepository);
+const authService = new AuthService(userRepository, new RoleRepository(Role));
 const authController = new AuthController(authService);
 
 const router = Router();
@@ -45,5 +46,7 @@ router.post("/register", uploadImage("image"), authController.register);
 router.post("/login", authController.login);
 
 router.post("/new-access-token", authController.createNewAccessToken);
+
+router.get("/", verifyAccessToken, authController.getAuth);
 
 export default router;

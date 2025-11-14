@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:omnihealthmobileflutter/core/theme/app_colors.dart';
 import 'package:omnihealthmobileflutter/core/theme/app_spacing.dart';
@@ -8,6 +9,7 @@ import 'package:omnihealthmobileflutter/presentation/common/button/button_icon.d
 import 'package:omnihealthmobileflutter/presentation/common/button/button_primary.dart';
 import 'package:omnihealthmobileflutter/presentation/common/input_fields/custom_text_field.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:omnihealthmobileflutter/presentation/screen/auth/login/cubits/login_cubit.dart';
 
 class LoginForm extends StatefulWidget {
   final bool isLoading;
@@ -34,22 +36,25 @@ class _LoginFormState extends State<LoginForm> {
     super.dispose();
   }
 
-  void _handleLogin() {
-    bool isValid = true;
-    if (_emailController.text.trim().isEmpty) isValid = false;
-    if (_passwordController.text.isEmpty) isValid = false;
+  void _handleLogin(BuildContext context) {
+    final email = _emailController.text.trim();
+    final password = _passwordController.text;
 
-    if (!isValid) {
+    if (email.isEmpty || password.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Vui lòng điền đầy đủ thông tin'),
+          content: const Text('Vui lòng điền đầy đủ thông tin'),
           backgroundColor: AppColors.error,
         ),
       );
       return;
     }
 
-    // TODO: call cubit login
+    context.read<LoginCubit>().login(
+      email: email,
+      password: password,
+      rememberPassword: _rememberPassword,
+    );
   }
 
   @override
@@ -66,7 +71,7 @@ class _LoginFormState extends State<LoginForm> {
             controller: _emailController,
             focusNode: _emailFocusNode,
             label: 'Email',
-            placeholder: 'Tài khoản',
+            placeholder: 'your_email@gmail.com',
             keyboardType: TextInputType.emailAddress,
             textInputAction: TextInputAction.next,
             leftIcon: Icon(
@@ -106,7 +111,7 @@ class _LoginFormState extends State<LoginForm> {
             ),
             validators: [FieldValidators.required(fieldName: 'Password')],
             enabled: !widget.isLoading,
-            onSubmitted: (_) => _handleLogin(),
+            onSubmitted: (_) => _handleLogin(context),
           ),
           SizedBox(height: AppSpacing.sm.h),
           _buildRememberAndForgot(),
@@ -118,7 +123,7 @@ class _LoginFormState extends State<LoginForm> {
             fullWidth: true,
             loading: widget.isLoading,
             disabled: widget.isLoading,
-            onPressed: _handleLogin,
+            onPressed: () => _handleLogin(context),
           ),
           SizedBox(height: AppSpacing.lg.h),
           ButtonIcon(

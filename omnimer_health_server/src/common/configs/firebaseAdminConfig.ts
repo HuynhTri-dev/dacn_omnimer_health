@@ -20,7 +20,6 @@ export const initializeFirebaseAdmin = (): void => {
       firebaseAdmin || "serviceAccountKey.json"
     );
 
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
     const serviceAccount = require(serviceAccountPath);
 
     admin.initializeApp({

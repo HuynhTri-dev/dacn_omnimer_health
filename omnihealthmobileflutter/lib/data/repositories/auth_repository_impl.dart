@@ -95,20 +95,30 @@ class AuthRepositoryImpl implements AuthRepositoryAbs {
   }
 
   @override
-  Future<ApiResponse<AuthEntity>> getAuth() async {
+  Future<ApiResponse<UserAuth>> getAuth() async {
     try {
       final response = await authDataSource.getAuth();
+      if (response.data == null) {
+        return ApiResponse<UserAuth>(
+          success: response.success,
+          message: response.message,
+          data: null,
+          error: response.error,
+        );
+      }
 
-      final authEntity = response.data?.toEntity();
-      return ApiResponse<AuthEntity>(
+      final userAuth = response.data!.toEntity();
+
+      return ApiResponse<UserAuth>(
         success: response.success,
         message: response.message,
-        data: authEntity,
+        data: userAuth,
         error: response.error,
       );
     } catch (e) {
-      return ApiResponse<AuthEntity>.error(
-        "Get Auth: ${e.toString()}",
+      // Đã sửa lỗi kiểu trả về ở đây
+      return ApiResponse<UserAuth>.error(
+        "Get Auth thất bại: ${e.toString()}",
         error: e,
       );
     }

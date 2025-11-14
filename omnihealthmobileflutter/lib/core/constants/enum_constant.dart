@@ -1,8 +1,8 @@
 // =================== GENDER ===================
 enum GenderEnum {
-  Male("male"),
-  Female("female"),
-  Other("other");
+  male("Male"),
+  female("Female"),
+  other("Other");
 
   final String displayName;
   const GenderEnum(this.displayName);
@@ -12,7 +12,7 @@ enum GenderEnum {
   static GenderEnum fromString(String? value) {
     return GenderEnum.values.firstWhere(
       (e) => e.name == value,
-      orElse: () => GenderEnum.Other,
+      orElse: () => GenderEnum.other,
     );
   }
 }

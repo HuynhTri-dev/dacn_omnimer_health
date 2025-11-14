@@ -4,10 +4,10 @@ import 'package:omnihealthmobileflutter/core/constants/storage_constant.dart';
 import 'package:omnihealthmobileflutter/data/models/auth/auth_model.dart';
 import 'package:omnihealthmobileflutter/data/models/auth/login_model.dart';
 import 'package:omnihealthmobileflutter/data/models/auth/register_model.dart';
-import 'package:omnihealthmobileflutter/services/firebase_auth_service.dart';
 import 'package:omnihealthmobileflutter/services/secure_storage_service.dart';
 import 'package:omnihealthmobileflutter/core/api/api_response.dart';
 import 'package:omnihealthmobileflutter/services/shared_preferences_service.dart';
+import 'package:omnihealthmobileflutter/utils/logger.dart';
 
 /// Data source responsible for authentication related API calls
 abstract class AuthDataSource {
@@ -28,19 +28,17 @@ abstract class AuthDataSource {
 
   Future<ApiResponse<void>> logout();
 
-  Future<ApiResponse<AuthModel>> getAuth();
+  Future<ApiResponse<UserAuthModel>> getAuth();
 }
 
 class AuthDataSourceImpl implements AuthDataSource {
   final ApiClient apiClient;
   final SecureStorageService secureStorage;
-  final FirebaseAuthService firebaseAuthService;
   final SharedPreferencesService sharedPreferencesService;
 
   AuthDataSourceImpl({
     required this.apiClient,
     required this.secureStorage,
-    required this.firebaseAuthService,
     required this.sharedPreferencesService,
   });
 
@@ -57,28 +55,14 @@ class AuthDataSourceImpl implements AuthDataSource {
         );
       }
 
-      // Tạo user trên Firebase → lấy uid
-      final firebaseUid = await firebaseAuthService.createUserAndGetUid(
-        email,
-        password,
-      );
-
-      final updatedUser = RegisterModel(
-        uid: firebaseUid,
-        fullname: user.fullname,
-        birthday: user.birthday,
-        gender: user.gender,
-        roleIds: user.roleIds,
-        image: user.image,
-      );
-
-      final formData = await updatedUser.toFormData();
+      final formData = await user.toFormData();
 
       final response = await apiClient.post<AuthModel>(
         Endpoints.register,
         data: formData,
         parser: (json) => AuthModel.fromJson(json as Map<String, dynamic>),
         headers: {'Content-Type': 'multipart/form-data'},
+        requiresAuth: false,
       );
 
       if (response.success && response.data != null) {
@@ -93,7 +77,9 @@ class AuthDataSourceImpl implements AuthDataSource {
         );
         await sharedPreferencesService.create(
           StorageConstant.kUserInfoKey,
-          auth.user,
+          auth.user.toString(),
+
+          /// key:
         );
       }
 
@@ -106,15 +92,11 @@ class AuthDataSourceImpl implements AuthDataSource {
   @override
   Future<ApiResponse<AuthModel>> login(LoginModel loginModel) async {
     try {
-      final idToken = await firebaseAuthService.signInAndGetToken(
-        loginModel.email,
-        loginModel.password,
-      );
-
       final response = await apiClient.post<AuthModel>(
         Endpoints.login,
-        data: {"idToken": idToken},
+        data: loginModel.toJson(),
         parser: (json) => AuthModel.fromJson(json as Map<String, dynamic>),
+        requiresAuth: false,
       );
 
       // Persist token if success
@@ -130,12 +112,13 @@ class AuthDataSourceImpl implements AuthDataSource {
         );
         await sharedPreferencesService.create(
           StorageConstant.kUserInfoKey,
-          auth.user,
+          auth.user.toString(),
         );
       }
 
       return response;
     } catch (e) {
+      logger.e(e);
       return ApiResponse<AuthModel>.error("Login failed: ${e.toString()}");
     }
   }
@@ -154,6 +137,7 @@ class AuthDataSourceImpl implements AuthDataSource {
         Endpoints.createNewAccessToken,
         data: {'refreshToken': refreshToken},
         parser: (json) => json?.toString() ?? '',
+        requiresAuth: false,
       );
 
       // Update access token if success
@@ -186,7 +170,6 @@ class AuthDataSourceImpl implements AuthDataSource {
   @override
   Future<ApiResponse<void>> logout() async {
     try {
-      await firebaseAuthService.signOut();
       await secureStorage.delete(StorageConstant.kAccessTokenKey);
       await secureStorage.delete(StorageConstant.kRefreshTokenKey);
       await sharedPreferencesService.delete(StorageConstant.kUserInfoKey);
@@ -198,18 +181,16 @@ class AuthDataSourceImpl implements AuthDataSource {
   }
 
   @override
-  Future<ApiResponse<AuthModel>> getAuth() async {
+  Future<ApiResponse<UserAuthModel>> getAuth() async {
     try {
-      final idToken = await firebaseAuthService.getIdToken();
-      final response = await apiClient.post<AuthModel>(
-        Endpoints.login,
-        data: {"idToken": idToken},
-        parser: (json) => AuthModel.fromJson(json as Map<String, dynamic>),
+      final response = await apiClient.get<UserAuthModel>(
+        Endpoints.getAuth,
+        parser: (json) => UserAuthModel.fromJson(json as Map<String, dynamic>),
       );
 
       return response;
     } catch (e) {
-      return ApiResponse<AuthModel>.error("Get Auth: ${e.toString()}");
+      return ApiResponse<UserAuthModel>.error("Get Auth: ${e.toString()}");
     }
   }
 }

@@ -1,7 +1,11 @@
 import { BaseRepository } from "../Base.repository";
 import { IUser } from "../../models";
-import { FilterQuery, Model } from "mongoose";
-import { PaginationQueryOptions } from "../../entities";
+import { Model, Types } from "mongoose";
+import {
+  IUserResponse,
+  IUserWithPasswordHash,
+  PaginationQueryOptions,
+} from "../../entities";
 import { ListUserResponse } from "../../entities";
 
 export class UserRepository extends BaseRepository<IUser> {
@@ -9,9 +13,74 @@ export class UserRepository extends BaseRepository<IUser> {
     super(model);
   }
 
-  async findByUid(uid: string): Promise<IUser | null> {
+  async getUserById(id: string): Promise<IUserResponse | null> {
     try {
-      return this.model.findOne({ uid }).exec();
+      const user = await this.model
+        .findById(id)
+        .populate({
+          path: "roleIds",
+          select: "_id name",
+        })
+        .lean();
+
+      if (!user) return null;
+
+      const roles = Array.isArray(user.roleIds)
+        ? (user.roleIds as unknown as { _id: Types.ObjectId; name: string }[])
+        : [];
+
+      const userResponse: IUserResponse = {
+        fullname: user.fullname,
+        email: user.email ?? null,
+        imageUrl: user.imageUrl,
+        gender: user.gender,
+        birthday: user.birthday,
+        roleName: roles.map((r) => r.name),
+      };
+
+      return userResponse;
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  async userByEmailWithPassword(
+    email: string
+  ): Promise<IUserWithPasswordHash | null> {
+    try {
+      const user = await this.model
+        .findOne({ email })
+        .populate({
+          path: "roleIds",
+          select: "_id name",
+        })
+        .lean();
+
+      if (!user) return null;
+
+      const roles = Array.isArray(user.roleIds)
+        ? (user.roleIds as unknown as { _id: Types.ObjectId; name: string }[])
+        : [];
+
+      const userResponse: IUserResponse = {
+        _id: user._id,
+        fullname: user.fullname,
+        email: user.email ?? null,
+        imageUrl: user.imageUrl,
+        gender: user.gender,
+        birthday: user.birthday,
+        roleName: roles.map((r) => r.name),
+        roleIds: roles.map((r) => r._id),
+      };
+
+      if (!user.passwordHashed) {
+        return null;
+      }
+
+      return {
+        userResponse: userResponse,
+        passwordHashed: user.passwordHashed,
+      };
     } catch (e) {
       throw e;
     }
@@ -39,15 +108,14 @@ export class UserRepository extends BaseRepository<IUser> {
         .find(options?.filter || {})
         .populate({
           path: "roleIds",
-          select: "name", // chỉ lấy field name
+          select: "name",
         })
         .skip(skip)
         .limit(limit)
         .sort(sort)
-        .lean() // Chuyển về object JS thuần (không phải document Mongoose)
+        .lean()
         .exec();
 
-      // Chuyển dữ liệu sang kiểu ListUserResponse
       const result: ListUserResponse[] = users.map((user) => ({
         _id: user._id,
         fullname: user.fullname,

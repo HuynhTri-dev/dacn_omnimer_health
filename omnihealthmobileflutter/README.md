@@ -3,27 +3,44 @@
 ## Project Structure
 
 ```
-lib/
-├── core/                   # Core functionality and configurations
-│   ├── api/               # API related code
-│   │   ├── api_client.dart        # HTTP client implementation
-│   │   ├── api_exception.dart     # Custom exceptions
-│   │   ├── api_response.dart      # Standardized API response wrapper
-│   │   ├── app_config.dart        # App configuration
-│   │   └── endpoints.dart         # API endpoints definitions
-│   ├── constants/         # Application constants
-│   └── theme/            # App theming and styling
-├── data/                  # Data layer (repositories, data sources)
-├── domain/               # Business logic and domain models
-├── presentation/         # UI layer (screens, widgets)
-├── services/             # Application services
-├── utils/               # Utility functions and helpers
-│   ├── filter_util.dart    # Filtering utilities
-│   ├── logger.dart         # Logging functionality
-│   ├── query_builder.dart  # Query building helpers
-│   └── sort_util.dart      # Sorting utilities
-├── firebase_options.dart  # Firebase configuration
-└── main.dart             # Application entry point
+Cấu trúc Layers
+┌─────────────────────────────────────────────────────────┐
+│              Presentation Layer                          │
+│  ┌────────────┐  ┌──────────────┐  ┌────────────────┐  │
+│  │  Screens   │  │  Providers   │  │    Widgets     │  │
+│  └────────────┘  └──────────────┘  └────────────────┘  │
+│         ▼                ▼                    ▼          │
+│  Làm việc với ENTITY                                    │
+└─────────────────────────────────────────────────────────┘
+                         │
+                         ▼
+┌─────────────────────────────────────────────────────────┐
+│               Domain Layer                               │
+│  ┌────────────┐  ┌──────────────┐  ┌────────────────┐  │
+│  │  Entities  │  │  Use Cases   │  │  Repositories  │  │
+│  │  (Role)    │  │              │  │  (Interface)   │  │
+│  └────────────┘  └──────────────┘  └────────────────┘  │
+│                                                          │
+│  Business Logic thuần túy, không phụ thuộc framework    │
+└─────────────────────────────────────────────────────────┘
+                         │
+                         ▼
+┌─────────────────────────────────────────────────────────┐
+│                Data Layer                                │
+│  ┌────────────┐  ┌──────────────┐                       │
+│  │   Models   │  │ Repositories │                       │
+│  │ (RoleModel)│  │    (Impl)    │                       │
+│  └────────────┘  └──────────────┘                       │
+│         ▼                ▼                               │
+│  Chuyển đổi: Model ↔ Entity                            │
+└─────────────────────────────────────────────────────────┘
+                         │
+                         ▼
+┌─────────────────────────────────────────────────────────┐
+│           Infrastructure Layer                           │
+│                  API Client                              │
+│         Giao tiếp với Backend API                       │
+└─────────────────────────────────────────────────────────┘
 ```
 
 ## Coding Guidelines

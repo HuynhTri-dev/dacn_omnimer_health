@@ -16,6 +16,19 @@ export class RoleController {
     this.service = service;
   }
 
+  getRolesWithoutAdmin = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const roles = await this.service.getRolesWithoutAdminName();
+      return sendSuccess(res, roles, "Get Roles Success");
+    } catch (err) {
+      next(err);
+    }
+  };
+
   // =================== CREATE ===================
   create = async (req: Request, res: Response, next: NextFunction) => {
     try {

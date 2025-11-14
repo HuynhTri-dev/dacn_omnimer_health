@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:omnihealthmobileflutter/presentation/common/blocs/auth/authentication_bloc.dart';
-import 'package:omnihealthmobileflutter/presentation/common/blocs/auth/authentication_state.dart';
+import 'package:omnihealthmobileflutter/presentation/common/blocs/auth/authentication_event.dart';
 import 'package:omnihealthmobileflutter/presentation/common/cubits/theme_cubit.dart';
 import '../injection_container.dart';
 import 'app_view.dart';

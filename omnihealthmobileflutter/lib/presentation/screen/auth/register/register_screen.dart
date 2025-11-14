@@ -6,6 +6,7 @@ import 'package:omnihealthmobileflutter/core/constants/enum_constant.dart';
 import 'package:omnihealthmobileflutter/core/theme/app_colors.dart';
 import 'package:omnihealthmobileflutter/core/theme/app_spacing.dart';
 import 'package:omnihealthmobileflutter/core/theme/app_typography.dart';
+import 'package:omnihealthmobileflutter/domain/entities/role_entity.dart';
 import 'package:omnihealthmobileflutter/presentation/common/button/button_primary.dart';
 import 'package:omnihealthmobileflutter/presentation/screen/auth/register/cubits/register_cubit.dart';
 import 'package:omnihealthmobileflutter/presentation/screen/auth/register/cubits/register_state.dart';
@@ -51,12 +52,29 @@ class _RegisterScreenState extends State<RegisterScreen> {
   String? _passwordError;
   String? _fullnameError;
 
+  // Roles data
+  List<RoleSelectBoxEntity>? _roles;
+  bool _isLoadingRoles = false;
+  String? _rolesError;
+
+  @override
+  void initState() {
+    super.initState();
+    // Load roles khi màn hình khởi tạo
+    _loadRoles();
+  }
+
   @override
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
     _fullnameController.dispose();
     super.dispose();
+  }
+
+  /// Load danh sách vai trò từ API
+  void _loadRoles() {
+    context.read<RegisterCubit>().loadRoles();
   }
 
   /// Validate toàn bộ form trước khi submit
@@ -142,44 +160,23 @@ class _RegisterScreenState extends State<RegisterScreen> {
   /// Hiển thị PDF chính sách bảo mật
   void _showPrivacyPolicy() {
     // TODO: Implement PDF viewer
-    // Navigator.push(
-    //   context,
-    //   MaterialPageRoute(
-    //     builder: (context) => PdfViewerScreen(
-    //       title: 'Chính sách bảo mật',
-    //       pdfUrl: 'assets/pdfs/privacy_policy.pdf',
-    //     ),
-    //   ),
-    // );
     _showInfoDialog('Chính sách bảo mật', 'Tính năng xem PDF sẽ được cập nhật');
   }
 
   /// Hiển thị PDF điều khoản dịch vụ
   void _showTermsOfService() {
     // TODO: Implement PDF viewer
-    // Navigator.push(
-    //   context,
-    //   MaterialPageRoute(
-    //     builder: (context) => PdfViewerScreen(
-    //       title: 'Điều khoản dịch vụ',
-    //       pdfUrl: 'assets/pdfs/terms_of_service.pdf',
-    //     ),
-    //   ),
-    // );
     _showInfoDialog('Điều khoản dịch vụ', 'Tính năng xem PDF sẽ được cập nhật');
   }
 
   /// Quay về trang đăng nhập
   void _navigateToLogin() {
-    // Navigator.of(context).pushNamed('/login');
     Navigator.pushReplacementNamed(context, '/login');
   }
 
   /// Chuyển đến trang Home sau khi đăng ký thành công
   void _navigateToHome() {
-    // TODO: Navigate to Home screen
-    // Navigator.pushReplacementNamed(context, '/home');
-    Navigator.of(context).popUntil((route) => route.isFirst);
+    Navigator.pushReplacementNamed(context, '/home');
   }
 
   /// Hiển thị thông báo lỗi
@@ -265,6 +262,23 @@ class _RegisterScreenState extends State<RegisterScreen> {
             Future.delayed(const Duration(milliseconds: 500), _navigateToHome);
           } else if (state is RegisterFailure) {
             _showErrorSnackBar(state.message);
+          } else if (state is RolesLoaded) {
+            setState(() {
+              _roles = state.roles;
+              _isLoadingRoles = false;
+              _rolesError = null;
+            });
+          } else if (state is RolesLoading) {
+            setState(() {
+              _isLoadingRoles = true;
+              _rolesError = null;
+            });
+          } else if (state is RolesLoadFailure) {
+            setState(() {
+              _isLoadingRoles = false;
+              _rolesError = state.message;
+            });
+            _showErrorSnackBar(state.message);
           }
         },
         builder: (context, state) {
@@ -320,6 +334,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     passwordError: _passwordError,
                     fullnameError: _fullnameError,
                     isLoading: isLoading,
+                    roles: _roles,
+                    isLoadingRoles: _isLoadingRoles,
+                    rolesError: _rolesError,
                   ),
                   SizedBox(height: AppSpacing.lg.h),
 

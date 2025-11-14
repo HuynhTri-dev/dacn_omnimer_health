@@ -7,7 +7,7 @@ class UserAuthModel {
   final String? imageUrl;
   final GenderEnum? gender;
   final String? birthday;
-  final String roleName;
+  final List<String> roleName;
 
   const UserAuthModel({
     required this.fullname,
@@ -23,10 +23,11 @@ class UserAuthModel {
     return UserAuthModel(
       fullname: json['fullname'] ?? '',
       email: json['email'],
-      imageUrl: json['imageUrl'],
+      imageUrl: json['imageUrl'] ?? '',
       gender: GenderEnum.fromString(json['gender']),
-      birthday: json['birthday'],
-      roleName: json['roleName'],
+      birthday: json['birthday'] ?? '',
+      roleName:
+          (json['roleName'] as List?)?.map((e) => e.toString()).toList() ?? [],
     );
   }
 

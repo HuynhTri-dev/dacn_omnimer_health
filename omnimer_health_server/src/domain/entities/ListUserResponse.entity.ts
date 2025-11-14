@@ -7,8 +7,6 @@ export interface ListUserResponse {
   email?: string | null;
   birthday?: Date | null;
   gender?: GenderEnum;
-
   roleNames: string[];
-
   imageUrl?: string;
 }

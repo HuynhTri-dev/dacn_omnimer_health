@@ -23,8 +23,10 @@ lib/
 ├── domain/               # Business logic layer
 │   ├── abstracts/        # Abstract definitions
 │   │   └── auth_repository.dart   # Auth repository interface
-│   └── entities/         # Business entities
-│       └── user_entity.dart       # User domain entity
+│   ├── entities/         # Business entities
+│   │   └── user_entity.dart       # User domain entity
+│   └── usecase/         # Business use case
+│       └── login_usecase.dart       # Login Use Case (Đăng ký chức năng trong login use case)
 ├── presentation/         # UI Layer
 │   ├── screens/         # App screens/pages
 │   └── widgets/         # Reusable widgets

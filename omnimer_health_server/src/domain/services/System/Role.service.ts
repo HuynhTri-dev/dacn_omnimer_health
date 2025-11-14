@@ -11,6 +11,24 @@ export class RoleService {
     this.roleRepo = roleRepo;
   }
 
+  // =================== GET ROLES (Không chứa admin) ===================
+  async getRolesWithoutAdminName() {
+    try {
+      const roles = await this.roleRepo.findRolesWithoutAdminName();
+      if (!roles || roles.length === 0) {
+        throw new HttpError(404, "Không tìm thấy vai trò phù hợp");
+      }
+      return roles;
+    } catch (err: any) {
+      await logError({
+        action: "getRolesWithoutAdminName",
+        message: err.message || err,
+        errorMessage: err.stack || err,
+      });
+      throw err;
+    }
+  }
+
   // =================== CREATE ===================
   async createRole(userId: string, data: Partial<IRole>) {
     try {

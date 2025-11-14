@@ -1,13 +1,23 @@
 import 'dart:io';
 import 'package:dio/dio.dart';
+import 'package:omnihealthmobileflutter/utils/logger.dart';
+import 'package:omnihealthmobileflutter/core/constants/storage_constant.dart';
+import 'package:omnihealthmobileflutter/services/secure_storage_service.dart';
 import 'api_response.dart';
 import 'api_exception.dart';
 import 'endpoints.dart';
 
 class ApiClient {
   final Dio dio;
+  final SecureStorageService secureStorage;
 
-  ApiClient()
+  // Flag để tránh infinite loop khi refresh token
+  bool _isRefreshing = false;
+
+  // Queue để chứa các request đang chờ token mới
+  final List<_RequestOptions> _requestQueue = [];
+
+  ApiClient({required this.secureStorage})
     : dio = Dio(
         BaseOptions(
           baseUrl: Endpoints.baseUrl,
@@ -16,19 +26,184 @@ class ApiClient {
           responseType: ResponseType.json,
         ),
       ) {
+    _setupInterceptors();
+  }
+
+  void _setupInterceptors() {
     dio.interceptors.add(
       InterceptorsWrapper(
-        onRequest: (options, handler) {
+        onRequest: (options, handler) async {
+          // Kiểm tra flag requiresAuth trong extra
+          final requiresAuth = options.extra['requiresAuth'] ?? true;
+
+          if (requiresAuth) {
+            final accessToken = await secureStorage.get(
+              StorageConstant.kAccessTokenKey,
+            );
+            if (accessToken != null && accessToken.isNotEmpty) {
+              options.headers['Authorization'] = 'Bearer $accessToken';
+            }
+          }
+
+          // Log thông tin request
+          logger.i('''
+───────────────────── REQUEST ─────────────────────
+[${options.method}] ${options.uri}
+Headers: ${options.headers}
+Query: ${options.queryParameters}
+Data: ${options.data}
+RequiresAuth: $requiresAuth
+───────────────────────────────────────────────────
+''');
+
+          // Remove flag khỏi extra để không gửi lên server
+          options.extra.remove('requiresAuth');
+
           return handler.next(options);
         },
+
         onResponse: (response, handler) {
+          // Log thông tin response
+          logger.i('''
+───────────────────── RESPONSE ─────────────────────
+[${response.requestOptions.method}] ${response.requestOptions.uri}
+Status: ${response.statusCode}
+Data: ${response.data}
+───────────────────────────────────────────────────
+''');
           return handler.next(response);
         },
-        onError: (e, handler) {
-          return handler.next(e);
+
+        onError: (error, handler) async {
+          final request = error.requestOptions;
+          final requiresAuth = request.extra['requiresAuth'] ?? true;
+
+          // Log thông tin lỗi
+          logger.e('''
+───────────────────── ERROR ─────────────────────
+[${request.method}] ${request.uri}
+Status: ${error.response?.statusCode}
+Message: ${error.message}
+Data: ${error.response?.data}
+────────────────────────────────────────────────
+''');
+
+          // Nếu lỗi 401 (Unauthorized) và request yêu cầu auth
+          if (error.response?.statusCode == 401 && requiresAuth) {
+            if (_isRefreshing) {
+              _requestQueue.add(
+                _RequestOptions(requestOptions: request, handler: handler),
+              );
+              return;
+            }
+
+            _isRefreshing = true;
+
+            try {
+              final newAccessToken = await _refreshAccessToken();
+              if (newAccessToken != null) {
+                await secureStorage.update(
+                  StorageConstant.kAccessTokenKey,
+                  newAccessToken,
+                );
+
+                final options = request;
+                options.headers['Authorization'] = 'Bearer $newAccessToken';
+                final response = await dio.fetch(options);
+
+                await _processQueue(newAccessToken);
+
+                _isRefreshing = false;
+                return handler.resolve(response);
+              } else {
+                await _clearAuthData();
+                _isRefreshing = false;
+                _rejectQueue(error);
+                return handler.reject(error);
+              }
+            } catch (e) {
+              logger.e("⛔ Error refreshing token: $e");
+              await _clearAuthData();
+              _isRefreshing = false;
+              _rejectQueue(error);
+              return handler.reject(error);
+            }
+          }
+
+          return handler.next(error);
         },
       ),
     );
+  }
+
+  /// Refresh access token
+  Future<String?> _refreshAccessToken() async {
+    try {
+      final refreshToken = await secureStorage.get(
+        StorageConstant.kRefreshTokenKey,
+      );
+
+      if (refreshToken == null || refreshToken.isEmpty) {
+        logger.e("Refresh token not found");
+        return null;
+      }
+
+      final response = await dio.post(
+        Endpoints.createNewAccessToken,
+        data: {'refreshToken': refreshToken},
+        options: Options(
+          extra: {'requiresAuth': false}, // Không cần auth cho endpoint này
+        ),
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final data = response.data;
+
+        // Xử lý response dựa trên format của server
+        if (data is Map && data.containsKey('data')) {
+          return data['data']?.toString();
+        } else if (data is Map && data.containsKey('accessToken')) {
+          return data['accessToken']?.toString();
+        } else if (data is String) {
+          return data;
+        }
+      }
+
+      return null;
+    } catch (e) {
+      logger.e("Error in _refreshAccessToken: $e");
+      return null;
+    }
+  }
+
+  /// Xử lý các request trong queue sau khi có token mới
+  Future<void> _processQueue(String newAccessToken) async {
+    for (var item in _requestQueue) {
+      try {
+        item.requestOptions.headers['Authorization'] = 'Bearer $newAccessToken';
+        final response = await dio.fetch(item.requestOptions);
+        item.handler.resolve(response);
+      } catch (e) {
+        item.handler.reject(
+          DioException(requestOptions: item.requestOptions, error: e),
+        );
+      }
+    }
+    _requestQueue.clear();
+  }
+
+  /// Reject tất cả request trong queue
+  void _rejectQueue(DioException error) {
+    for (var item in _requestQueue) {
+      item.handler.reject(error);
+    }
+    _requestQueue.clear();
+  }
+
+  /// Clear auth data khi logout hoặc refresh token fail
+  Future<void> _clearAuthData() async {
+    await secureStorage.delete(StorageConstant.kAccessTokenKey);
+    await secureStorage.delete(StorageConstant.kRefreshTokenKey);
   }
 
   Future<ApiResponse<T>> uploadFile<T>(
@@ -38,6 +213,7 @@ class ApiClient {
     Map<String, dynamic>? fields,
     Map<String, dynamic>? headers,
     T Function(dynamic)? parser,
+    bool requiresAuth = true, // 👈 Thêm parameter này
   }) async {
     try {
       final formData = FormData.fromMap({
@@ -53,6 +229,7 @@ class ApiClient {
         data: formData,
         options: Options(
           headers: {...?headers, 'Content-Type': 'multipart/form-data'},
+          extra: {'requiresAuth': requiresAuth}, // 👈 Pass flag
         ),
       );
 
@@ -67,12 +244,16 @@ class ApiClient {
     Map<String, dynamic>? query,
     Map<String, dynamic>? headers,
     T Function(dynamic)? parser,
+    bool requiresAuth = true,
   }) async {
     try {
       final response = await dio.get(
         path,
         queryParameters: query,
-        options: Options(headers: headers),
+        options: Options(
+          headers: headers,
+          extra: {'requiresAuth': requiresAuth},
+        ),
       );
       return _handleResponse<T>(response, fromJsonT: parser);
     } on DioException catch (e) {
@@ -86,14 +267,19 @@ class ApiClient {
     Map<String, dynamic>? query,
     Map<String, dynamic>? headers,
     T Function(dynamic)? parser,
+    bool requiresAuth = true,
   }) async {
     try {
       final response = await dio.post(
         path,
         data: data,
         queryParameters: query,
-        options: Options(headers: headers),
+        options: Options(
+          headers: headers,
+          extra: {'requiresAuth': requiresAuth},
+        ),
       );
+      logger.i("Response: ${response}");
       return _handleResponse<T>(response, fromJsonT: parser);
     } on DioException catch (e) {
       throw _handleError<T>(e);
@@ -106,13 +292,17 @@ class ApiClient {
     Map<String, dynamic>? query,
     Map<String, dynamic>? headers,
     T Function(dynamic)? parser,
+    bool requiresAuth = true,
   }) async {
     try {
       final response = await dio.put(
         path,
         data: data,
         queryParameters: query,
-        options: Options(headers: headers),
+        options: Options(
+          headers: headers,
+          extra: {'requiresAuth': requiresAuth},
+        ),
       );
       return _handleResponse<T>(response, fromJsonT: parser);
     } on DioException catch (e) {
@@ -126,13 +316,17 @@ class ApiClient {
     Map<String, dynamic>? query,
     Map<String, dynamic>? headers,
     T Function(dynamic)? parser,
+    bool requiresAuth = true,
   }) async {
     try {
       final response = await dio.patch(
         path,
         data: data,
         queryParameters: query,
-        options: Options(headers: headers),
+        options: Options(
+          headers: headers,
+          extra: {'requiresAuth': requiresAuth},
+        ),
       );
       return _handleResponse<T>(response, fromJsonT: parser);
     } on DioException catch (e) {
@@ -145,12 +339,16 @@ class ApiClient {
     Map<String, dynamic>? query,
     Map<String, dynamic>? headers,
     T Function(dynamic)? parser,
+    bool requiresAuth = true,
   }) async {
     try {
       final response = await dio.delete(
         path,
         queryParameters: query,
-        options: Options(headers: headers),
+        options: Options(
+          headers: headers,
+          extra: {'requiresAuth': requiresAuth},
+        ),
       );
       return _handleResponse<T>(response, fromJsonT: parser);
     } on DioException catch (e) {
@@ -241,4 +439,12 @@ class ApiClient {
         throw ServerException(message);
     }
   }
+}
+
+/// Helper class để lưu request đang chờ
+class _RequestOptions {
+  final RequestOptions requestOptions;
+  final ErrorInterceptorHandler handler;
+
+  _RequestOptions({required this.requestOptions, required this.handler});
 }

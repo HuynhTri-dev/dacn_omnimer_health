@@ -1,0 +1,12 @@
+{
+  "user": {
+    "fullname": "Example",
+    "email": "test@gmail.com",
+    "imageUrl": "https://fe57471ae46e00c8c593d2ce737210b5.r2.cloudflarestorage.com/",
+    "gender": "male",
+    "birthday": null,
+    "roleName": ["user"]
+  },
+  "accessToken": "accessToken",
+  "refreshToken": "refreshToken"
+}

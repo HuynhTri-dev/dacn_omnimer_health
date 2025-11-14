@@ -31,10 +31,14 @@ export class AuthController {
 
   login = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { idToken } = req.body;
-      if (!idToken) throw new HttpError(400, "Thiếu idToken");
+      const { email, password } = req.body;
 
-      const result = await this.authService.login(idToken);
+      if (!email || !password) {
+        throw new HttpError(400, "Thiếu email hoặc password");
+      }
+
+      const result = await this.authService.login(email, password);
+
       sendSuccess(res, result, "Đăng nhập thành công");
     } catch (err: any) {
       next(err);
@@ -59,6 +63,23 @@ export class AuthController {
       );
 
       return sendSuccess(res, newTokens, "Tokens refreshed successfully");
+    } catch (err: any) {
+      next(err);
+    }
+  };
+
+  getAuth = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const id = req.user?.id;
+
+      if (!id) {
+        sendBadRequest(res, "Thiếu dữ liệu");
+        return;
+      }
+
+      const user = await this.authService.getAuth(id);
+
+      return sendSuccess(res, user, "Get Auth Success");
     } catch (err: any) {
       next(err);
     }

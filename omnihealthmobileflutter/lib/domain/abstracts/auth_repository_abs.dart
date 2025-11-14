@@ -22,5 +22,5 @@ abstract class AuthRepositoryAbs {
 
   /// Get AuthEntity
   /// Returns ApiResponse<AuthEntity>
-  Future<ApiResponse<AuthEntity>> getAuth();
+  Future<ApiResponse<UserAuth>> getAuth();
 }

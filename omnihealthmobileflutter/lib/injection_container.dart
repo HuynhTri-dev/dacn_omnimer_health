@@ -1,19 +1,21 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get_it/get_it.dart';
 import 'package:omnihealthmobileflutter/core/api/api_client.dart';
 import 'package:omnihealthmobileflutter/data/datasources/auth_datasource.dart';
+import 'package:omnihealthmobileflutter/data/datasources/role_datasource.dart';
 import 'package:omnihealthmobileflutter/data/repositories/auth_repository_impl.dart';
+import 'package:omnihealthmobileflutter/data/repositories/role_repository_impl.dart';
 import 'package:omnihealthmobileflutter/domain/abstracts/auth_repository_abs.dart';
+import 'package:omnihealthmobileflutter/domain/abstracts/role_repositoy_abs.dart';
 import 'package:omnihealthmobileflutter/domain/usecases/auth/get_auth_usecase.dart';
 import 'package:omnihealthmobileflutter/domain/usecases/auth/login_usecase.dart';
 import 'package:omnihealthmobileflutter/domain/usecases/auth/logout_usecase.dart';
 import 'package:omnihealthmobileflutter/domain/usecases/auth/refresh_token_usecase.dart';
 import 'package:omnihealthmobileflutter/domain/usecases/auth/register_usecase.dart';
+import 'package:omnihealthmobileflutter/domain/usecases/role/get_roles_for_select_box_usecase.dart';
 import 'package:omnihealthmobileflutter/presentation/common/blocs/auth/authentication_bloc.dart';
 import 'package:omnihealthmobileflutter/presentation/common/cubits/theme_cubit.dart';
 import 'package:omnihealthmobileflutter/presentation/screen/auth/login/cubits/login_cubit.dart';
 import 'package:omnihealthmobileflutter/presentation/screen/auth/register/cubits/register_cubit.dart';
-import 'package:omnihealthmobileflutter/services/firebase_auth_service.dart';
 import 'package:omnihealthmobileflutter/services/secure_storage_service.dart';
 import 'package:omnihealthmobileflutter/services/shared_preferences_service.dart';
 
@@ -23,14 +25,11 @@ Future<void> init() async {
   // ======================
   // Core
   // ======================
-  sl.registerLazySingleton<ApiClient>(() => ApiClient());
+  sl.registerLazySingleton<ApiClient>(() => ApiClient(secureStorage: sl()));
 
   // ======================
   // Services
   // ======================
-  sl.registerLazySingleton<FirebaseAuthService>(
-    () => FirebaseAuthServiceImpl(firebaseAuth: FirebaseAuth.instance),
-  );
   sl.registerLazySingleton<SecureStorageService>(() => SecureStorageService());
   sl.registerLazySingleton<SharedPreferencesService>(
     () => SharedPreferencesService(),
@@ -43,16 +42,24 @@ Future<void> init() async {
     () => AuthDataSourceImpl(
       apiClient: sl(),
       secureStorage: sl(),
-      firebaseAuthService: sl(),
       sharedPreferencesService: sl(),
     ),
   );
+  sl.registerLazySingleton<RoleDataSource>(
+    () => RoleDataSourceImpl(apiClient: sl()),
+  );
+  // sl.registerLazySingleton<MuscleDataSource>(
+  //   () => MuscleDataSourceImpl(apiClient: sl()),
+  // );
 
   // ======================
   // Repositories
   // ======================
   sl.registerLazySingleton<AuthRepositoryAbs>(
     () => AuthRepositoryImpl(authDataSource: sl()),
+  );
+  sl.registerLazySingleton<RoleRepositoryAbs>(
+    () => RoleRepositoryImpl(roleDataSource: sl()),
   );
 
   // ======================
@@ -65,6 +72,9 @@ Future<void> init() async {
     () => RefreshTokenUseCase(sl()),
   );
   sl.registerLazySingleton<RegisterUseCase>(() => RegisterUseCase(sl()));
+  sl.registerLazySingleton<GetRolesForSelectBoxUseCase>(
+    () => GetRolesForSelectBoxUseCase(sl()),
+  );
 
   // ======================
   // Blocs / Cubits
@@ -76,7 +86,11 @@ Future<void> init() async {
   );
 
   sl.registerFactory(
-    () => RegisterCubit(registerUseCase: sl(), authenticationBloc: sl()),
+    () => RegisterCubit(
+      registerUseCase: sl(),
+      authenticationBloc: sl(),
+      getRolesForSelectBoxUseCase: sl(),
+    ),
   );
 
   sl.registerFactory(

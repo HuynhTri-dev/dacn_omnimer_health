@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:omnihealthmobileflutter/core/constants/enum_constant.dart';
 import 'package:omnihealthmobileflutter/core/theme/app_spacing.dart';
 import 'package:omnihealthmobileflutter/core/validation/field_validator.dart';
+import 'package:omnihealthmobileflutter/domain/entities/role_entity.dart';
 import 'package:omnihealthmobileflutter/presentation/common/input_fields/custom_text_field.dart';
 import 'package:omnihealthmobileflutter/presentation/common/input_fields/date_picker_field.dart';
 import 'package:omnihealthmobileflutter/presentation/common/input_fields/image_picker_field.dart';
@@ -28,6 +29,11 @@ class RegisterForm extends StatelessWidget {
   final String? fullnameError;
   final bool isLoading;
 
+  // Thêm tham số cho roles
+  final List<RoleSelectBoxEntity>? roles;
+  final bool isLoadingRoles;
+  final String? rolesError;
+
   const RegisterForm({
     Key? key,
     required this.emailController,
@@ -45,6 +51,9 @@ class RegisterForm extends StatelessWidget {
     this.passwordError,
     this.fullnameError,
     this.isLoading = false,
+    this.roles,
+    this.isLoadingRoles = false,
+    this.rolesError,
   }) : super(key: key);
 
   @override
@@ -133,9 +142,9 @@ class RegisterForm extends StatelessWidget {
           placeholder: 'Choose your gender',
           value: gender,
           options: const [
-            SelectOption(label: 'Male', value: GenderEnum.Male),
-            SelectOption(label: 'Female', value: GenderEnum.Female),
-            SelectOption(label: 'Be gay', value: GenderEnum.Other),
+            SelectOption(label: 'Male', value: GenderEnum.male),
+            SelectOption(label: 'Female', value: GenderEnum.female),
+            SelectOption(label: 'Be gay', value: GenderEnum.other),
           ],
           onChanged: onGenderChanged,
           disabled: isLoading,
@@ -144,21 +153,25 @@ class RegisterForm extends StatelessWidget {
         ),
         SizedBox(height: AppSpacing.md.h),
 
-        // Role field - TODO: Load from API when GetRolesUseCase is ready
+        // Role field - Load from API
         SingleSelectBox<String>(
           label: 'Vai trò',
-          placeholder: 'Chọn vai trò',
+          placeholder: isLoadingRoles ? 'Đang tải vai trò...' : 'Chọn vai trò',
           value: selectedRoleId,
-          options: const [
-            // Tạm thời hardcode, sẽ load từ API sau
-            SelectOption(label: 'Người dùng', value: 'user'),
-            SelectOption(label: 'Huấn luyện viên', value: 'trainer'),
-            SelectOption(label: 'Chuyên gia dinh dưỡng', value: 'nutritionist'),
-          ],
+          options:
+              roles
+                  ?.map(
+                    (role) =>
+                        SelectOption(label: role.displayName, value: role.id),
+                  )
+                  .toList() ??
+              [],
           onChanged: onRoleChanged,
-          disabled: isLoading,
+          disabled:
+              isLoading || isLoadingRoles || roles == null || roles!.isEmpty,
           leftIcon: const Icon(Icons.badge_outlined, size: 20),
-          helperText: 'Chọn vai trò phù hợp với bạn',
+          helperText: rolesError ?? 'Chọn vai trò phù hợp với bạn',
+          error: rolesError,
         ),
       ],
     );

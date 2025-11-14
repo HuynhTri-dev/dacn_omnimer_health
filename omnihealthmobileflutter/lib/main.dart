@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:intl/date_symbol_data_local.dart';
-
-import 'firebase_options.dart';
 import 'injection_container.dart' as di;
 import 'presentation/app.dart';
 
@@ -30,16 +27,6 @@ Future<void> main() async {
 
   // ==================== LOCALIZATION SETUP ====================
   await initializeDateFormatting('vi_VN', null);
-
-  // ==================== FIREBASE SETUP ====================
-  try {
-    await Firebase.initializeApp(
-      options: DefaultFirebaseOptions.currentPlatform,
-    );
-    debugPrint('✅ Firebase initialized successfully');
-  } catch (e) {
-    debugPrint('❌ Firebase initialization failed: $e');
-  }
 
   // ==================== ENV FILE SETUP ====================
   try {

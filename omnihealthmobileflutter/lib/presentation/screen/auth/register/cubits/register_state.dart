@@ -1,6 +1,7 @@
 // ==================== STATES ====================
 import 'package:equatable/equatable.dart';
 import 'package:omnihealthmobileflutter/domain/entities/auth_entity.dart';
+import 'package:omnihealthmobileflutter/domain/entities/role_entity.dart';
 
 abstract class RegisterState extends Equatable {
   const RegisterState();
@@ -34,7 +35,7 @@ class RegisterFailure extends RegisterState {
 class RolesLoading extends RegisterState {}
 
 class RolesLoaded extends RegisterState {
-  final List<dynamic> roles; // TODO: Replace with proper Role entity
+  final List<RoleSelectBoxEntity> roles;
 
   const RolesLoaded(this.roles);
 

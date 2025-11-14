@@ -1,4 +1,4 @@
-import { connectDB, disconnectDB } from "../utils/db";
+import { connectDB, disconnectDB } from "./db";
 import { seedExerciseCategory } from "./seedExerciseCategory";
 import { seedExerciseType } from "./seedExerciseType";
 import { seedPermissions } from "./seedPermissions";

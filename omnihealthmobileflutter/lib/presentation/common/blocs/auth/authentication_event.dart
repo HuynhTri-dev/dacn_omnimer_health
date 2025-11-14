@@ -1,34 +1,23 @@
-// ==================== STATES ====================
 import 'package:equatable/equatable.dart';
-import 'package:omnihealthmobileflutter/domain/entities/auth_entity.dart';
+import 'package:omnihealthmobileflutter/domain/entities/auth_entity.dart'; // Để import UserAuth
 
-abstract class AuthenticationState extends Equatable {
-  const AuthenticationState();
+abstract class AuthenticationEvent extends Equatable {
+  const AuthenticationEvent();
 
   @override
   List<Object?> get props => [];
 }
 
-class AuthenticationInitial extends AuthenticationState {}
+class AuthenticationStarted extends AuthenticationEvent {}
 
-class AuthenticationLoading extends AuthenticationState {}
+// ĐÃ SỬA: Event này chỉ truyền vào UserAuth
+class AuthenticationLoggedIn extends AuthenticationEvent {
+  final UserAuth user;
 
-class AuthenticationAuthenticated extends AuthenticationState {
-  final AuthEntity authEntity;
-
-  const AuthenticationAuthenticated(this.authEntity);
-
-  @override
-  List<Object?> get props => [authEntity];
-}
-
-class AuthenticationUnauthenticated extends AuthenticationState {}
-
-class AuthenticationError extends AuthenticationState {
-  final String message;
-
-  const AuthenticationError(this.message);
+  const AuthenticationLoggedIn(this.user);
 
   @override
-  List<Object?> get props => [message];
+  List<Object?> get props => [user];
 }
+
+class AuthenticationLoggedOut extends AuthenticationEvent {}

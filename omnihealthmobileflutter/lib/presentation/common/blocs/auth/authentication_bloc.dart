@@ -5,9 +5,9 @@ import 'package:omnihealthmobileflutter/domain/usecases/base_usecase.dart';
 import 'package:omnihealthmobileflutter/presentation/common/blocs/auth/authentication_event.dart';
 import 'package:omnihealthmobileflutter/presentation/common/blocs/auth/authentication_state.dart';
 
-// ==================== BLOC ====================
 class AuthenticationBloc
     extends Bloc<AuthenticationEvent, AuthenticationState> {
+  // Giả định GetAuthUseCase.call() trả về Future<ApiResponse<UserAuth>>
   final GetAuthUseCase getAuthUseCase;
   final LogoutUseCase logoutUseCase;
 
@@ -27,15 +27,17 @@ class AuthenticationBloc
     emit(AuthenticationLoading());
 
     try {
-      // Kiểm tra xem user đã login chưa bằng cách gọi getAuth
+      // response.data sẽ là UserAuth (Entity)
       final response = await getAuthUseCase.call(NoParams());
 
       if (response.success && response.data != null) {
+        // ĐÃ SỬA: response.data là UserAuth Entity
         emit(AuthenticationAuthenticated(response.data!));
       } else {
         emit(AuthenticationUnauthenticated());
       }
     } catch (e) {
+      // Nếu có lỗi xảy ra (ví dụ: mất kết nối, token hết hạn), chuyển sang trạng thái Unauthenticated
       emit(AuthenticationUnauthenticated());
     }
   }
@@ -44,7 +46,8 @@ class AuthenticationBloc
     AuthenticationLoggedIn event,
     Emitter<AuthenticationState> emit,
   ) async {
-    emit(AuthenticationAuthenticated(event.authEntity));
+    // ĐÃ SỬA: event.user là UserAuth Entity
+    emit(AuthenticationAuthenticated(event.user));
   }
 
   Future<void> _onAuthenticationLoggedOut(
@@ -55,6 +58,7 @@ class AuthenticationBloc
       await logoutUseCase.call(NoParams());
       emit(AuthenticationUnauthenticated());
     } catch (e) {
+      // Thông báo lỗi nếu việc logout trên server/data source thất bại
       emit(AuthenticationError('Đăng xuất thất bại: ${e.toString()}'));
     }
   }

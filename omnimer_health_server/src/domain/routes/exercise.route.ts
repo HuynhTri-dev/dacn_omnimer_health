@@ -25,6 +25,7 @@ router.put(
   controller.update
 );
 router.get("/", controller.getAll);
+
 router.delete("/:id", verifyAccessToken, controller.delete);
 
 export default router;

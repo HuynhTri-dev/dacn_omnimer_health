@@ -35,4 +35,4 @@ const WorkoutFeedbackSchema: Schema<IWorkoutFeedback> = new Schema(
 );
 
 export const WorkoutFeedback: Model<IWorkoutFeedback> =
-  mongoose.model<IWorkoutFeedback>("  ", WorkoutFeedbackSchema);
+  mongoose.model<IWorkoutFeedback>("WorkoutFeedback", WorkoutFeedbackSchema);

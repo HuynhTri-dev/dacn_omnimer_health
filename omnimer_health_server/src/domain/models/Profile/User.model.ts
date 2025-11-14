@@ -6,10 +6,10 @@ import {
 
 export interface IUser extends Document {
   _id: Types.ObjectId;
-  uid: string;
   fullname: string;
 
-  email?: string | null;
+  email: string;
+  passwordHashed: string;
   birthday?: Date | null;
   gender?: GenderEnum;
 
@@ -28,16 +28,14 @@ const userSchema = new Schema<IUser>(
     },
     email: {
       type: String,
-      default: null,
       trim: true,
       lowercase: true,
       match: [/^\S+@\S+\.\S+$/, "Email không hợp lệ"],
       unique: true,
     },
-    uid: {
+    passwordHashed: {
       type: String,
       required: true,
-      unique: true,
       trim: true,
     },
     birthday: {
