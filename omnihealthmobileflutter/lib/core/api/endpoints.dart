@@ -11,4 +11,7 @@ class Endpoints {
 
   // Roles
   static const String getRoleWithoutAdmin = "/v1/role/without-admin";
+
+  // Muscle
+  static String getMuscleById(String id) => "/v1/muscle/${id}";
 }

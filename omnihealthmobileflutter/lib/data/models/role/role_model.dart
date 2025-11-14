@@ -16,16 +16,6 @@ class RoleSelectBoxModel {
     );
   }
 
-  /// Convert model sang JSON (gửi lên API)
-  Map<String, dynamic> toJson() {
-    return {'_id': id, 'name': name};
-  }
-
-  /// Convert từ Entity sang Model
-  factory RoleSelectBoxModel.fromEntity(RoleSelectBoxEntity entity) {
-    return RoleSelectBoxModel(id: entity.id, name: entity.name);
-  }
-
   /// Convert từ Model sang Entity
   RoleSelectBoxEntity toEntity() {
     return RoleSelectBoxEntity(id: id, name: name);
@@ -50,14 +40,5 @@ class RoleSelectBoxModel {
     List<RoleSelectBoxModel> models,
   ) {
     return models.map((model) => model.toEntity()).toList();
-  }
-
-  /// Convert list Entity → list Model
-  static List<RoleSelectBoxModel> fromEntityList(
-    List<RoleSelectBoxEntity> entities,
-  ) {
-    return entities
-        .map((entity) => RoleSelectBoxModel.fromEntity(entity))
-        .toList();
   }
 }

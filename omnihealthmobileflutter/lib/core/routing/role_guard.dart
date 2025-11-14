@@ -13,6 +13,7 @@ class RoleGuard {
     '/home': ['user', 'coach', 'admin'],
     '/profile': ['user', 'coach', 'admin'],
     '/settings': ['user', 'coach', 'admin'],
+    '/muscle-home': ['user', 'coach', 'admin'],
   };
 
   /// Kiểm tra xem người dùng (với danh sách roleName) có quyền truy cập route không

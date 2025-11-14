@@ -22,6 +22,7 @@ class RouteConfig {
   static const String home = '/home';
   static const String profile = '/profile';
   static const String settings = '/settings';
+  // static const String muscleHome = '/muscle-home';
 
   // ==================== BUILD AUTH PAGES ====================
   static Widget buildAuthPage(String? routeName) {
@@ -76,6 +77,9 @@ class RouteConfig {
       case settings:
         return _buildSettingsScreen(role, arguments);
 
+      // case muscleHome:
+      //   retunr _buildMuscleHomeScreen(role, arguments);
+
       default:
         return _ErrorPage(message: 'Không tìm thấy trang: $routeName');
     }
@@ -103,6 +107,13 @@ class RouteConfig {
   }
 
   // ==================== COMMON SCREENS ====================
+  // static Widget _buildMuscleHomeScreen(
+  //   List<String>? role,
+  //   Map<String, dynamic>? arguments,
+  // ) {
+  //   Navigator.of(context).pushNamedAndRemoveUntil(login, (route) => false);
+  // }
+
   static Widget _buildProfileScreen(
     List<String>? role,
     Map<String, dynamic>? arguments,

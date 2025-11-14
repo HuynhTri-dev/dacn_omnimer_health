@@ -45,6 +45,8 @@ router.post("/register", uploadImage("image"), authController.register);
 
 router.post("/login", authController.login);
 
+router.post("/new-access-token", authController.createNewAccessToken);
+
 router.get("/", verifyAccessToken, authController.getAuth);
 
 export default router;

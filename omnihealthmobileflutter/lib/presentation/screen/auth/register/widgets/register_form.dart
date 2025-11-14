@@ -142,9 +142,9 @@ class RegisterForm extends StatelessWidget {
           placeholder: 'Choose your gender',
           value: gender,
           options: const [
-            SelectOption(label: 'Male', value: GenderEnum.Male),
-            SelectOption(label: 'Female', value: GenderEnum.Female),
-            SelectOption(label: 'Be gay', value: GenderEnum.Other),
+            SelectOption(label: 'Male', value: GenderEnum.male),
+            SelectOption(label: 'Female', value: GenderEnum.female),
+            SelectOption(label: 'Be gay', value: GenderEnum.other),
           ],
           onChanged: onGenderChanged,
           disabled: isLoading,

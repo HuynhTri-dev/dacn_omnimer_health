@@ -48,6 +48,9 @@ Future<void> init() async {
   sl.registerLazySingleton<RoleDataSource>(
     () => RoleDataSourceImpl(apiClient: sl()),
   );
+  // sl.registerLazySingleton<MuscleDataSource>(
+  //   () => MuscleDataSourceImpl(apiClient: sl()),
+  // );
 
   // ======================
   // Repositories
