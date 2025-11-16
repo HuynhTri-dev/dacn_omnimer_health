@@ -1,0 +1,119 @@
+{
+  "features_used": [
+    "age",
+    "weight_kg",
+    "bmi",
+    "avg_hr",
+    "max_hr",
+    "calories",
+    "duration_min",
+    "gender",
+    "experience_level",
+    "activity_level",
+    "equipment",
+    "target_muscle",
+    "secondary_muscles"
+  ],
+  "exercise_columns": [
+    "exercise_barbell_bench_press_(wide_grip)",
+    "exercise_bicep_curl",
+    "exercise_burpee",
+    "exercise_cable_lateral_raise",
+    "exercise_chest_dips_(assisted)",
+    "exercise_cycling",
+    "exercise_decline_bench_press",
+    "exercise_decline_crunch",
+    "exercise_drag_curl",
+    "exercise_face_pull",
+    "exercise_front_raise",
+    "exercise_hammer_curl",
+    "exercise_hanging_leg_raise",
+    "exercise_high_knee_skips",
+    "exercise_incline_chest_press",
+    "exercise_iso_lateral_cross_lat_pulldown",
+    "exercise_iso_lateral_cross_lat_pulldown_single_arm",
+    "exercise_jumping_jack",
+    "exercise_knee_raise",
+    "exercise_kneeling_torso_rotation",
+    "exercise_lat_pulldown",
+    "exercise_lateral_raise",
+    "exercise_leg_extension",
+    "exercise_leg_press",
+    "exercise_lying_leg_curl",
+    "exercise_machine_seated_dip",
+    "exercise_machine_vertical_row",
+    "exercise_overhead_triceps_extension",
+    "exercise_pull_up",
+    "exercise_revease_fly_single_arm",
+    "exercise_seated_chest_fly",
+    "exercise_seated_chest_press",
+    "exercise_seated_hip_abductor",
+    "exercise_seated_hip_adductor",
+    "exercise_seated_leg_curl",
+    "exercise_seated_row",
+    "exercise_seated_row_(close_grip)",
+    "exercise_seated_row_(wide_grip)",
+    "exercise_seated_single_arm_row_(close_rip",
+    "exercise_seated_single_arm_row_(wide_grip)",
+    "exercise_seater_overhead_press",
+    "exercise_single_arm_lat_pulldown",
+    "exercise_sled_calf_press",
+    "exercise_squat",
+    "exercise_standing_calf_raise",
+    "exercise_stiff_leg_deadlift",
+    "exercise_sumo_squat",
+    "exercise_treadmill_walking",
+    "exercise_tricep_single_arm_cable_pushdown",
+    "exercise_tricep_single_arm_rope_pushdown",
+    "exercise_tricep_single_arm_row_pushdown",
+    "exercise_triceps_pushdown",
+    "exercise_triceps_rope_pushdown",
+    "exercise_triceps_single_arm_rope_puúhdown",
+    "exercise_đi_bộ_ngoài_trời"
+  ],
+  "scales": {
+    "sets": [
+      1.0,
+      5.0
+    ],
+    "reps": [
+      5.0,
+      20.0
+    ],
+    "kg": [
+      0.0,
+      200.0
+    ],
+    "km": [
+      0.0,
+      20.0
+    ],
+    "min": [
+      0.0,
+      120.0
+    ],
+    "minRest": [
+      0.0,
+      5.0
+    ],
+    "avgHR": [
+      60.0,
+      180.0
+    ],
+    "peakHR": [
+      100.0,
+      200.0
+    ]
+  },
+  "regression_dims": [
+    "sets",
+    "reps",
+    "kg",
+    "km",
+    "min",
+    "minRest",
+    "avgHR",
+    "peakHR"
+  ],
+  "note": "Unified model: BCE multi-label + masked SmoothL1 on GT class. Rare classes in TRAIN only. Dynamic stratified split."
+}

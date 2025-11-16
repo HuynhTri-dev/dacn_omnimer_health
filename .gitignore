@@ -54,8 +54,6 @@ venv/
 coverage.xml
 htmlcov/
 
-# Pydantic generated schemas
-*.json
 
 # Local secrets
 **/omnimerhealth-firebase-admin-sdk.json
@@ -127,4 +125,4 @@ app-example/
 exercises/
 
 # Data Training
-3T-FIT/DATA/data/
+3T-FIT/DATA/
