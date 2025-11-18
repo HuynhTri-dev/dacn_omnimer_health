@@ -1,39 +1,35 @@
-version: "3.9"
+version: "3.8"
 
 services:
-  api:
-    container_name: omimer-api
-    build: ./backend
-    ports:
-      - "8080:8080"
-    env_file:
-      - ./backend/.env
-    depends_on:
-      - mongo
-    restart: always
-
-  ai-model:
-    container_name: omimer-ai
-    build: ./ai-model
-    ports:
-      - "5000:5000"
-    restart: always
-
-  web:
-    container_name: omimer-web
-    build: ./web
-    ports:
-      - "80:80"
-    restart: always
-
-  mongo:
-    container_name: omimer-db
-    image: mongo:6
-    ports:
-      - "27017:27017"
+  # 1. 🌐 Node.js Backend Server (omnimer_health_server)
+  backend:
+    container_name: omnimer_health_backend
+    build:
+      context: ./omnimer_health_server # Đường dẫn đến thư mục chứa Dockerfile của Node.js
+      dockerfile: Dockerfile
     volumes:
-      - mongodb_data:/data/db
-    restart: always
+      # Mount code để hỗ trợ Live Reloading
+      - ./omnimer_health_server:/usr/src/app
+      # Ngăn chặn ghi đè thư mục node_modules từ máy host
+      - /usr/src/app/node_modules
+    ports:
+      - "8000:8000" # Mở cổng API
+    env_file:
+      - ./omnimer_health_server/.env # Load biến môi trường (chứa thông tin kết nối Cloud DB/Redis)
+    # Đã loại bỏ depends_on vì DB/Redis chạy trên Cloud
 
-volumes:
-  mongodb_data:
+  # 2. 🤖 Python AI/FastAPI Service (3T-FIT)
+  ai_service:
+    container_name: omnimer_health_ai
+    build:
+      context: ./3T-FIT # Đường dẫn đến thư mục chứa Dockerfile của Python
+      dockerfile: Dockerfile
+    volumes:
+      - ./3T-FIT:/usr/src/app
+      # Ngăn chặn ghi đè thư mục môi trường ảo
+      - /usr/src/app/venv
+    ports:
+      - "8888:8888" # Mở cổng FastAPI
+    environment:
+      PYTHONUNBUFFERED: 1
+    # Không cần depends_on
