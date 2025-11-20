@@ -7,7 +7,7 @@ COPY package*.json ./
 RUN npm install
 
 COPY . .
-RUN npm run build
+RUN npx tsc
 
 
 # Stage 2: Production image
@@ -20,6 +20,6 @@ RUN npm install --only=production
 
 COPY --from=builder /app/dist ./dist
 
-EXPOSE 8080
+EXPOSE 8000
 
-CMD ["node", "dist/main.js"]
+CMD ["node", "dist/server.js"]

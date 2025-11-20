@@ -5,31 +5,45 @@ services:
   backend:
     container_name: omnimer_health_backend
     build:
-      context: ./omnimer_health_server # Đường dẫn đến thư mục chứa Dockerfile của Node.js
+      context: ./omnimer_health_server
       dockerfile: Dockerfile
-    volumes:
-      # Mount code để hỗ trợ Live Reloading
-      - ./omnimer_health_server:/usr/src/app
-      # Ngăn chặn ghi đè thư mục node_modules từ máy host
-      - /usr/src/app/node_modules
+    restart: unless-stopped
     ports:
-      - "8000:8000" # Mở cổng API
+      - "8000:8000"
     env_file:
-      - ./omnimer_health_server/.env # Load biến môi trường (chứa thông tin kết nối Cloud DB/Redis)
-    # Đã loại bỏ depends_on vì DB/Redis chạy trên Cloud
+      - ./omnimer_health_server/.env
+    environment:
+      - PORT=8000
+      - NODE_ENV=production
+    networks:
+      - omnimer_network
 
   # 2. 🤖 Python AI/FastAPI Service (3T-FIT)
   ai_service:
     container_name: omnimer_health_ai
     build:
-      context: ./3T-FIT # Đường dẫn đến thư mục chứa Dockerfile của Python
+      context: ./3T-FIT
       dockerfile: Dockerfile
-    volumes:
-      - ./3T-FIT:/usr/src/app
-      # Ngăn chặn ghi đè thư mục môi trường ảo
-      - /usr/src/app/venv
+    restart: unless-stopped
     ports:
-      - "8888:8888" # Mở cổng FastAPI
+      - "8888:8888"
     environment:
-      PYTHONUNBUFFERED: 1
-    # Không cần depends_on
+      - PYTHONUNBUFFERED=1
+    networks:
+      - omnimer_network
+
+  # 3. 📊 Admin Dashboard (React/Vite + NGINX)
+  adminpage:
+    container_name: omnimer_health_admin
+    build:
+      context: ./adminpage
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "3000:80"
+    networks:
+      - omnimer_network
+
+networks:
+  omnimer_network:
+    driver: bridge

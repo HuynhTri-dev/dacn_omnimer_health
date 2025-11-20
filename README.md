@@ -1,212 +1,201 @@
 # OmniMer Health
 
 A Personal Health Management & AI-driven Fitness Recommendation System
-(Built with Flutter, Node.js TypeScript, Python DNN Model)
+(Built with Flutter, Node.js TypeScript, Python DNN Model, and React Admin Dashboard)
 
 ---
 
 ## 1. Overview
 
-**OmniMer Health** là nền tảng quản lý sức khỏe cá nhân và gợi ý bài tập thông minh dựa trên dữ liệu người dùng, cảm biến thiết bị đồng hồ thông minh và mô hình AI.
-Hệ thống bao gồm ứng dụng di động (Flutter), backend (Node.js TypeScript), và mô hình AI dự đoán – khuyến nghị (Python DNN).
+**OmniMer Health** là nền tảng quản lý sức khỏe cá nhân và gợi ý bài tập thông minh. Hệ thống kết hợp dữ liệu từ thiết bị đeo, nhật ký người dùng và mô hình AI để đưa ra các khuyến nghị tập luyện cá nhân hóa.
 
-Mục tiêu:
+**Mục tiêu:**
 
-- Thu thập dữ liệu sức khỏe từ cảm biến & nhật ký cá nhân
-- Phân tích sức khỏe theo thời gian thực
-- Gợi ý bài tập phù hợp với thể trạng
-- Xây dựng lộ trình luyện tập cá nhân hóa
-- Theo dõi giấc ngủ, stress, calories, heart rate
+- Thu thập và phân tích dữ liệu sức khỏe (bước chân, nhịp tim, giấc ngủ, calories).
+- Gợi ý bài tập và lộ trình luyện tập phù hợp với thể trạng và mục tiêu.
+- Cung cấp công cụ quản lý cho quản trị viên.
 
 ---
 
 ## 2. System Architecture
 
-```
-           ┌──────────────────────────┐
-           │       Flutter App        │
-           │  (Mobile Frontend)       │
-           └─────────────┬────────────┘
-                         │
-            REST API / WebSocket
-                         │
-┌────────────────────────▼────────────────────────┐
-│            Node.js (TypeScript) Backend         │
-│ - Auth, User Profile                            │
-│ - Health Data API                               │
-│ - Workout Database & Recommendation Service     │
-│ - Integration: HealthKit, Google Fit            │
-└─────────────┬───────────────────────────────────┘
-              │
-      AI Inference Service (Python)
-              │
-┌─────────────▼─────────────────────────────────────┐
-│               DNN Recommendation Model             │
-│ - Predict calories, heart-rate zones               │
-│ - Recommend exercise intensity                     │
-│ - Personalized workout plans                       │
-└────────────────────────────────────────────────────┘
+```mermaid
+graph TD
+    User[Mobile App User] -->|Flutter App| API_Gateway
+    Admin[Admin User] -->|React Admin Dashboard| API_Gateway
+
+    subgraph "Backend Services"
+        API_Gateway[Node.js Server (Port 8000)]
+        AI_Service[AI Server (Port 8888)]
+        DB[(MongoDB/PostgreSQL)]
+        Cache[(Redis)]
+    end
+
+    API_Gateway -->|REST API| DB
+    API_Gateway -->|REST API| Cache
+    API_Gateway -->|HTTP Request| AI_Service
+
+    AI_Service -->|Inference| API_Gateway
 ```
 
 ---
 
-## 3. Key Features
+## 3. Tech Stack
 
-### Health Tracking
+### Mobile App (`omnihealthmobileflutter`)
 
-- Thu thập bước chân, nhịp tim, calories, giấc ngủ
-- Tự động đồng bộ từ HealthKit / Google Fit
+- **Framework:** Flutter (Dart)
+- **State Management:** Bloc / Cubit
+- **Storage:** Flutter Secure Storage, Shared Preferences
+- **Integration:** HealthKit, Google Fit
 
-### AI-powered Personalization
+### Backend Server (`omnimer_health_server`)
 
-- Mô hình DNN dự đoán chỉ số thể lực
-- Gợi ý bài tập phù hợp theo tuổi, BMI, lịch sử luyện tập
-- Dự đoán lượng calories tiêu hao
+- **Runtime:** Node.js
+- **Language:** TypeScript
+- **Framework:** Express.js
+- **Database:** MongoDB / PostgreSQL
+- **Caching:** Redis
+- **Docs:** Swagger OpenAPI
 
-### Workout Management
+### AI Service (`3T-FIT`)
 
-- Tập luyện theo mục tiêu (giảm cân, tăng cơ, cardio)
-- Lộ trình training được AI gợi ý
-- Danh mục bài tập đầy đủ và phân loại theo nhóm cơ
+- **Language:** Python
+- **Framework:** FastAPI
+- **Libraries:** PyTorch, Pandas, Scikit-learn, NumPy
+- **Model:** DNN (Deep Neural Network) for recommendation
 
-### Real-time Analytics
+### Admin Dashboard (`adminpage`)
 
-- Dashboard theo thời gian
-- Stress monitoring
-- HR Zone Visualization
-
-### Secure User Data
-
-- JWT authentication
-- Data encryption
-- Cloudflare + Rate-limit
-
----
-
-## 4. Tech Stack
-
-### Mobile
-
-- **Flutter** (Dart)
-- State Management: Bloc / Cubit
-- Flutter Secure Storage / Shared Preference Storage
-- HealthKit Integration
-
-### Backend
-
-- **Node.js (TypeScript)**
-- Express.js
-- MongoDB / PostgreSQL
-- JWT + RBAC
-- Swagger OpenAPI
-- Cloudflare Workers
-
-### AI Model
-
-- **Python**
-- PyTorch
-- DNN regression & classification
+- **Framework:** React (Vite)
+- **Language:** TypeScript/JavaScript
+- **Styling:** CSS/Tailwind (if applicable)
 
 ---
 
-## 5. Folder Structure
+## 4. Folder Structure
 
 ```
-omnihealth/
+dacn_omnimer_health/
 │
-├── omnimerhealthmobieflutter/                 # Flutter App
+├── omnihealthmobileflutter/    # Flutter Mobile Application
 │   ├── lib/
-│   ├── assets/
 │   └── pubspec.yaml
 │
-├── omnimer_health_server/                # Node.js + TypeScript
+├── omnimer_health_server/      # Node.js Backend API
 │   ├── src/
-│   │   ├── modules/
-│   │   ├── controllers/
-│   │   ├── services/
-│   │   ├── models/
-│   │   └── routes/
-│   ├── prisma/ (optional)
-│   └── tsconfig.json
+│   ├── Dockerfile
+│   └── package.json
 │
-└── 3T-FIT/               # Python DNN Model
-    ├── notebooks/
-    ├── dataset/
-    ├── src/
-    │   ├── train.py
-    │   ├── model.py
-    │   └── inference.py
-    ├── requirements.txt
+├── 3T-FIT/                     # Python AI Server
+│   ├── ai_server/
+│   ├── Dockerfile
+│   └── requirements.txt
+│
+├── adminpage/                  # Admin Dashboard (React/Vite)
+│   ├── src/
+│   └── package.json
+│
+├── exercises/                  # Exercise Database (JSON)
+│
+├── docker-compose.yml          # Docker Composition
+└── README.md                   # Project Documentation
 ```
 
 ---
 
-## 6. Getting Started
+## 5. Getting Started
 
-### Mobile (Flutter)
+### Option 1: Run with Docker Compose (Recommended for Backend & AI)
 
-```
-cd omnimerhealthmobieflutter
-flutter pub get
-flutter run
-```
+Yêu cầu: Đã cài đặt Docker và Docker Compose.
 
-### Backend (Node.js)
+1. **Cấu hình môi trường:**
 
-```
+   - Tạo file `.env` trong `omnimer_health_server/` (copy từ `.env.example`).
+   - Cập nhật các biến môi trường cần thiết (DB URI, Redis Host, v.v.).
+
+2. **Khởi chạy services:**
+   Tại thư mục gốc của dự án:
+
+   ```bash
+   docker-compose up --build
+   ```
+
+   - **Backend Server:** http://localhost:8000
+   - **AI Server:** http://localhost:8888
+   - **Swagger Docs:** http://localhost:8000/api-docs
+
+### Option 2: Run Manually
+
+#### 1. Backend Server (Node.js)
+
+```bash
 cd omnimer_health_server
+npm install
+# Development mode
+npm run dev
+# Production build
+# npx tsc && node dist/server.js
+```
+
+Server chạy tại: `http://localhost:5000` (hoặc port trong .env)
+
+#### 2. AI Server (Python)
+
+```bash
+cd 3T-FIT
+# Tạo virtualenv (khuyến nghị)
+python -m venv venv
+source venv/bin/activate  # Windows: venv\Scripts\activate
+
+pip install -r requirements.txt
+# Chạy server
+uvicorn ai_server.app.main:app --host 0.0.0.0 --port 8888 --reload
+```
+
+Server chạy tại: `http://localhost:8888`
+
+#### 3. Admin Dashboard (React)
+
+```bash
+cd adminpage
 npm install
 npm run dev
 ```
 
-Cấu hình môi trường theo file .env.example
+Truy cập tại đường dẫn hiển thị trên terminal (thường là `http://localhost:5173`).
 
-### AI Model (Python)
+#### 4. Mobile App (Flutter)
 
-```
-cd 3T-FIT
-pip install -r requirements.txt
-python src/inference.py
-```
-
----
-
-## 7. API Documentation (On Update)
-
-Swagger UI:
-
-```
-GET /api/docs
+```bash
+cd omnihealthmobileflutter
+flutter pub get
+flutter run
 ```
 
 ---
 
-## 8. AI Model Documentation
+## 6. API Documentation
 
-Model DNN bao gồm:
-
-- Input: tuổi, giới tính, BMI, HR, thời lượng tập, cường độ
-- Output:
-
-  - Calories burned
-  - HR zone
-  - Exercise intensity recommendation
-
-Training scripts:
+Hệ thống cung cấp tài liệu API qua Swagger UI.
+Sau khi khởi chạy Backend Server, truy cập:
 
 ```
-python src/train.py
+http://localhost:8000/api-docs
 ```
 
-Inference example:
+## 7. AI Model Features
 
-```
-python src/inference.py --age 24 --height 175 --weight 70 --avg_hr 140
-```
+Mô hình AI (`3T-FIT`) cung cấp các chức năng:
+
+- **Dự đoán Calories:** Dựa trên thông tin cá nhân và cường độ tập luyện.
+- **Gợi ý bài tập:** Đề xuất bài tập dựa trên nhóm cơ và mục tiêu.
+- **Phân vùng nhịp tim (HR Zone):** Tính toán vùng nhịp tim tối ưu.
 
 ---
 
-## 10. License
+## 8. License
 
 This project is licensed under a **Commercial Proprietary License**.
-All rights reserved. Redistribution and unauthorized copying of this project is strictly prohibited.
+All rights reserved.
