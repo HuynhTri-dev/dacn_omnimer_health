@@ -14,4 +14,6 @@ class Endpoints {
 
   // Muscle
   static String getMuscleById(String id) => "/v1/muscle/${id}";
+
+  static const String exercises = "/v1/exercise";
 }
