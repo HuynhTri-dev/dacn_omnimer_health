@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 import json
 
-ART = "artifacts_unified"
+ART = "./model"
 META = f"{ART}/meta.json"
 CKPT = f"{ART}/best.pt"
 
