@@ -121,7 +121,27 @@ class _ExerciseCard extends StatelessWidget {
           width: 48.w,
           height: 48.w,
           fit: BoxFit.cover,
-          errorBuilder: (_, __, ___) => _buildPlaceholder(),
+          errorBuilder: (context, error, stackTrace) {
+            debugPrint(
+              'Error loading image for ${exercise.name}: ${exercise.imageUrl}',
+            );
+            debugPrint('Error details: $error');
+            return _buildPlaceholder();
+          },
+          loadingBuilder: (context, child, loadingProgress) {
+            if (loadingProgress == null) return child;
+            return Container(
+              width: 48.w,
+              height: 48.w,
+              decoration: BoxDecoration(
+                color: AppColors.primary.withOpacity(0.08),
+                borderRadius: AppRadius.radiusMd,
+              ),
+              child: const Center(
+                child: CircularProgressIndicator(strokeWidth: 2),
+              ),
+            );
+          },
         ),
       );
     }

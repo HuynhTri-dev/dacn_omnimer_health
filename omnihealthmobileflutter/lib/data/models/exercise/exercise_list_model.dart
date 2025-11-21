@@ -5,12 +5,16 @@ import 'package:omnihealthmobileflutter/domain/entities/exercise/exercise_list_e
 class ExerciseListModel {
   final String id;
   final String name;
-  final List<EquipmentModel> equipments;
-  final List<BodyPartModel> bodyParts;
-  final List<MuscleModel> mainMuscles;
-  final List<MuscleModel> secondaryMuscles;
-  final List<ExerciseTypeModel> exerciseTypes;
-  final List<ExerciseCategoryModel> exerciseCategories;
+
+  // SỬA: Tất cả các List đều là Nullable (List<T>?)
+  final List<EquipmentModel>? equipments;
+  final List<BodyPartModel>? bodyParts;
+  final List<MuscleModel>? mainMuscles;
+  final List<MuscleModel>? secondaryMuscles;
+  final List<ExerciseTypeModel>? exerciseTypes;
+  final List<ExerciseCategoryModel>? exerciseCategories;
+
+  // String vẫn giữ required vì chúng ta dùng ?? '' trong fromJson
   final String location;
   final String difficulty;
   final String imageUrl;
@@ -18,12 +22,13 @@ class ExerciseListModel {
   ExerciseListModel({
     required this.id,
     required this.name,
-    required this.equipments,
-    required this.bodyParts,
-    required this.mainMuscles,
-    required this.secondaryMuscles,
-    required this.exerciseTypes,
-    required this.exerciseCategories,
+    // SỬA: Bỏ 'required' cho các List
+    this.equipments,
+    this.bodyParts,
+    this.mainMuscles,
+    this.secondaryMuscles,
+    this.exerciseTypes,
+    this.exerciseCategories,
     required this.location,
     required this.difficulty,
     required this.imageUrl,
@@ -31,44 +36,38 @@ class ExerciseListModel {
 
   /// Parse from JSON (API response)
   factory ExerciseListModel.fromJson(Map<String, dynamic> json) {
+    // Lưu ý: Dùng ?.map để tránh lỗi khi json['key'] là null
     return ExerciseListModel(
       id: json['_id'] ?? '',
       name: json['name'] ?? '',
-      equipments:
-          (json['equipments'] as List<dynamic>?)
-              ?.map((e) => EquipmentModel.fromJson(e as Map<String, dynamic>))
-              .toList() ??
-          [],
-      bodyParts:
-          (json['bodyParts'] as List<dynamic>?)
-              ?.map((e) => BodyPartModel.fromJson(e as Map<String, dynamic>))
-              .toList() ??
-          [],
-      mainMuscles:
-          (json['mainMuscles'] as List<dynamic>?)
-              ?.map((e) => MuscleModel.fromJson(e as Map<String, dynamic>))
-              .toList() ??
-          [],
-      secondaryMuscles:
-          (json['secondaryMuscles'] as List<dynamic>?)
-              ?.map((e) => MuscleModel.fromJson(e as Map<String, dynamic>))
-              .toList() ??
-          [],
-      exerciseTypes:
-          (json['exerciseTypes'] as List<dynamic>?)
-              ?.map(
-                (e) => ExerciseTypeModel.fromJson(e as Map<String, dynamic>),
-              )
-              .toList() ??
-          [],
-      exerciseCategories:
-          (json['exerciseCategories'] as List<dynamic>?)
-              ?.map(
-                (e) =>
-                    ExerciseCategoryModel.fromJson(e as Map<String, dynamic>),
-              )
-              .toList() ??
-          [],
+
+      // LOGIC: Dùng List<dynamic>? và map trực tiếp.
+      equipments: (json['equipments'] as List<dynamic>?)
+          ?.map((e) => EquipmentModel.fromJson(e as Map<String, dynamic>))
+          .toList(), // KHÔNG DÙNG ?? [] vì trường đã là nullable
+
+      bodyParts: (json['bodyParts'] as List<dynamic>?)
+          ?.map((e) => BodyPartModel.fromJson(e as Map<String, dynamic>))
+          .toList(),
+
+      mainMuscles: (json['mainMuscles'] as List<dynamic>?)
+          ?.map((e) => MuscleModel.fromJson(e as Map<String, dynamic>))
+          .toList(),
+
+      secondaryMuscles: (json['secondaryMuscles'] as List<dynamic>?)
+          ?.map((e) => MuscleModel.fromJson(e as Map<String, dynamic>))
+          .toList(),
+
+      exerciseTypes: (json['exerciseTypes'] as List<dynamic>?)
+          ?.map((e) => ExerciseTypeModel.fromJson(e as Map<String, dynamic>))
+          .toList(),
+
+      exerciseCategories: (json['exerciseCategories'] as List<dynamic>?)
+          ?.map(
+            (e) => ExerciseCategoryModel.fromJson(e as Map<String, dynamic>),
+          )
+          .toList(),
+
       location: json['location'] ?? '',
       difficulty: json['difficulty'] ?? '',
       imageUrl: json['imageUrl'] ?? '',
@@ -80,12 +79,17 @@ class ExerciseListModel {
     return ExerciseListEntity(
       id: id,
       name: name,
-      equipments: equipments.map((e) => e.toEntity()).toList(),
-      bodyParts: bodyParts.map((e) => e.toEntity()).toList(),
-      mainMuscles: mainMuscles.map((e) => e.toEntity()).toList(),
-      secondaryMuscles: secondaryMuscles.map((e) => e.toEntity()).toList(),
-      exerciseTypes: exerciseTypes.map((e) => e.toEntity()).toList(),
-      exerciseCategories: exerciseCategories.map((e) => e.toEntity()).toList(),
+      // SỬA: Xử lý null bằng toán tử ?? [] trước khi gọi map
+      equipments: (equipments ?? []).map((e) => e.toEntity()).toList(),
+      bodyParts: (bodyParts ?? []).map((e) => e.toEntity()).toList(),
+      mainMuscles: (mainMuscles ?? []).map((e) => e.toEntity()).toList(),
+      secondaryMuscles: (secondaryMuscles ?? [])
+          .map((e) => e.toEntity())
+          .toList(),
+      exerciseTypes: (exerciseTypes ?? []).map((e) => e.toEntity()).toList(),
+      exerciseCategories: (exerciseCategories ?? [])
+          .map((e) => e.toEntity())
+          .toList(),
       location: location,
       difficulty: difficulty,
       imageUrl: imageUrl,
@@ -97,6 +101,9 @@ class ExerciseListModel {
     return models.map((model) => model.toEntity()).toList();
   }
 }
+
+// KHÔNG CẦN THIẾT SỬA ĐỔI CÁC MODEL CON
+// VÌ CHÚNG VẪN LÀ CÁC ĐỐI TƯỢNG ĐƠN LẺ
 
 /// Equipment Model
 class EquipmentModel {

@@ -36,11 +36,11 @@ import 'package:omnihealthmobileflutter/domain/usecases/exercise/get_all_body_pa
 import 'package:omnihealthmobileflutter/domain/usecases/exercise/get_all_equipments_usecase.dart';
 import 'package:omnihealthmobileflutter/domain/usecases/exercise/get_all_exercise_categories_usecase.dart';
 import 'package:omnihealthmobileflutter/domain/usecases/exercise/get_all_exercise_types_usecase.dart';
+import 'package:omnihealthmobileflutter/domain/usecases/exercise/get_all_muscles_usecase.dart';
 import 'package:omnihealthmobileflutter/domain/usecases/exercise/get_exercise_by_id_usecase.dart';
 import 'package:omnihealthmobileflutter/domain/usecases/exercise/get_exercises_usecase.dart';
 import 'package:omnihealthmobileflutter/domain/usecases/exercise/get_muscle_by_id_usecase.dart';
 import 'package:omnihealthmobileflutter/domain/usecases/exercise/rate_exercise_usecase.dart';
-import 'package:omnihealthmobileflutter/domain/usecases/exercise/get_all_muscles_usecase.dart';
 import 'package:omnihealthmobileflutter/domain/usecases/role/get_roles_for_select_box_usecase.dart';
 import 'package:omnihealthmobileflutter/presentation/common/blocs/auth/authentication_bloc.dart';
 import 'package:omnihealthmobileflutter/presentation/common/cubits/theme_cubit.dart';
@@ -172,6 +172,9 @@ Future<void> init() async {
   );
   sl.registerLazySingleton<GetExerciseByIdUseCase>(
     () => GetExerciseByIdUseCase(sl()),
+  );
+  sl.registerLazySingleton<GetAllMuscleTypesUseCase>(
+    () => GetAllMuscleTypesUseCase(sl()),
   );
 
   // ======================

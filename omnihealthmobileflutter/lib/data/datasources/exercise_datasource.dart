@@ -32,11 +32,10 @@ class ExerciseDataSourceImpl implements ExerciseDataSource {
       final response = await apiClient.get<List<ExerciseListModel>>(
         Endpoints.exercises,
         query: queryParam,
-        parser: (json) {
-          // Parse list từ JSON
-          if (json is Map<String, dynamic> && json['data'] is List) {
-            final list = json['data'] as List<dynamic>;
-            return list
+        parser: (data) {
+          // Parse list từ JSON (data chính là List)
+          if (data is List) {
+            return data
                 .map(
                   (e) => ExerciseListModel.fromJson(e as Map<String, dynamic>),
                 )
@@ -60,12 +59,10 @@ class ExerciseDataSourceImpl implements ExerciseDataSource {
     try {
       final response = await apiClient.get<ExerciseDetailModel>(
         Endpoints.getExerciseById(id),
-        parser: (json) {
-          // Parse single object từ JSON
-          if (json is Map<String, dynamic> && json['data'] is Map) {
-            return ExerciseDetailModel.fromJson(
-              json['data'] as Map<String, dynamic>,
-            );
+        parser: (data) {
+          // Parse single object từ JSON (data chính là Map)
+          if (data is Map<String, dynamic>) {
+            return ExerciseDetailModel.fromJson(data);
           }
           throw Exception('Invalid response format');
         },

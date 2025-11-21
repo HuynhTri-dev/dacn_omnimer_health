@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:omnihealthmobileflutter/domain/entities/exercise/body_part_entity.dart'
     as bp;
@@ -264,19 +265,15 @@ class ExerciseHomeBloc extends Bloc<ExerciseHomeEvent, ExerciseHomeState> {
     if (state.activeLocation != null) {
       filters['location'] = state.activeLocation;
     }
-
     if (state.activeEquipmentIds.isNotEmpty) {
       filters['equipmentId'] = state.activeEquipmentIds;
     }
-
     if (state.activeMuscleIds.isNotEmpty) {
       filters['muscleId'] = state.activeMuscleIds;
     }
-
     if (state.activeExerciseTypeIds.isNotEmpty) {
       filters['exerciseTypeId'] = state.activeExerciseTypeIds;
     }
-
     if (state.activeCategoryIds.isNotEmpty) {
       filters['categoryId'] = state.activeCategoryIds;
     }

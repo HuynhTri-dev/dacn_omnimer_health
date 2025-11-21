@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:omnihealthmobileflutter/core/constants/enum_constant.dart';
 import 'package:omnihealthmobileflutter/domain/entities/exercise/body_part_entity.dart'
     as bp;
 import 'package:omnihealthmobileflutter/domain/entities/exercise/equipment_entity.dart'
@@ -40,7 +41,7 @@ class ExerciseHomeState extends Equatable {
   final MuscleEntity? selectedMuscle;
 
   // Active filters
-  final String? activeLocation;
+  final LocationEnum? activeLocation;
   final List<String> activeEquipmentIds;
   final List<String> activeMuscleIds;
   final List<String> activeExerciseTypeIds;
@@ -79,7 +80,7 @@ class ExerciseHomeState extends Equatable {
     bool? hasMoreExercises,
     int? currentPage,
     MuscleEntity? selectedMuscle,
-    String? activeLocation,
+    LocationEnum? activeLocation,
     List<String>? activeEquipmentIds,
     List<String>? activeMuscleIds,
     List<String>? activeExerciseTypeIds,

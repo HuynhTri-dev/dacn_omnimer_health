@@ -129,13 +129,9 @@ Future<void> showExerciseRatingSheet({
                                   final cubit = parentContext
                                       .read<ExerciseDetailCubit>();
 
-                                  // Backend will extract userId from auth token
-                                  const userId = '';
-
                                   try {
                                     final success = await cubit.submitRating(
                                       exerciseId: exerciseId,
-                                      userId: userId,
                                       score: tempRating,
                                     );
 

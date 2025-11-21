@@ -1,19 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:omnihealthmobileflutter/core/constants/enum_constant.dart';
 import 'package:omnihealthmobileflutter/core/theme/app_colors.dart';
 import 'package:omnihealthmobileflutter/core/theme/app_radius.dart';
+import 'package:omnihealthmobileflutter/core/theme/app_spacing.dart';
 import 'package:omnihealthmobileflutter/core/theme/app_typography.dart';
 import 'package:omnihealthmobileflutter/domain/entities/exercise/exercise_list_entity.dart';
 import 'package:omnihealthmobileflutter/domain/entities/exercise/muscle_entity.dart';
 import 'package:omnihealthmobileflutter/presentation/common/auth/user_header_widget.dart';
-import 'package:omnihealthmobileflutter/presentation/screen/exercise/exercise_details/exercise_detail_screen.dart';
+import 'package:omnihealthmobileflutter/presentation/common/skeleton/skeleton_loading.dart';
 import 'package:omnihealthmobileflutter/presentation/screen/exercise/exercise_home/blocs/exercise_home_bloc.dart';
 import 'package:omnihealthmobileflutter/presentation/screen/exercise/exercise_home/blocs/exercise_home_event.dart';
 import 'package:omnihealthmobileflutter/presentation/screen/exercise/exercise_home/blocs/exercise_home_state.dart';
+import 'package:omnihealthmobileflutter/presentation/common/button/button_primary.dart';
+import 'package:shimmer/shimmer.dart';
 
 part 'widgets/header_and_search.dart';
 part 'widgets/exercise_list.dart';
+part 'widgets/exercise_list_skeleton.dart';
 part 'widgets/filter_sheet.dart';
 
 class ExerciseHomeScreen extends StatelessWidget {
@@ -95,7 +100,7 @@ class _ExerciseHomeViewState extends State<_ExerciseHomeView> {
                   // Loading exercises
                   if (state.status == ExerciseHomeStatus.loadingExercises &&
                       state.exercises.isEmpty) {
-                    return const Center(child: CircularProgressIndicator());
+                    return const _ExerciseListSkeleton();
                   }
 
                   // Empty state
@@ -145,8 +150,13 @@ class _ExerciseHomeViewState extends State<_ExerciseHomeView> {
                             _FilterButton(
                               resultCount: state.exercises.length,
                               onPressed: () async {
-                                // TODO: Show filter bottom sheet
-                                // Will be implemented in filter_sheet.dart
+                                await showModalBottomSheet(
+                                  context: context,
+                                  isScrollControlled: true,
+                                  backgroundColor: Colors.transparent,
+                                  builder: (context) =>
+                                      _FilterSheet(state: state),
+                                );
                               },
                             ),
                           ],

@@ -4,6 +4,7 @@ import 'package:omnihealthmobileflutter/data/models/exercise/exercise_list_model
 import 'package:omnihealthmobileflutter/domain/abstracts/exercise_repository_abs.dart';
 import 'package:omnihealthmobileflutter/domain/entities/exercise/exercise_detail_entity.dart';
 import 'package:omnihealthmobileflutter/domain/entities/exercise/exercise_list_entity.dart';
+import 'package:omnihealthmobileflutter/utils/logger.dart';
 import 'package:omnihealthmobileflutter/utils/query_util/default_query_entity.dart';
 
 /// Triển khai ExerciseRepositoryAbs.
@@ -20,10 +21,14 @@ class ExerciseRepositoryImpl implements ExerciseRepositoryAbs {
     try {
       final response = await exerciseDataSource.getExercises(query);
 
+      logger.i("Response: ${response.data}");
+
       // Chuyển Model -> Entity
       final entities = response.data != null
           ? ExerciseListModel.toEntityList(response.data!)
           : <ExerciseListEntity>[];
+
+      logger.i("Entities: ${entities}");
 
       return ApiResponse<List<ExerciseListEntity>>(
         success: response.success,

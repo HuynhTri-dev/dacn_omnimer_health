@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:omnihealthmobileflutter/core/constants/enum_constant.dart';
 
 abstract class ExerciseHomeEvent extends Equatable {
   const ExerciseHomeEvent();
@@ -23,7 +24,7 @@ class SearchExercises extends ExerciseHomeEvent {
 }
 
 class ApplyFilters extends ExerciseHomeEvent {
-  final String? location;
+  final LocationEnum? location;
   final List<String>? equipmentIds;
   final List<String>? muscleIds;
   final List<String>? exerciseTypeIds;

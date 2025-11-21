@@ -53,7 +53,6 @@ class ExerciseDetailCubit extends Cubit<ExerciseDetailState> {
   /// Submit rating for exercise
   Future<bool> submitRating({
     required String exerciseId,
-    required String userId,
     required double score,
   }) async {
     emit(
@@ -63,7 +62,7 @@ class ExerciseDetailCubit extends Cubit<ExerciseDetailState> {
     try {
       final ratingEntity = ExerciseRatingEntity(
         exerciseId: exerciseId,
-        userId: userId,
+        userId: '', // Backend will extract from token
         score: score,
       );
 
