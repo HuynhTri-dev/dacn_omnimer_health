@@ -2,7 +2,7 @@
 part of '../exercise_home_screen.dart';
 
 class _BodyAndMuscleHeader extends StatelessWidget {
-  final MuscleModel? selectedMuscle;
+  final MuscleEntity? selectedMuscle;
 
   const _BodyAndMuscleHeader({required this.selectedMuscle});
 
@@ -60,9 +60,7 @@ class _BodyAndMuscleHeader extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  muscle?.name.isNotEmpty == true
-                      ? muscle!.name
-                      : 'Muscle Name',
+                  muscle?.name ?? 'Muscle Name',
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: AppTypography.bodyMedium.copyWith(
@@ -71,9 +69,7 @@ class _BodyAndMuscleHeader extends StatelessWidget {
                 ),
                 SizedBox(height: 4.h),
                 Text(
-                  muscle?.description.isNotEmpty == true
-                      ? muscle!.description
-                      : 'Description...',
+                  muscle?.description ?? 'Description...',
                   maxLines: 3,
                   overflow: TextOverflow.ellipsis,
                   style: AppTypography.caption.copyWith(
@@ -83,12 +79,21 @@ class _BodyAndMuscleHeader extends StatelessWidget {
                 const Spacer(),
                 ClipRRect(
                   borderRadius: AppRadius.radiusLg,
-                  child: (muscle != null && muscle.image.isNotEmpty)
+                  child: (muscle?.imageUrl!.isNotEmpty == true)
                       ? Image.network(
-                          muscle.image,
+                          muscle!.imageUrl!,
                           height: 90.h,
                           width: double.infinity,
                           fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) {
+                            return Container(
+                              height: 90.h,
+                              width: double.infinity,
+                              color: AppColors.background,
+                              alignment: Alignment.center,
+                              child: const Icon(Icons.broken_image),
+                            );
+                          },
                         )
                       : Container(
                           height: 90.h,

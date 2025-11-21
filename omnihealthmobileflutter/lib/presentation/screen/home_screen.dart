@@ -1,8 +1,12 @@
 import 'package:curved_labeled_navigation_bar/curved_navigation_bar.dart';
 import 'package:curved_labeled_navigation_bar/curved_navigation_bar_item.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:omnihealthmobileflutter/core/theme/app_colors.dart';
+import 'package:omnihealthmobileflutter/injection_container.dart';
+import 'package:omnihealthmobileflutter/presentation/screen/exercise/exercise_home/blocs/exercise_home_bloc.dart';
+import 'package:omnihealthmobileflutter/presentation/screen/exercise/exercise_home/blocs/exercise_home_event.dart';
 import 'package:omnihealthmobileflutter/presentation/screen/exercise/exercise_home/exercise_home_screen.dart';
 import 'package:omnihealthmobileflutter/presentation/screen/health_profile/health_profile_home/health_profile_home_screen.dart';
 import 'package:omnihealthmobileflutter/presentation/screen/more/more_screen.dart';
@@ -28,12 +32,21 @@ class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
 
   // Danh sách các trang
-  final List<Widget> _pages = const [
-    ExerciseHomeScreen(),
-    WorkoutHomeScreen(),
-    HealthProfileHomeScreen(),
-    MoreScreen(),
-  ];
+  late final List<Widget> _pages;
+
+  @override
+  void initState() {
+    super.initState();
+    _pages = [
+      BlocProvider(
+        create: (_) => sl<ExerciseHomeBloc>()..add(LoadInitialData()),
+        child: const ExerciseHomeScreen(),
+      ),
+      const WorkoutHomeScreen(),
+      const HealthProfileHomeScreen(),
+      const MoreScreen(),
+    ];
+  }
 
   /// Xử lý khi thay đổi tab
   void _onTabChanged(int index) {

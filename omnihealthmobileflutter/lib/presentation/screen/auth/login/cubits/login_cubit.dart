@@ -1,5 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:omnihealthmobileflutter/domain/entities/auth_entity.dart';
+import 'package:omnihealthmobileflutter/domain/entities/auth/auth_entity.dart';
 import 'package:omnihealthmobileflutter/domain/usecases/auth/login_usecase.dart';
 import 'package:omnihealthmobileflutter/presentation/common/blocs/auth/authentication_bloc.dart';
 import 'package:omnihealthmobileflutter/presentation/common/blocs/auth/authentication_event.dart';

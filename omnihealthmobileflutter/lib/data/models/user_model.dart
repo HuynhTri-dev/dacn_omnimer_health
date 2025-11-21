@@ -1,4 +1,4 @@
-import 'package:omnihealthmobileflutter/domain/entities/user_entity.dart';
+import 'package:omnihealthmobileflutter/domain/entities/auth/user_entity.dart';
 import 'package:omnihealthmobileflutter/core/constants/enum_constant.dart';
 
 class UserModel {

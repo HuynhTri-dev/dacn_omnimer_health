@@ -1,4 +1,4 @@
-import 'package:omnihealthmobileflutter/domain/entities/auth_entity.dart';
+import 'package:omnihealthmobileflutter/domain/entities/auth/auth_entity.dart';
 
 class LoginModel {
   final String email;

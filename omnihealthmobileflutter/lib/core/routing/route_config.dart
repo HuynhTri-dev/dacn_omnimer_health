@@ -8,6 +8,11 @@ import 'package:omnihealthmobileflutter/presentation/screen/auth/login/cubits/lo
 import 'package:omnihealthmobileflutter/presentation/screen/auth/login/login_screen.dart';
 import 'package:omnihealthmobileflutter/presentation/screen/auth/register/cubits/register_cubit.dart';
 import 'package:omnihealthmobileflutter/presentation/screen/auth/register/register_screen.dart';
+import 'package:omnihealthmobileflutter/presentation/screen/exercise/exercise_details/cubits/exercise_detail_cubit.dart';
+import 'package:omnihealthmobileflutter/presentation/screen/exercise/exercise_details/exercise_detail_screen.dart';
+import 'package:omnihealthmobileflutter/presentation/screen/exercise/exercise_home/blocs/exercise_home_bloc.dart';
+import 'package:omnihealthmobileflutter/presentation/screen/exercise/exercise_home/blocs/exercise_home_event.dart';
+import 'package:omnihealthmobileflutter/presentation/screen/exercise/exercise_home/exercise_home_screen.dart';
 import 'package:omnihealthmobileflutter/presentation/screen/home_screen.dart';
 
 class RouteConfig {
@@ -22,7 +27,8 @@ class RouteConfig {
   static const String home = '/home';
   static const String profile = '/profile';
   static const String settings = '/settings';
-  // static const String muscleHome = '/muscle-home';
+  static const String exerciseHome = '/exercise-home';
+  static const String exerciseDetail = '/exercise-detail';
 
   // ==================== BUILD AUTH PAGES ====================
   static Widget buildAuthPage(String? routeName) {
@@ -77,8 +83,21 @@ class RouteConfig {
       case settings:
         return _buildSettingsScreen(role, arguments);
 
-      // case muscleHome:
-      //   retunr _buildMuscleHomeScreen(role, arguments);
+      case exerciseHome:
+        return BlocProvider(
+          create: (_) => sl<ExerciseHomeBloc>()..add(LoadInitialData()),
+          child: const ExerciseHomeScreen(),
+        );
+
+      case exerciseDetail:
+        final exerciseId = arguments?['exerciseId'] as String?;
+        if (exerciseId == null) {
+          return _ErrorPage(message: 'Exercise ID is required');
+        }
+        return BlocProvider(
+          create: (_) => sl<ExerciseDetailCubit>(),
+          child: ExerciseDetailScreen(exerciseId: exerciseId),
+        );
 
       default:
         return _ErrorPage(message: 'Không tìm thấy trang: $routeName');
@@ -160,6 +179,10 @@ class RouteConfig {
 
   static void navigateToSettings(BuildContext context) {
     Navigator.of(context).pushNamed(settings);
+  }
+
+  static void navigateToExerciseHome(BuildContext context) {
+    Navigator.of(context).pushNamed(exerciseHome);
   }
 }
 

@@ -2,7 +2,7 @@ import 'package:omnihealthmobileflutter/core/api/api_response.dart';
 import 'package:omnihealthmobileflutter/data/datasources/role_datasource.dart';
 import 'package:omnihealthmobileflutter/data/models/role/role_model.dart';
 import 'package:omnihealthmobileflutter/domain/abstracts/role_repositoy_abs.dart';
-import 'package:omnihealthmobileflutter/domain/entities/role_entity.dart';
+import 'package:omnihealthmobileflutter/domain/entities/auth/role_entity.dart';
 
 /// Triển khai RoleRepositoryAbs.
 /// Chịu trách nhiệm chuyển đổi giữa Domain Entity và Data Model.
@@ -29,7 +29,7 @@ class RoleRepositoryImpl implements RoleRepositoryAbs {
       );
     } catch (e) {
       return ApiResponse<List<RoleSelectBoxEntity>>.error(
-        "Không thể lấy danh sách vai trò: ${e.toString()}",
+        "Faild get Role for select box: ${e.toString()}",
         error: e,
       );
     }

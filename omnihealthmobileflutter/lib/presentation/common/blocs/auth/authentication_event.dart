@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:omnihealthmobileflutter/domain/entities/auth_entity.dart'; // Để import UserAuth
+import 'package:omnihealthmobileflutter/domain/entities/auth/auth_entity.dart'; // Để import UserAuth
 
 abstract class AuthenticationEvent extends Equatable {
   const AuthenticationEvent();

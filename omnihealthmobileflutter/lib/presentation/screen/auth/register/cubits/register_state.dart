@@ -1,7 +1,7 @@
 // ==================== STATES ====================
 import 'package:equatable/equatable.dart';
-import 'package:omnihealthmobileflutter/domain/entities/auth_entity.dart';
-import 'package:omnihealthmobileflutter/domain/entities/role_entity.dart';
+import 'package:omnihealthmobileflutter/domain/entities/auth/auth_entity.dart';
+import 'package:omnihealthmobileflutter/domain/entities/auth/role_entity.dart';
 
 abstract class RegisterState extends Equatable {
   const RegisterState();

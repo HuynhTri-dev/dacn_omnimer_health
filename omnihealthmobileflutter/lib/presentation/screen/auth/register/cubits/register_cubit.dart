@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:omnihealthmobileflutter/core/constants/enum_constant.dart';
-import 'package:omnihealthmobileflutter/domain/entities/auth_entity.dart';
+import 'package:omnihealthmobileflutter/domain/entities/auth/auth_entity.dart';
 import 'package:omnihealthmobileflutter/domain/usecases/auth/register_usecase.dart';
 import 'package:omnihealthmobileflutter/domain/usecases/role/get_roles_for_select_box_usecase.dart';
 import 'package:omnihealthmobileflutter/domain/usecases/base_usecase.dart';

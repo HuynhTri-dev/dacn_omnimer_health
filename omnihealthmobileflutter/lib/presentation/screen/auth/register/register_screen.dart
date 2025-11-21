@@ -6,7 +6,7 @@ import 'package:omnihealthmobileflutter/core/constants/enum_constant.dart';
 import 'package:omnihealthmobileflutter/core/theme/app_colors.dart';
 import 'package:omnihealthmobileflutter/core/theme/app_spacing.dart';
 import 'package:omnihealthmobileflutter/core/theme/app_typography.dart';
-import 'package:omnihealthmobileflutter/domain/entities/role_entity.dart';
+import 'package:omnihealthmobileflutter/domain/entities/auth/role_entity.dart';
 import 'package:omnihealthmobileflutter/presentation/common/button/button_primary.dart';
 import 'package:omnihealthmobileflutter/presentation/screen/auth/register/cubits/register_cubit.dart';
 import 'package:omnihealthmobileflutter/presentation/screen/auth/register/cubits/register_state.dart';

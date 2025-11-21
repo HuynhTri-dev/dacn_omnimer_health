@@ -1,18 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:omnihealthmobileflutter/core/theme/app_colors.dart';
 import 'package:omnihealthmobileflutter/core/theme/app_radius.dart';
 import 'package:omnihealthmobileflutter/core/theme/app_typography.dart';
-import 'package:omnihealthmobileflutter/data/models/exercise/exercise_model.dart';
 import 'package:omnihealthmobileflutter/presentation/screen/exercise/exercise_details/cubits/exercise_detail_cubit.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 
 Future<void> showExerciseRatingSheet({
   required BuildContext parentContext,
-  required ExerciseModel exercise,
+  required String exerciseId,
+  required String exerciseName,
   required double currentRating,
-  required ValueChanged<double> onRatingUpdated,
 }) async {
   await showModalBottomSheet(
     context: parentContext,
@@ -57,13 +56,14 @@ Future<void> showExerciseRatingSheet({
                   ),
                   SizedBox(height: 4.h),
                   Text(
-                    exercise.name,
+                    exerciseName,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: AppTypography.caption,
                   ),
                   SizedBox(height: 16.h),
 
+                  // Star rating
                   Row(
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: List.generate(5, (index) {
@@ -89,6 +89,7 @@ Future<void> showExerciseRatingSheet({
                   ),
                   SizedBox(height: 20.h),
 
+                  // Buttons
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -128,13 +129,15 @@ Future<void> showExerciseRatingSheet({
                                   final cubit = parentContext
                                       .read<ExerciseDetailCubit>();
 
-                                  try {
-                                    final isNew = await cubit.submitRating(
-                                      exercise,
-                                      tempRating,
-                                    );
+                                  // Backend will extract userId from auth token
+                                  const userId = '';
 
-                                    onRatingUpdated(tempRating);
+                                  try {
+                                    final success = await cubit.submitRating(
+                                      exerciseId: exerciseId,
+                                      userId: userId,
+                                      score: tempRating,
+                                    );
 
                                     if (ctx.mounted) {
                                       Navigator.of(ctx).pop();
@@ -146,9 +149,9 @@ Future<void> showExerciseRatingSheet({
                                       ).showSnackBar(
                                         SnackBar(
                                           content: Text(
-                                            isNew
+                                            success
                                                 ? 'Đã gửi đánh giá'
-                                                : 'Bạn đã cập nhật đánh giá',
+                                                : 'Bạn đã đánh giá bài tập này rồi',
                                           ),
                                         ),
                                       );

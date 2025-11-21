@@ -4,7 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:omnihealthmobileflutter/core/constants/enum_constant.dart';
 import 'package:omnihealthmobileflutter/core/theme/app_spacing.dart';
 import 'package:omnihealthmobileflutter/core/validation/field_validator.dart';
-import 'package:omnihealthmobileflutter/domain/entities/role_entity.dart';
+import 'package:omnihealthmobileflutter/domain/entities/auth/role_entity.dart';
 import 'package:omnihealthmobileflutter/presentation/common/input_fields/custom_text_field.dart';
 import 'package:omnihealthmobileflutter/presentation/common/input_fields/date_picker_field.dart';
 import 'package:omnihealthmobileflutter/presentation/common/input_fields/image_picker_field.dart';
