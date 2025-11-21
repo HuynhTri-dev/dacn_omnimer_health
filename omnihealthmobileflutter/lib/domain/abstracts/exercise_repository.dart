@@ -33,11 +33,44 @@ class ExerciseRepository {
     required String exerciseId,
     required double score,
   }) async {
-    // Với baseUrl = API_BASE_URL + "/api",
-    // '/v1/exercise-rating' => gọi tới /api/v1/exercise-rating ✅
     await dio.post(
       '/v1/exercise-rating',
       data: {'exerciseId': exerciseId, 'score': score},
     );
+  }
+
+  Future<double?> getExerciseRatingFromServer(String exerciseId) async {
+    final res = await dio.get(
+      '/v1/exercise-rating',
+      queryParameters: {'filter': 'exerciseId:$exerciseId'},
+    );
+
+    final body = res.data as Map<String, dynamic>;
+    final list = body['data'] as List<dynamic>;
+
+    if (list.isEmpty) return null;
+
+    final ratings = list
+        .whereType<Map<String, dynamic>>()
+        .where((e) => e['exerciseId'] == exerciseId)
+        .toList();
+
+    if (ratings.isEmpty) return null;
+
+    double total = 0;
+    int count = 0;
+
+    for (final item in ratings) {
+      final score = item['score'];
+      if (score != null) {
+        total += (score as num).toDouble();
+        count++;
+      }
+    }
+
+    if (count == 0) return null;
+
+    final avg = total / count;
+    return avg;
   }
 }

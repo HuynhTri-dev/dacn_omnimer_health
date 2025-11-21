@@ -49,6 +49,17 @@ class ExerciseCubit extends Cubit<ExerciseState> {
     }
   }
 
+  void updateRating(String exerciseId, double rating) {
+    final updated = state.exercises.map((e) {
+      if (e.id == exerciseId) {
+        return e.copyWith(rating: rating);
+      }
+      return e;
+    }).toList();
+
+    emit(state.copyWith(exercises: updated));
+  }
+
   void selectMuscle(MuscleModel? muscle) {
     emit(state.copyWith(selectedMuscle: muscle));
   }
