@@ -28,6 +28,7 @@ class DatePickerField extends StatefulWidget {
   final List<FieldValidator<DateTime>> validators;
   final Widget? leftIcon;
   final String? format;
+  final bool required;
 
   const DatePickerField({
     Key? key,
@@ -45,24 +46,47 @@ class DatePickerField extends StatefulWidget {
     this.validators = const [],
     this.leftIcon,
     this.format,
+    this.required = false,
   }) : super(key: key);
 
   @override
   State<DatePickerField> createState() => _DatePickerFieldState();
 }
 
-class _DatePickerFieldState extends State<DatePickerField> {
+class _DatePickerFieldState extends State<DatePickerField>
+    with SingleTickerProviderStateMixin {
   String? _internalError;
+  bool _isFocused = false;
+  late FocusNode _focusNode;
+
+  @override
+  void initState() {
+    super.initState();
+    _focusNode = FocusNode();
+    _focusNode.addListener(_handleFocusChange);
+  }
+
+  @override
+  void dispose() {
+    _focusNode.dispose();
+    super.dispose();
+  }
+
+  void _handleFocusChange() {
+    setState(() => _isFocused = _focusNode.hasFocus);
+    if (!_isFocused) _validateOnBlur();
+  }
+
+  void _validateOnBlur() {
+    final error = ValidationRunner.validate(widget.value, widget.validators);
+    setState(() => _internalError = error);
+  }
 
   Color _getBorderColor() {
     if (widget.disabled) return AppColors.gray300;
-    if (widget.error != null || _internalError != null) return AppColors.error;
-
-    if (widget.variant == DatePickerVariant.secondary) {
-      return widget.value != null ? AppColors.gray600 : AppColors.gray400;
-    }
-
-    return widget.value != null ? AppColors.secondary : AppColors.primary;
+    if (_internalError != null || widget.error != null) return AppColors.error;
+    if (_isFocused) return AppColors.primary;
+    return AppColors.gray200;
   }
 
   String _formatDate(DateTime date) {
@@ -180,70 +204,140 @@ class _DatePickerFieldState extends State<DatePickerField> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (widget.label != null) ...[
-          Text(
-            widget.label!,
-            style: AppTypography.bodyBoldStyle(
-              fontSize: AppTypography.fontSizeSm.sp,
-              color: AppColors.textPrimary,
-            ),
-          ),
-          SizedBox(height: AppSpacing.sm.h),
-        ],
-        InkWell(
-          onTap: _showPicker,
-          borderRadius: BorderRadius.circular(AppRadius.sm.r),
-          child: Container(
-            padding: AppSpacing.paddingMd.h,
-            decoration: BoxDecoration(
-              color: AppColors.white,
-              border: Border.all(color: _getBorderColor(), width: 1.5),
-              borderRadius: BorderRadius.circular(AppRadius.sm.r),
-            ),
+        if (widget.label != null)
+          Padding(
+            padding: EdgeInsets.only(bottom: AppSpacing.xs.h),
             child: Row(
               children: [
-                if (widget.leftIcon != null) ...[
-                  widget.leftIcon!,
-                  const SizedBox(width: AppSpacing.sm),
-                ],
-                Expanded(
-                  child: Text(
-                    widget.value != null
-                        ? _formatDate(widget.value!)
-                        : widget.placeholder!,
-                    style: AppTypography.bodyRegularStyle(
-                      fontSize: AppTypography.fontSizeBase.sp,
-                      color: widget.value != null
-                          ? AppColors.textPrimary
-                          : AppColors.textMuted,
-                    ),
+                Text(
+                  widget.label!,
+                  style: AppTypography.bodyBoldStyle(
+                    fontSize: AppTypography.fontSizeSm.sp,
+                    color: displayError != null
+                        ? AppColors.error
+                        : AppColors.textPrimary,
                   ),
                 ),
-                SizedBox(width: AppSpacing.sm.h),
-                _CalendarIcon(),
+                if (widget.required)
+                  Padding(
+                    padding: const EdgeInsets.only(left: 4),
+                    child: Container(
+                      width: 8,
+                      height: 8,
+                      decoration: const BoxDecoration(
+                        color: Colors.red,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                  ),
               ],
             ),
           ),
+        GestureDetector(
+          onTap: widget.disabled ? null : _showPicker,
+          child: Focus(
+            focusNode: _focusNode,
+            child: Container(
+              decoration: BoxDecoration(
+                color: AppColors.surface,
+                borderRadius: BorderRadius.circular(AppRadius.md.r),
+                border: Border.all(color: _getBorderColor(), width: 1.5),
+                boxShadow: _isFocused
+                    ? [
+                        BoxShadow(
+                          color: AppColors.primary.withOpacity(0.1),
+                          blurRadius: 6,
+                          offset: const Offset(0, 3),
+                        ),
+                      ]
+                    : [
+                        BoxShadow(
+                          color: AppColors.black.withOpacity(0.02),
+                          blurRadius: 2,
+                          offset: const Offset(0, 1),
+                        ),
+                      ],
+              ),
+              padding: EdgeInsets.symmetric(
+                horizontal: AppSpacing.md.w,
+                vertical: AppSpacing.sm.h,
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  if (widget.leftIcon != null)
+                    Container(
+                      width: 40.w,
+                      height: 40.h,
+                      margin: EdgeInsets.only(right: AppSpacing.sm.w),
+                      decoration: BoxDecoration(
+                        color: AppColors.background,
+                        borderRadius: BorderRadius.circular(AppRadius.sm.r),
+                      ),
+                      child: Center(child: widget.leftIcon),
+                    ),
+                  Expanded(
+                    child: Text(
+                      widget.value != null
+                          ? _formatDate(widget.value!)
+                          : widget.placeholder!,
+                      style: AppTypography.bodyRegularStyle(
+                        fontSize: AppTypography.fontSizeBase.sp,
+                        color: widget.value != null
+                            ? AppColors.textPrimary
+                            : AppColors.textMuted,
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.only(left: AppSpacing.sm.w),
+                    child: _CalendarIcon(),
+                  ),
+                ],
+              ),
+            ),
+          ),
         ),
-        if (displayError != null) ...[
-          const SizedBox(height: AppSpacing.xs),
-          Text(
-            displayError,
-            style: AppTypography.bodyRegularStyle(
-              fontSize: AppTypography.fontSizeXs.sp,
-              color: AppColors.error,
+        if (displayError != null)
+          Padding(
+            padding: EdgeInsets.only(
+              top: AppSpacing.xs.h,
+              left: AppSpacing.xs.w,
+            ),
+            child: Row(
+              children: [
+                const Icon(
+                  Icons.error_outline,
+                  size: 14,
+                  color: AppColors.error,
+                ),
+                SizedBox(width: 4.w),
+                Expanded(
+                  child: Text(
+                    displayError,
+                    style: AppTypography.bodyRegularStyle(
+                      fontSize: AppTypography.fontSizeXs.sp,
+                      color: AppColors.error,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          )
+        else if (widget.helperText != null)
+          Padding(
+            padding: EdgeInsets.only(
+              top: AppSpacing.xs.h,
+              left: AppSpacing.xs.w,
+            ),
+            child: Text(
+              widget.helperText!,
+              style: AppTypography.bodyRegularStyle(
+                fontSize: AppTypography.fontSizeXs.sp,
+                color: AppColors.textSecondary,
+              ),
             ),
           ),
-        ] else if (widget.helperText != null) ...[
-          const SizedBox(height: AppSpacing.xs),
-          Text(
-            widget.helperText!,
-            style: AppTypography.bodyRegularStyle(
-              fontSize: AppTypography.fontSizeXs.sp,
-              color: AppColors.textSecondary,
-            ),
-          ),
-        ],
       ],
     );
   }

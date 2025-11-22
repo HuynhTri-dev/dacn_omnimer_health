@@ -5,8 +5,8 @@ import 'package:omnihealthmobileflutter/core/theme/app_colors.dart';
 import 'package:omnihealthmobileflutter/core/theme/app_spacing.dart';
 import 'package:omnihealthmobileflutter/core/theme/app_typography.dart';
 
-/// Widget checkbox xác nhận chính sách bảo mật và điều khoản dịch vụ
-/// Khi nhấn vào text sẽ mở PDF tương ứng
+/// Widget checkbox for confirming privacy policy and terms of service
+/// Tapping on text will open corresponding PDF
 class PolicyCheckbox extends StatelessWidget {
   final bool isChecked;
   final ValueChanged<bool> onChanged;
@@ -56,7 +56,7 @@ class PolicyCheckbox extends StatelessWidget {
             ),
             SizedBox(width: AppSpacing.sm.w),
 
-            // Text với links
+            // Text with links
             Expanded(
               child: RichText(
                 text: TextSpan(
@@ -65,9 +65,9 @@ class PolicyCheckbox extends StatelessWidget {
                     color: AppColors.textSecondary,
                   ),
                   children: [
-                    const TextSpan(text: 'Tôi đồng ý với '),
+                    const TextSpan(text: 'I agree to the '),
                     TextSpan(
-                      text: 'Chính sách bảo mật',
+                      text: 'Privacy Policy',
                       style: AppTypography.bodyBoldStyle(
                         fontSize: AppTypography.fontSizeSm.sp,
                         color: AppColors.primary,
@@ -75,9 +75,9 @@ class PolicyCheckbox extends StatelessWidget {
                       recognizer: TapGestureRecognizer()
                         ..onTap = disabled ? null : onPrivacyPolicyTap,
                     ),
-                    const TextSpan(text: ' và '),
+                    const TextSpan(text: ' and '),
                     TextSpan(
-                      text: 'Điều khoản dịch vụ',
+                      text: 'Terms of Service',
                       style: AppTypography.bodyBoldStyle(
                         fontSize: AppTypography.fontSizeSm.sp,
                         color: AppColors.primary,

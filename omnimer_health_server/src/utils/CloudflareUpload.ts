@@ -4,6 +4,28 @@ import { HttpError } from "./HttpError";
 import { logError } from "./LoggerUtil";
 import { v4 as uuidv4 } from "uuid";
 
+/**
+ * Lấy public URL từ file key
+ * Cần setup R2 public domain trước trong Cloudflare Dashboard
+ */
+function getPublicUrl(fileKey: string): string {
+  // Option 1: Dùng R2.dev subdomain (FREE - recommend)
+  // Vào R2 Dashboard > Settings > Public Access > Allow Access
+  const publicDomain = process.env.CLOUDFLARE_PUBLIC_DOMAIN; // VD: "pub-abc123.r2.dev"
+
+  if (!publicDomain) {
+    throw new HttpError(
+      500,
+      "CLOUDFLARE_PUBLIC_DOMAIN not configured. Please setup R2 public access in Cloudflare Dashboard."
+    );
+  }
+
+  return `https://${publicDomain}/${fileKey}`;
+
+  // Option 2: Dùng Custom Domain (nếu bạn có domain riêng)
+  // return `https://cdn.yourdomain.com/${fileKey}`;
+}
+
 export function extractFileKey(urlOrKey: string): string {
   try {
     const parsedUrl = new URL(urlOrKey);
@@ -15,6 +37,7 @@ export function extractFileKey(urlOrKey: string): string {
     return urlOrKey;
   }
 }
+
 export async function uploadToCloudflare(
   file: Express.Multer.File,
   folder: string,
@@ -32,8 +55,8 @@ export async function uploadToCloudflare(
 
     await r2.send(command);
 
-    // Return public URL
-    return `https://${process.env.CLOUDFLARE_ACCOUNT_ID}.r2.cloudflarestorage.com/${fileKey}`;
+    // ✅ Return public URL
+    return getPublicUrl(fileKey);
   } catch (err: any) {
     await logError({
       userId,
@@ -47,7 +70,7 @@ export async function uploadToCloudflare(
 
 export async function updateCloudflareImage(
   file: Express.Multer.File,
-  existingUrl: string, // URL cũ trên Cloudflare
+  existingUrl: string,
   folder: string,
   userId?: string
 ): Promise<string> {
@@ -55,10 +78,10 @@ export async function updateCloudflareImage(
     if (!existingUrl) throw new HttpError(400, "Existing image URL required");
 
     // Lấy key từ URL
-    const key = existingUrl.split(".com/")[1];
+    const key = extractFileKey(existingUrl);
 
     // Kiểm tra folder
-    if (!key.startsWith(folder)) {
+    if (!key.startsWith(`${folder}/`)) {
       throw new HttpError(
         400,
         `Existing file key does not belong to folder "${folder}"`
@@ -67,14 +90,14 @@ export async function updateCloudflareImage(
 
     const command = new PutObjectCommand({
       Bucket: process.env.CLOUDFLARE_BUCKET_NAME,
-      Key: key, // overwrite file cũ
+      Key: key,
       Body: file.buffer,
       ContentType: file.mimetype,
     });
 
     await r2.send(command);
 
-    // URL cũ vẫn giữ nguyên
+    // ✅ Return public URL (giữ nguyên URL cũ vì key không đổi)
     return existingUrl;
   } catch (err: any) {
     await logError({
@@ -92,7 +115,7 @@ export async function updateCloudflareImage(
  */
 export async function uploadUserAvatar(
   file: Express.Multer.File,
-  userId: string // người đang thao tác
+  userId: string
 ): Promise<string> {
   try {
     const folder = "users";
@@ -107,7 +130,8 @@ export async function uploadUserAvatar(
 
     await r2.send(command);
 
-    return `https://${process.env.CLOUDFLARE_ACCOUNT_ID}.r2.cloudflarestorage.com/${fileKey}`;
+    // ✅ Return public URL
+    return getPublicUrl(fileKey);
   } catch (err: any) {
     await logError({
       userId,
@@ -125,13 +149,17 @@ export async function uploadUserAvatar(
 export async function updateUserAvatar(
   file: Express.Multer.File,
   existingUrl: string,
-  userId: string // user đang thao tác
+  userId: string
 ): Promise<string> {
   try {
     // Lấy key từ URL
-    const key = existingUrl.split(".com/")[1];
+    const key = extractFileKey(existingUrl);
 
     const parts = key.split("/"); // ['users', '12345']
+    if (parts.length < 2 || parts[0] !== "users") {
+      throw new HttpError(400, "Invalid avatar URL format");
+    }
+
     const uidFromUrl = parts[1];
     if (uidFromUrl !== userId) {
       throw new HttpError(403, "Bạn không có quyền chỉnh sửa avatar này");
@@ -139,14 +167,15 @@ export async function updateUserAvatar(
 
     const command = new PutObjectCommand({
       Bucket: process.env.CLOUDFLARE_BUCKET_NAME,
-      Key: key, // overwrite
+      Key: key,
       Body: file.buffer,
       ContentType: file.mimetype,
     });
 
     await r2.send(command);
 
-    return existingUrl; // URL giữ nguyên
+    // ✅ Return public URL (giữ nguyên vì key không đổi)
+    return existingUrl;
   } catch (err: any) {
     await logError({
       userId: userId,

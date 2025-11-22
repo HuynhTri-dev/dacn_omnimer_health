@@ -44,19 +44,40 @@ class ImagePickerField extends StatefulWidget {
   State<ImagePickerField> createState() => _ImagePickerFieldState();
 }
 
-class _ImagePickerFieldState extends State<ImagePickerField> {
+class _ImagePickerFieldState extends State<ImagePickerField>
+    with SingleTickerProviderStateMixin {
   final ImagePicker _picker = ImagePicker();
   String? _internalError;
+  bool _isFocused = false;
+  late FocusNode _focusNode;
+
+  @override
+  void initState() {
+    super.initState();
+    _focusNode = FocusNode();
+    _focusNode.addListener(_handleFocusChange);
+  }
+
+  @override
+  void dispose() {
+    _focusNode.dispose();
+    super.dispose();
+  }
+
+  void _handleFocusChange() {
+    setState(() => _isFocused = _focusNode.hasFocus);
+    if (!_isFocused) _validateOnBlur();
+  }
+
+  void _validateOnBlur() {
+    _validate(widget.value);
+  }
 
   Color _getBorderColor() {
     if (widget.disabled) return AppColors.gray300;
-    if (widget.error != null || _internalError != null) return AppColors.error;
-
-    if (widget.variant == ImagePickerVariant.secondary) {
-      return widget.value != null ? AppColors.gray600 : AppColors.gray400;
-    }
-
-    return widget.value != null ? AppColors.secondary : AppColors.primary;
+    if (_internalError != null || widget.error != null) return AppColors.error;
+    if (_isFocused) return AppColors.primary;
+    return AppColors.gray200;
   }
 
   void _validate(File? value) {
@@ -236,8 +257,12 @@ class _ImagePickerFieldState extends State<ImagePickerField> {
           SizedBox(height: AppSpacing.sm.h),
         ],
 
-        // Image preview hoặc upload button
-        widget.value != null ? _buildImagePreview() : _buildUploadButton(),
+        // Image preview or upload button - CENTERED
+        Center(
+          child: widget.value != null
+              ? _buildImagePreview()
+              : _buildUploadButton(),
+        ),
 
         if (displayError != null) ...[
           SizedBox(height: AppSpacing.xs.h),
@@ -258,11 +283,13 @@ class _ImagePickerFieldState extends State<ImagePickerField> {
           ),
         ] else if (widget.helperText != null) ...[
           SizedBox(height: AppSpacing.xs.h),
-          Text(
-            widget.helperText!,
-            style: AppTypography.bodyRegularStyle(
-              fontSize: AppTypography.fontSizeXs.sp,
-              color: AppColors.textSecondary,
+          Center(
+            child: Text(
+              widget.helperText!,
+              style: AppTypography.bodyRegularStyle(
+                fontSize: AppTypography.fontSizeXs.sp,
+                color: AppColors.textSecondary,
+              ),
             ),
           ),
         ],
@@ -272,43 +299,52 @@ class _ImagePickerFieldState extends State<ImagePickerField> {
 
   /// Widget hiển thị nút upload khi chưa có ảnh
   Widget _buildUploadButton() {
-    return InkWell(
+    return GestureDetector(
       onTap: widget.disabled ? null : _showImageSourceOptions,
-      borderRadius: BorderRadius.circular(AppRadius.md.r),
-      child: Container(
-        height: widget.imageHeight ?? 120.h,
-        width: widget.imageWidth ?? 120.w, // làm vuông để tạo hình tròn
-        decoration: BoxDecoration(
-          color: AppColors.gray100,
-          shape: BoxShape.circle, // hình tròn
-          border: Border.all(
-            color: _getBorderColor(),
-            width: 1.5,
-            style: BorderStyle.solid,
+      child: Focus(
+        focusNode: _focusNode,
+        child: Container(
+          height: widget.imageHeight ?? 120.h,
+          width: widget.imageWidth ?? 120.w,
+          decoration: BoxDecoration(
+            color: AppColors.surface,
+            shape: BoxShape.circle,
+            border: Border.all(color: _getBorderColor(), width: 1.5),
+            boxShadow: _isFocused
+                ? [
+                    BoxShadow(
+                      color: AppColors.primary.withOpacity(0.1),
+                      blurRadius: 6,
+                      offset: const Offset(0, 3),
+                    ),
+                  ]
+                : [
+                    BoxShadow(
+                      color: AppColors.black.withOpacity(0.02),
+                      blurRadius: 2,
+                      offset: const Offset(0, 1),
+                    ),
+                  ],
           ),
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              width: 48.w,
-              height: 48.h,
-              decoration: BoxDecoration(
-                color: widget.variant == ImagePickerVariant.secondary
-                    ? AppColors.gray400.withOpacity(0.3)
-                    : AppColors.primary.withOpacity(0.1),
-                shape: BoxShape.circle,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                width: 48.w,
+                height: 48.h,
+                decoration: BoxDecoration(
+                  color: AppColors.background,
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.add_photo_alternate_outlined,
+                  color: AppColors.primary,
+                  size: 24.sp,
+                ),
               ),
-              child: Icon(
-                Icons.add_photo_alternate_outlined,
-                color: widget.variant == ImagePickerVariant.secondary
-                    ? AppColors.gray600
-                    : AppColors.primary,
-                size: 24.sp,
-              ),
-            ),
-            SizedBox(height: AppSpacing.sm.h),
-          ],
+              SizedBox(height: AppSpacing.sm.h),
+            ],
+          ),
         ),
       ),
     );
@@ -316,49 +352,67 @@ class _ImagePickerFieldState extends State<ImagePickerField> {
 
   /// Widget hiển thị ảnh đã chọn với nút xóa và thay đổi
   Widget _buildImagePreview() {
-    return Container(
-      height: widget.imageHeight ?? 120.h,
-      width: widget.imageWidth ?? 120.w,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle, // hình tròn
-        border: Border.all(color: _getBorderColor(), width: 1.5),
-      ),
-      child: Stack(
-        children: [
-          // Image preview
-          ClipOval(
-            child: Image.file(
-              widget.value!,
-              width: double.infinity,
-              height: double.infinity,
-              fit: BoxFit.cover,
-            ),
-          ),
-
-          // Overlay buttons (Remove & Change)
-          if (!widget.disabled)
-            Positioned(
-              top: 4.h,
-              right: 4.w,
-              child: Row(
-                children: [
-                  // Change button
-                  _buildActionButton(
-                    icon: Icons.edit,
-                    color: AppColors.primary,
-                    onTap: _showImageSourceOptions,
+    return Focus(
+      focusNode: _focusNode,
+      child: Container(
+        height: widget.imageHeight ?? 120.h,
+        width: widget.imageWidth ?? 120.w,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          border: Border.all(color: _getBorderColor(), width: 1.5),
+          boxShadow: _isFocused
+              ? [
+                  BoxShadow(
+                    color: AppColors.primary.withOpacity(0.1),
+                    blurRadius: 6,
+                    offset: const Offset(0, 3),
                   ),
-                  SizedBox(width: AppSpacing.xs.w),
-                  // Remove button
-                  _buildActionButton(
-                    icon: Icons.close,
-                    color: AppColors.danger,
-                    onTap: _removeImage,
+                ]
+              : [
+                  BoxShadow(
+                    color: AppColors.black.withOpacity(0.02),
+                    blurRadius: 2,
+                    offset: const Offset(0, 1),
                   ),
                 ],
+        ),
+        child: Stack(
+          children: [
+            // Image preview
+            ClipOval(
+              child: Image.file(
+                widget.value!,
+                width: double.infinity,
+                height: double.infinity,
+                fit: BoxFit.cover,
               ),
             ),
-        ],
+
+            // Overlay buttons (Remove & Change)
+            if (!widget.disabled)
+              Positioned(
+                top: 4.h,
+                right: 4.w,
+                child: Row(
+                  children: [
+                    // Change button
+                    _buildActionButton(
+                      icon: Icons.edit,
+                      color: AppColors.primary,
+                      onTap: _showImageSourceOptions,
+                    ),
+                    SizedBox(width: AppSpacing.xs.w),
+                    // Remove button
+                    _buildActionButton(
+                      icon: Icons.close,
+                      color: AppColors.danger,
+                      onTap: _removeImage,
+                    ),
+                  ],
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }

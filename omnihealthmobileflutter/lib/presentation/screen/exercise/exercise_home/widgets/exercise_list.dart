@@ -97,17 +97,13 @@ class _ExerciseCard extends StatelessWidget {
   /// Placeholder when no image available
   Widget _buildPlaceholder() {
     return Container(
-      width: 48.w,
-      height: 48.w,
+      width: 85.w,
+      height: 85.w,
       decoration: BoxDecoration(
         color: AppColors.primary.withOpacity(0.08),
         borderRadius: AppRadius.radiusMd,
       ),
-      child: const Icon(
-        Icons.fitness_center,
-        size: 24,
-        color: AppColors.primary,
-      ),
+      child: Icon(Icons.fitness_center, size: 32.sp, color: AppColors.primary),
     );
   }
 
@@ -118,8 +114,8 @@ class _ExerciseCard extends StatelessWidget {
         borderRadius: AppRadius.radiusMd,
         child: Image.network(
           exercise.imageUrl,
-          width: 48.w,
-          height: 48.w,
+          width: 85.w,
+          height: 85.w,
           fit: BoxFit.cover,
           errorBuilder: (context, error, stackTrace) {
             debugPrint(
@@ -131,8 +127,8 @@ class _ExerciseCard extends StatelessWidget {
           loadingBuilder: (context, child, loadingProgress) {
             if (loadingProgress == null) return child;
             return Container(
-              width: 48.w,
-              height: 48.w,
+              width: 85.w,
+              height: 85.w,
               decoration: BoxDecoration(
                 color: AppColors.primary.withOpacity(0.08),
                 borderRadius: AppRadius.radiusMd,

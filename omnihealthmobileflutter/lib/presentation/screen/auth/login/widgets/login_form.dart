@@ -125,26 +125,6 @@ class _LoginFormState extends State<LoginForm> {
             disabled: widget.isLoading,
             onPressed: () => _handleLogin(context),
           ),
-          SizedBox(height: AppSpacing.lg.h),
-          ButtonIcon(
-            title: 'Google',
-            icon: const FaIcon(
-              FontAwesomeIcons.google,
-              size: 20,
-              color: Colors.red,
-            ),
-            variant: ButtonIconVariant.secondaryOutline,
-            size: ButtonIconSize.large,
-            fullWidth: false,
-            disabled: widget.isLoading,
-            onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Google Sign In chưa được triển khai'),
-                ),
-              );
-            },
-          ),
           SizedBox(height: AppSpacing.xxl.h),
           _buildRegisterLink(),
         ],

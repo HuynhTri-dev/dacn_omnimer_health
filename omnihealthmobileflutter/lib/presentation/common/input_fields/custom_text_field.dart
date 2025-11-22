@@ -179,8 +179,8 @@ class _CustomTextFieldState extends State<CustomTextField>
                   ],
           ),
           padding: EdgeInsets.symmetric(
-            horizontal: AppSpacing.sm.w,
-            vertical: 4.h,
+            horizontal: AppSpacing.md.w,
+            vertical: AppSpacing.sm.h,
           ),
           child: Row(
             crossAxisAlignment: widget.multiline

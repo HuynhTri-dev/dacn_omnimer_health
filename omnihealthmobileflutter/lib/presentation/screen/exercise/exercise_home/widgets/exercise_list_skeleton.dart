@@ -27,108 +27,114 @@ class _ExerciseCardSkeleton extends StatelessWidget {
         decoration: BoxDecoration(
           color: AppColors.surface,
           borderRadius: AppRadius.radiusLg,
-          border: Border.all(color: AppColors.border),
+          boxShadow: [
+            BoxShadow(
+              color: AppColors.shadow,
+              blurRadius: 14,
+              offset: const Offset(0, 4),
+            ),
+          ],
         ),
-        child: Column(
+        padding: EdgeInsets.all(12.w),
+        child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Image skeleton
+            // Thumbnail skeleton on the left
             Container(
-              width: double.infinity,
-              height: 180.h,
+              width: 85.w,
+              height: 85.w,
               decoration: BoxDecoration(
                 color: AppColors.gray200,
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(AppRadius.lg.r),
-                  topRight: Radius.circular(AppRadius.lg.r),
-                ),
+                borderRadius: AppRadius.radiusMd,
               ),
             ),
+            SizedBox(width: 12.w),
 
-            Padding(
-              padding: EdgeInsets.all(AppSpacing.md.w),
+            // Content skeleton on the right
+            Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Title skeleton
                   Container(
                     width: double.infinity,
-                    height: 20.h,
+                    height: 18.h,
                     decoration: BoxDecoration(
                       color: AppColors.gray200,
                       borderRadius: BorderRadius.circular(AppRadius.sm.r),
                     ),
                   ),
-                  SizedBox(height: AppSpacing.sm.h),
+                  SizedBox(height: 6.h),
 
-                  // Subtitle skeleton
+                  // Muscle names skeleton
                   Container(
-                    width: 200.w,
-                    height: 14.h,
+                    width: 150.w,
+                    height: 12.h,
                     decoration: BoxDecoration(
                       color: AppColors.gray200,
                       borderRadius: BorderRadius.circular(AppRadius.sm.r),
                     ),
                   ),
-                  SizedBox(height: AppSpacing.md.h),
+                  SizedBox(height: 8.h),
 
-                  // Tags skeleton
+                  // Equipment and Location row skeleton
                   Row(
                     children: [
-                      Container(
-                        width: 60.w,
-                        height: 24.h,
-                        decoration: BoxDecoration(
-                          color: AppColors.gray200,
-                          borderRadius: BorderRadius.circular(AppRadius.sm.r),
-                        ),
-                      ),
-                      SizedBox(width: AppSpacing.sm.w),
-                      Container(
-                        width: 80.w,
-                        height: 24.h,
-                        decoration: BoxDecoration(
-                          color: AppColors.gray200,
-                          borderRadius: BorderRadius.circular(AppRadius.sm.r),
-                        ),
-                      ),
-                      SizedBox(width: AppSpacing.sm.w),
-                      Container(
-                        width: 70.w,
-                        height: 24.h,
-                        decoration: BoxDecoration(
-                          color: AppColors.gray200,
-                          borderRadius: BorderRadius.circular(AppRadius.sm.r),
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: AppSpacing.md.h),
-
-                  // Rating skeleton
-                  Row(
-                    children: [
-                      ...List.generate(
-                        5,
-                        (index) => Padding(
-                          padding: EdgeInsets.only(right: 2.w),
-                          child: Container(
-                            width: 16.w,
-                            height: 16.w,
-                            decoration: const BoxDecoration(
-                              color: AppColors.gray200,
-                              shape: BoxShape.circle,
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Container(
+                              width: 60.w,
+                              height: 10.h,
+                              decoration: BoxDecoration(
+                                color: AppColors.gray200,
+                                borderRadius: BorderRadius.circular(
+                                  AppRadius.sm.r,
+                                ),
+                              ),
                             ),
-                          ),
+                            SizedBox(height: 2.h),
+                            Container(
+                              width: 80.w,
+                              height: 12.h,
+                              decoration: BoxDecoration(
+                                color: AppColors.gray200,
+                                borderRadius: BorderRadius.circular(
+                                  AppRadius.sm.r,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                      SizedBox(width: AppSpacing.sm.w),
-                      Container(
-                        width: 40.w,
-                        height: 14.h,
-                        decoration: BoxDecoration(
-                          color: AppColors.gray200,
-                          borderRadius: BorderRadius.circular(AppRadius.sm.r),
+                      SizedBox(width: 8.w),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            Container(
+                              width: 50.w,
+                              height: 10.h,
+                              decoration: BoxDecoration(
+                                color: AppColors.gray200,
+                                borderRadius: BorderRadius.circular(
+                                  AppRadius.sm.r,
+                                ),
+                              ),
+                            ),
+                            SizedBox(height: 2.h),
+                            Container(
+                              width: 70.w,
+                              height: 12.h,
+                              decoration: BoxDecoration(
+                                color: AppColors.gray200,
+                                borderRadius: BorderRadius.circular(
+                                  AppRadius.sm.r,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ],
