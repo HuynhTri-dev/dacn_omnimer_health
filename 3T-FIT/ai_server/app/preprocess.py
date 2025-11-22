@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 import json
 
-ART = "artifacts_unified"
+ART = "./model"
 PRE = f"{ART}/preprocessor.joblib"
 META = f"{ART}/meta.json"
 

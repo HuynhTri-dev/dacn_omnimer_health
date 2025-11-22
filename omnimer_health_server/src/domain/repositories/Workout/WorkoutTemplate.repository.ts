@@ -1,6 +1,6 @@
 import { FilterQuery, Model, Types } from "mongoose";
 import { IWorkoutTemplate } from "../../models";
-import { BaseRepository } from "../Base.repository";
+import { BaseRepository } from "../base.repository";
 import { PaginationQueryOptions } from "../../entities";
 
 export class WorkoutTemplateRepository extends BaseRepository<IWorkoutTemplate> {

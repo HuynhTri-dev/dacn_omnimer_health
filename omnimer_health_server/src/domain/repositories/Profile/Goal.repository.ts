@@ -1,6 +1,6 @@
 import { Model } from "mongoose";
 import { IGoal } from "../../models";
-import { BaseRepository } from "../Base.repository";
+import { BaseRepository } from "../base.repository";
 import { IRAGGoal } from "../../entities";
 import { GoalTypeEnum } from "../../../common/constants/EnumConstants";
 

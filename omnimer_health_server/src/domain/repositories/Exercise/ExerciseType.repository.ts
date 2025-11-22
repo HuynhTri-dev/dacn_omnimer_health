@@ -1,6 +1,6 @@
 import { Model } from "mongoose";
 import { IExerciseType } from "../../models";
-import { BaseRepository } from "../Base.repository";
+import { BaseRepository } from "../base.repository";
 
 export class ExerciseTypeRepository extends BaseRepository<IExerciseType> {
   constructor(model: Model<IExerciseType>) {

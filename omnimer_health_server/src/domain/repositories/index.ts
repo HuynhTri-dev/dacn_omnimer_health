@@ -1,4 +1,4 @@
-export * from "./Base.repository";
+export * from "./base.repository";
 export * from "./Profile/User.repository";
 export * from "./Profile/HealthProfile.repository";
 export * from "./Profile/Goal.repository";

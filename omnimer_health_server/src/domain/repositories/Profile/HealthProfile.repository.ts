@@ -1,6 +1,6 @@
 import { Model, Types } from "mongoose";
 import { IHealthProfile } from "../../models";
-import { BaseRepository } from "../Base.repository";
+import { BaseRepository } from "../base.repository";
 import { IRAGHealthProfile } from "../../entities/RAG.entity";
 import { GenderEnum } from "../../../common/constants/EnumConstants";
 

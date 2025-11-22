@@ -13,9 +13,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy the ai_server directory into the container at /app/ai_server
 COPY ai_server ./ai_server
 
-# Copy the artifacts_unified directory (contains trained models)
-COPY artifacts_unified ./artifacts_unified
-
 # Set the PYTHONPATH to include the current directory
 ENV PYTHONPATH=/app
 
