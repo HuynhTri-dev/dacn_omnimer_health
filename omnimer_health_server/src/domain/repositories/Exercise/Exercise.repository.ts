@@ -1,6 +1,6 @@
 import { Model, SortOrder, Types } from "mongoose";
 import { IExercise, IExerciseRating } from "../../models";
-import { BaseRepository, castArrayToObjectIds } from "../Base.repository";
+import { BaseRepository, castArrayToObjectIds } from "../base.repository";
 import {
   IRAGExercise,
   IRAGHealthProfile,

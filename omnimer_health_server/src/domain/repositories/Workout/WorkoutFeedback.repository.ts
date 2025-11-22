@@ -1,6 +1,6 @@
 import { Model } from "mongoose";
 import { IWorkoutFeedback } from "../../models";
-import { BaseRepository } from "../Base.repository";
+import { BaseRepository } from "../base.repository";
 
 export class WorkoutFeedbackRepository extends BaseRepository<IWorkoutFeedback> {
   constructor(model: Model<IWorkoutFeedback>) {

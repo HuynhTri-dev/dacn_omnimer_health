@@ -51,7 +51,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   SizedBox(height: AppSpacing.xs.h),
                   Text(
-                    'Cảm hứng sống khỏe, mỗi ngày một tốt hơn.',
+                    'Prioritize You. OmniMer, Your Personal Wellness Coach',
                     style: AppTypography.bodyRegularStyle(
                       fontSize: AppTypography.fontSizeSm.sp,
                       color: AppColors.textPrimary,

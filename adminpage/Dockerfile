@@ -1,5 +1,5 @@
 # Stage 1: Build React app
-FROM node:18-alpine AS builder
+FROM node:24-alpine AS builder
 
 # Thư mục làm việc trong container
 WORKDIR /app

@@ -1,6 +1,6 @@
 import { FilterQuery, Model, Types } from "mongoose";
 import { IWorkout, IWorkoutDeviceData } from "../../models";
-import { BaseRepository } from "../Base.repository";
+import { BaseRepository } from "../base.repository";
 import { PaginationQueryOptions } from "../../entities";
 import { IWorkoutDetailInfo } from "../../../utils/Workout/WorkoutUtil";
 

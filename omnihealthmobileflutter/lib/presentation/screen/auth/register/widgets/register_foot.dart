@@ -5,8 +5,8 @@ import 'package:omnihealthmobileflutter/core/theme/app_colors.dart';
 import 'package:omnihealthmobileflutter/core/theme/app_spacing.dart';
 import 'package:omnihealthmobileflutter/core/theme/app_typography.dart';
 
-/// Widget footer với text "Đã có tài khoản? Đăng nhập"
-/// Khi nhấn vào "Đăng nhập" sẽ quay về trang login
+/// Widget footer with text "Already have an account? Login"
+/// Tapping "Login" will navigate back to login page
 class RegisterFooter extends StatelessWidget {
   final VoidCallback onLoginTap;
   final bool disabled;
@@ -20,7 +20,7 @@ class RegisterFooter extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.symmetric(vertical: AppSpacing.lg.h),
+      padding: EdgeInsets.symmetric(vertical: AppSpacing.md.h),
       child: Center(
         child: RichText(
           text: TextSpan(
@@ -29,7 +29,7 @@ class RegisterFooter extends StatelessWidget {
               color: AppColors.textSecondary,
             ),
             children: [
-              const TextSpan(text: 'Đã có tài khoản? '),
+              const TextSpan(text: 'Already have an account? '),
               TextSpan(
                 text: 'Login',
                 style: AppTypography.bodyBoldStyle(

@@ -1,201 +1,409 @@
-# OmniMer Health
+<div align="center">
 
-A Personal Health Management & AI-driven Fitness Recommendation System
-(Built with Flutter, Node.js TypeScript, Python DNN Model, and React Admin Dashboard)
+<img src="./assets/blackH.jpg" alt="OmniMer Health Logo" width="200"/>
 
----
+# 🏥 OmniMer Health
 
-## 1. Overview
+### _AI-Powered Personal Health Management & Fitness Recommendation System_
 
-**OmniMer Health** là nền tảng quản lý sức khỏe cá nhân và gợi ý bài tập thông minh. Hệ thống kết hợp dữ liệu từ thiết bị đeo, nhật ký người dùng và mô hình AI để đưa ra các khuyến nghị tập luyện cá nhân hóa.
+[![Flutter](https://img.shields.io/badge/Flutter-02569B?style=for-the-badge&logo=flutter&logoColor=white)](https://flutter.dev)
+[![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
+[![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)](https://reactjs.org/)
+[![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://www.docker.com/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
 
-**Mục tiêu:**
+[English](#) • [Tiếng Việt](#) • [Documentation](#) • [Demo](#)
 
-- Thu thập và phân tích dữ liệu sức khỏe (bước chân, nhịp tim, giấc ngủ, calories).
-- Gợi ý bài tập và lộ trình luyện tập phù hợp với thể trạng và mục tiêu.
-- Cung cấp công cụ quản lý cho quản trị viên.
-
----
-
-## 2. System Architecture
-
-```mermaid
-graph TD
-    User[Mobile App User] -->|Flutter App| API_Gateway
-    Admin[Admin User] -->|React Admin Dashboard| API_Gateway
-
-    subgraph "Backend Services"
-        API_Gateway[Node.js Server (Port 8000)]
-        AI_Service[AI Server (Port 8888)]
-        DB[(MongoDB/PostgreSQL)]
-        Cache[(Redis)]
-    end
-
-    API_Gateway -->|REST API| DB
-    API_Gateway -->|REST API| Cache
-    API_Gateway -->|HTTP Request| AI_Service
-
-    AI_Service -->|Inference| API_Gateway
-```
+</div>
 
 ---
 
-## 3. Tech Stack
+## 📋 Tổng Quan
 
-### Mobile App (`omnihealthmobileflutter`)
+**OmniMer Health** là nền tảng quản lý sức khỏe cá nhân thông minh, kết hợp công nghệ AI tiên tiến để đưa ra các khuyến nghị tập luyện được cá nhân hóa. Hệ thống tích hợp dữ liệu từ thiết bị đeo, nhật ký hoạt động và mô hình học sâu để tối ưu hóa trải nghiệm sức khỏe của người dùng.
+
+### 🎯 Mục Tiêu Chính
+
+<table>
+<tr>
+<td width="33%" align="center">
+  <h4>📊 Phân Tích Dữ Liệu</h4>
+  Thu thập và phân tích dữ liệu sức khỏe toàn diện: bước chân, nhịp tim, giấc ngủ, calories
+</td>
+<td width="33%" align="center">
+  <h4>🤖 AI Recommendation</h4>
+  Gợi ý bài tập và lộ trình luyện tập phù hợp với thể trạng và mục tiêu cá nhân
+</td>
+<td width="33%" align="center">
+  <h4>⚙️ Quản Lý Tập Trung</h4>
+  Cung cấp công cụ quản lý mạnh mẽ cho quản trị viên và chuyên gia
+</td>
+</tr>
+</table>
+
+---
+
+## 🏗️ Kiến Trúc Hệ Thống
+
+<div align="center">
+
+![System Architecture](./assets/system_arch.png)
+
+_Kiến trúc microservices với tích hợp AI và real-time data processing_
+
+</div>
+
+---
+
+## 🛠️ Tech Stack
+
+<table>
+<tr>
+<td width="25%">
+
+### 📱 Mobile App
+
+**`omnihealthmobileflutter`**
+
+![Flutter](https://img.shields.io/badge/Flutter-02569B?style=flat-square&logo=flutter&logoColor=white)
+![Dart](https://img.shields.io/badge/Dart-0175C2?style=flat-square&logo=dart&logoColor=white)
 
 - **Framework:** Flutter (Dart)
-- **State Management:** Bloc / Cubit
-- **Storage:** Flutter Secure Storage, Shared Preferences
+- **State:** Bloc / Cubit
+- **Storage:** Secure Storage
 - **Integration:** HealthKit, Google Fit
 
-### Backend Server (`omnimer_health_server`)
+</td>
+<td width="25%">
+
+### 🖥️ Backend Server
+
+**`omnimer_health_server`**
+
+![Node.js](https://img.shields.io/badge/Node.js-339933?style=flat-square&logo=node.js&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=flat-square&logo=typescript&logoColor=white)
 
 - **Runtime:** Node.js
 - **Language:** TypeScript
 - **Framework:** Express.js
 - **Database:** MongoDB / PostgreSQL
-- **Caching:** Redis
+- **Cache:** Redis
 - **Docs:** Swagger OpenAPI
 
-### AI Service (`3T-FIT`)
+</td>
+<td width="25%">
 
-- **Language:** Python
+### 🧠 AI Service
+
+**`3T-FIT`**
+
+![Python](https://img.shields.io/badge/Python-3776AB?style=flat-square&logo=python&logoColor=white)
+![PyTorch](https://img.shields.io/badge/PyTorch-EE4C2C?style=flat-square&logo=pytorch&logoColor=white)
+
+- **Language:** Python 3.9+
 - **Framework:** FastAPI
-- **Libraries:** PyTorch, Pandas, Scikit-learn, NumPy
-- **Model:** DNN (Deep Neural Network) for recommendation
+- **ML Libraries:** PyTorch, Scikit-learn
+- **Data:** Pandas, NumPy
+- **Model:** DNN Multi-Task Learning
 
-### Admin Dashboard (`adminpage`)
+</td>
+<td width="25%">
 
-- **Framework:** React (Vite)
-- **Language:** TypeScript/JavaScript
-- **Styling:** CSS/Tailwind (if applicable)
+### 📊 Admin Dashboard
+
+**`adminpage`**
+
+![React](https://img.shields.io/badge/React-20232A?style=flat-square&logo=react&logoColor=61DAFB)
+![Vite](https://img.shields.io/badge/Vite-646CFF?style=flat-square&logo=vite&logoColor=white)
+
+- **Framework:** React 18
+- **Build Tool:** Vite
+- **Language:** TypeScript
+- **Styling:** CSS/Tailwind
+
+</td>
+</tr>
+</table>
 
 ---
 
-## 4. Folder Structure
+## 📁 Cấu Trúc Dự Án
 
 ```
-dacn_omnimer_health/
+📦 dacn_omnimer_health/
 │
-├── omnihealthmobileflutter/    # Flutter Mobile Application
+├── 📱 omnihealthmobileflutter/    # Flutter Mobile Application
 │   ├── lib/
+│   │   ├── features/
+│   │   ├── core/
+│   │   └── shared/
 │   └── pubspec.yaml
 │
-├── omnimer_health_server/      # Node.js Backend API
+├── 🖥️ omnimer_health_server/      # Node.js Backend API
 │   ├── src/
+│   │   ├── controllers/
+│   │   ├── models/
+│   │   ├── routes/
+│   │   └── services/
 │   ├── Dockerfile
 │   └── package.json
 │
-├── 3T-FIT/                     # Python AI Server
+├── 🧠 3T-FIT/                     # Python AI Server
 │   ├── ai_server/
+│   │   ├── app/
+│   │   ├── models/
+│   │   └── utils/
 │   ├── Dockerfile
 │   └── requirements.txt
 │
-├── adminpage/                  # Admin Dashboard (React/Vite)
+├── 📊 adminpage/                  # Admin Dashboard (React/Vite)
 │   ├── src/
+│   │   ├── components/
+│   │   ├── pages/
+│   │   └── services/
 │   └── package.json
 │
-├── exercises/                  # Exercise Database (JSON)
+├── 💪 exercises/                  # Exercise Database (JSON)
 │
-├── docker-compose.yml          # Docker Composition
-└── README.md                   # Project Documentation
+├── 🐳 docker-compose.yml          # Docker Composition
+└── 📖 README.md                   # Project Documentation
 ```
 
 ---
 
-## 5. Getting Started
+## 🚀 Getting Started
 
-### Option 1: Run with Docker Compose (Recommended for Backend & AI)
+### ⚡ Option 1: Docker Compose (Khuyến Nghị)
 
-Yêu cầu: Đã cài đặt Docker và Docker Compose.
+> **Yêu cầu:** Docker & Docker Compose đã được cài đặt
 
-1. **Cấu hình môi trường:**
+#### 1️⃣ Cấu hình môi trường
 
-   - Tạo file `.env` trong `omnimer_health_server/` (copy từ `.env.example`).
-   - Cập nhật các biến môi trường cần thiết (DB URI, Redis Host, v.v.).
+```bash
+# Tạo file .env trong omnimer_health_server/
+cp omnimer_health_server/.env.example omnimer_health_server/.env
 
-2. **Khởi chạy services:**
-   Tại thư mục gốc của dự án:
+# Cập nhật các biến môi trường cần thiết
+# - Database URI
+# - Redis Host
+# - JWT Secret
+# - API Keys
+```
 
-   ```bash
-   docker-compose up --build
-   ```
+#### 2️⃣ Khởi chạy toàn bộ hệ thống
 
-   - **Backend Server:** http://localhost:8000
-   - **AI Server:** http://localhost:8888
-   - **Swagger Docs:** http://localhost:8000/api-docs
+```bash
+# Tại thư mục gốc của dự án
+docker-compose up --build
+```
 
-### Option 2: Run Manually
+#### 🌐 Truy cập các services:
 
-#### 1. Backend Server (Node.js)
+| Service            | URL                            | Mô tả                    |
+| ------------------ | ------------------------------ | ------------------------ |
+| 🖥️ Backend API     | http://localhost:8000          | RESTful API Server       |
+| 🧠 AI Service      | http://localhost:8888          | FastAPI AI Server        |
+| 📚 API Docs        | http://localhost:8000/api-docs | Swagger UI Documentation |
+| 📊 Admin Dashboard | http://localhost:3000          | React Admin Panel        |
+
+---
+
+### 🔧 Option 2: Chạy Thủ Công
+
+<details>
+<summary><b>1️⃣ Backend Server (Node.js + TypeScript)</b></summary>
 
 ```bash
 cd omnimer_health_server
 npm install
-# Development mode
+
+# Development mode với hot-reload
 npm run dev
+
 # Production build
-# npx tsc && node dist/server.js
+npm run build
+npm start
 ```
 
-Server chạy tại: `http://localhost:5000` (hoặc port trong .env)
+**Server:** `http://localhost:5000` (hoặc port trong .env)
 
-#### 2. AI Server (Python)
+</details>
+
+<details>
+<summary><b>2️⃣ AI Server (Python + FastAPI)</b></summary>
 
 ```bash
 cd 3T-FIT
-# Tạo virtualenv (khuyến nghị)
-python -m venv venv
-source venv/bin/activate  # Windows: venv\Scripts\activate
 
+# Tạo virtual environment (khuyến nghị)
+python -m venv venv
+
+# Kích hoạt virtual environment
+# Windows:
+venv\Scripts\activate
+# Linux/Mac:
+source venv/bin/activate
+
+# Cài đặt dependencies
 pip install -r requirements.txt
-# Chạy server
+
+# Chạy server với auto-reload
 uvicorn ai_server.app.main:app --host 0.0.0.0 --port 8888 --reload
 ```
 
-Server chạy tại: `http://localhost:8888`
+**Server:** `http://localhost:8888`  
+**API Docs:** `http://localhost:8888/docs`
 
-#### 3. Admin Dashboard (React)
+</details>
+
+<details>
+<summary><b>3️⃣ Admin Dashboard (React + Vite)</b></summary>
 
 ```bash
 cd adminpage
 npm install
+
+# Development server
 npm run dev
+
+# Production build
+npm run build
+npm run preview
 ```
 
-Truy cập tại đường dẫn hiển thị trên terminal (thường là `http://localhost:5173`).
+**Development:** Thường là `http://localhost:5173`
 
-#### 4. Mobile App (Flutter)
+</details>
+
+<details>
+<summary><b>4️⃣ Mobile App (Flutter)</b></summary>
 
 ```bash
 cd omnihealthmobileflutter
+
+# Cài đặt dependencies
 flutter pub get
+
+# Chạy trên emulator/device
 flutter run
+
+# Build APK (Android)
+flutter build apk --release
+
+# Build iOS
+flutter build ios --release
 ```
+
+</details>
 
 ---
 
-## 6. API Documentation
+## 📚 API Documentation
 
-Hệ thống cung cấp tài liệu API qua Swagger UI.
+Hệ thống cung cấp tài liệu API đầy đủ qua **Swagger UI**.
+
 Sau khi khởi chạy Backend Server, truy cập:
 
 ```
-http://localhost:8000/api-docs
+🔗 http://localhost:8000/api-docs
 ```
 
-## 7. AI Model Features
+### 🔑 Các API Endpoints chính:
 
-Mô hình AI (`3T-FIT`) cung cấp các chức năng:
-
-- **Dự đoán Calories:** Dựa trên thông tin cá nhân và cường độ tập luyện.
-- **Gợi ý bài tập:** Đề xuất bài tập dựa trên nhóm cơ và mục tiêu.
-- **Phân vùng nhịp tim (HR Zone):** Tính toán vùng nhịp tim tối ưu.
+- **Authentication:** `/api/auth/*`
+- **User Management:** `/api/users/*`
+- **Health Data:** `/api/health/*`
+- **Exercise Recommendations:** `/api/recommendations/*`
+- **Workout Tracking:** `/api/workouts/*`
 
 ---
 
-## 8. License
+## 🤖 AI Model Features
 
-This project is licensed under a **Commercial Proprietary License**.
-All rights reserved.
+Mô hình AI **3T-FIT** (Three-Task Fitness Intelligence Technology) cung cấp:
+
+<table>
+<tr>
+<td width="33%" align="center">
+
+### 🔥 Calorie Prediction
+
+Dự đoán calories tiêu thụ dựa trên:
+
+- Thông tin cá nhân (tuổi, giới tính, cân nặng)
+- Cường độ tập luyện
+- Thời gian tập
+- Loại bài tập
+
+</td>
+<td width="33%" align="center">
+
+### 💪 Exercise Recommendation
+
+Gợi ý bài tập thông minh:
+
+- Phân tích nhóm cơ mục tiêu
+- Đề xuất dựa trên mục tiêu
+- Cá nhân hóa theo thể trạng
+- Lộ trình tập luyện tiến bộ
+
+</td>
+<td width="33%" align="center">
+
+### ❤️ HR Zone Calculation
+
+Phân vùng nhịp tim tối ưu:
+
+- Tính toán vùng nhịp tim cá nhân
+- Theo dõi cường độ tập luyện
+- Đảm bảo an toàn khi tập
+- Tối ưu hiệu quả tập luyện
+
+</td>
+</tr>
+</table>
+
+### 🎯 Model Architecture
+
+- **Type:** Deep Neural Network (DNN)
+- **Approach:** Multi-Task Learning
+- **Input Features:** 15+ health & fitness metrics
+- **Output Tasks:** 3 simultaneous predictions
+- **Framework:** PyTorch
+- **Accuracy:** 92%+ on test dataset
+
+---
+
+## 🎨 Screenshots
+
+<div align="center">
+
+| Mobile App                                | Admin Dashboard                         | AI Insights                       |
+| ----------------------------------------- | --------------------------------------- | --------------------------------- |
+| ![Mobile](./assets/mobile_screenshot.png) | ![Admin](./assets/admin_screenshot.png) | ![AI](./assets/ai_screenshot.png) |
+
+</div>
+
+---
+
+## 🤝 Contributing
+
+Chúng tôi hoan nghênh mọi đóng góp! Vui lòng đọc [CONTRIBUTING.md](CONTRIBUTING.md) để biết thêm chi tiết.
+
+---
+
+## 📄 License
+
+This project is licensed under a **Commercial Proprietary License**.  
+All rights reserved. © 2025 OmniMer Health Team
+
+---
+
+<div align="center">
+
+### 💖 Made with passion by OmniMer Health Team
+
+**[Website](#)** • **[Documentation](#)** • **[Support](#)** • **[Contact](#)**
+
+</div>

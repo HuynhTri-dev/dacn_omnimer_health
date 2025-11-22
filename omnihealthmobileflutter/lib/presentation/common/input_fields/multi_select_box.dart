@@ -45,22 +45,39 @@ class MultiSelectBox<T> extends StatefulWidget {
   State<MultiSelectBox<T>> createState() => _MultiSelectBoxState<T>();
 }
 
-class _MultiSelectBoxState<T> extends State<MultiSelectBox<T>> {
+class _MultiSelectBoxState<T> extends State<MultiSelectBox<T>>
+    with SingleTickerProviderStateMixin {
   String? _internalError;
+  bool _isFocused = false;
+  late FocusNode _focusNode;
+
+  @override
+  void initState() {
+    super.initState();
+    _focusNode = FocusNode();
+    _focusNode.addListener(_handleFocusChange);
+  }
+
+  @override
+  void dispose() {
+    _focusNode.dispose();
+    super.dispose();
+  }
+
+  void _handleFocusChange() {
+    setState(() => _isFocused = _focusNode.hasFocus);
+    if (!_isFocused) _validateOnBlur();
+  }
+
+  void _validateOnBlur() {
+    _validate(widget.value);
+  }
 
   Color _getBorderColor(bool isOpen) {
     if (widget.disabled) return AppColors.gray300;
-    if (widget.error != null || _internalError != null) return AppColors.error;
-
-    if (widget.variant == SelectVariant.secondary) {
-      return (isOpen || (widget.value?.isNotEmpty ?? false))
-          ? AppColors.gray600
-          : AppColors.gray400;
-    }
-
-    return (isOpen || (widget.value?.isNotEmpty ?? false))
-        ? AppColors.secondary
-        : AppColors.primary;
+    if (_internalError != null || widget.error != null) return AppColors.error;
+    if (_isFocused || isOpen) return AppColors.primary;
+    return AppColors.gray200;
   }
 
   void _validate(List<T>? value) {
@@ -91,13 +108,26 @@ class _MultiSelectBoxState<T> extends State<MultiSelectBox<T>> {
           fontSize: AppTypography.fontSizeLg.sp,
         ),
       ),
-      selectedColor: widget.variant == SelectVariant.secondary
-          ? AppColors.gray600
-          : AppColors.primary,
+      selectedColor: AppColors.primary,
       decoration: BoxDecoration(
-        color: widget.disabled ? AppColors.gray100 : AppColors.white,
+        color: AppColors.surface,
         border: Border.all(color: _getBorderColor(false), width: 1.5),
-        borderRadius: BorderRadius.circular(AppRadius.sm.r),
+        borderRadius: BorderRadius.circular(AppRadius.md.r),
+        boxShadow: _isFocused
+            ? [
+                BoxShadow(
+                  color: AppColors.primary.withOpacity(0.1),
+                  blurRadius: 6,
+                  offset: const Offset(0, 3),
+                ),
+              ]
+            : [
+                BoxShadow(
+                  color: AppColors.black.withOpacity(0.02),
+                  blurRadius: 2,
+                  offset: const Offset(0, 1),
+                ),
+              ],
       ),
       buttonIcon: Icon(Icons.arrow_drop_down, color: AppColors.textSecondary),
       buttonText: Text(
@@ -121,9 +151,7 @@ class _MultiSelectBoxState<T> extends State<MultiSelectBox<T>> {
           newValues.remove(value);
           _handleChange(newValues);
         },
-        chipColor: widget.variant == SelectVariant.secondary
-            ? AppColors.gray600
-            : AppColors.primary,
+        chipColor: AppColors.primary,
         textStyle: AppTypography.bodyRegularStyle(
           fontSize: AppTypography.fontSizeXs.sp,
           color: AppColors.white,
@@ -144,17 +172,13 @@ class _MultiSelectBoxState<T> extends State<MultiSelectBox<T>> {
       ),
       selectedItemsTextStyle: AppTypography.bodyBoldStyle(
         fontSize: AppTypography.fontSizeBase.sp,
-        color: widget.variant == SelectVariant.secondary
-            ? AppColors.gray600
-            : AppColors.primary,
+        color: AppColors.primary,
       ),
       confirmText: Text(
         'XÁC NHẬN',
         style: AppTypography.bodyBoldStyle(
           fontSize: AppTypography.fontSizeBase.sp,
-          color: widget.variant == SelectVariant.secondary
-              ? AppColors.gray600
-              : AppColors.primary,
+          color: AppColors.primary,
         ),
       ),
       cancelText: Text(
@@ -166,45 +190,72 @@ class _MultiSelectBoxState<T> extends State<MultiSelectBox<T>> {
       ),
     );
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        if (widget.label != null) ...[
-          Text(
-            widget.label!,
-            style: AppTypography.bodyBoldStyle(
-              fontSize: AppTypography.fontSizeSm.sp,
-              color: AppColors.textPrimary,
+    return Focus(
+      focusNode: _focusNode,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (widget.label != null)
+            Padding(
+              padding: EdgeInsets.only(bottom: AppSpacing.xs.h),
+              child: Text(
+                widget.label!,
+                style: AppTypography.bodyBoldStyle(
+                  fontSize: AppTypography.fontSizeSm.sp,
+                  color: displayError != null
+                      ? AppColors.error
+                      : AppColors.textPrimary,
+                ),
+              ),
             ),
-          ),
-          const SizedBox(height: AppSpacing.xs),
-        ],
 
-        Opacity(
-          opacity: widget.disabled ? 0.6 : 1.0,
-          child: IgnorePointer(ignoring: widget.disabled, child: field),
-        ),
+          Opacity(
+            opacity: widget.disabled ? 0.6 : 1.0,
+            child: IgnorePointer(ignoring: widget.disabled, child: field),
+          ),
 
-        if (displayError != null) ...[
-          const SizedBox(height: AppSpacing.xs),
-          Text(
-            displayError,
-            style: AppTypography.bodyRegularStyle(
-              fontSize: AppTypography.fontSizeXs.sp,
-              color: AppColors.error,
+          if (displayError != null)
+            Padding(
+              padding: EdgeInsets.only(
+                top: AppSpacing.xs.h,
+                left: AppSpacing.xs.w,
+              ),
+              child: Row(
+                children: [
+                  const Icon(
+                    Icons.error_outline,
+                    size: 14,
+                    color: AppColors.error,
+                  ),
+                  SizedBox(width: 4.w),
+                  Expanded(
+                    child: Text(
+                      displayError,
+                      style: AppTypography.bodyRegularStyle(
+                        fontSize: AppTypography.fontSizeXs.sp,
+                        color: AppColors.error,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            )
+          else if (widget.helperText != null)
+            Padding(
+              padding: EdgeInsets.only(
+                top: AppSpacing.xs.h,
+                left: AppSpacing.xs.w,
+              ),
+              child: Text(
+                widget.helperText!,
+                style: AppTypography.bodyRegularStyle(
+                  fontSize: AppTypography.fontSizeXs.sp,
+                  color: AppColors.textSecondary,
+                ),
+              ),
             ),
-          ),
-        ] else if (widget.helperText != null) ...[
-          const SizedBox(height: AppSpacing.xs),
-          Text(
-            widget.helperText!,
-            style: AppTypography.bodyRegularStyle(
-              fontSize: AppTypography.fontSizeXs.sp,
-              color: AppColors.textSecondary,
-            ),
-          ),
         ],
-      ],
+      ),
     );
   }
 }

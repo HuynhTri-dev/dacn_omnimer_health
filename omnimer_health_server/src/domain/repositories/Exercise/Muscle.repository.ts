@@ -1,6 +1,6 @@
 import { Model, Types } from "mongoose";
 import { IMuscle } from "../../models";
-import { BaseRepository } from "../Base.repository";
+import { BaseRepository } from "../base.repository";
 
 export class MuscleRepository extends BaseRepository<IMuscle> {
   constructor(model: Model<IMuscle>) {

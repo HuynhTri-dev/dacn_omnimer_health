@@ -1,6 +1,6 @@
 import { FilterQuery, Model } from "mongoose";
 import { IWatchLog } from "../../models";
-import { BaseRepository } from "../Base.repository";
+import { BaseRepository } from "../base.repository";
 export class WatchLogRepository extends BaseRepository<IWatchLog> {
   constructor(model: Model<IWatchLog>) {
     super(model);

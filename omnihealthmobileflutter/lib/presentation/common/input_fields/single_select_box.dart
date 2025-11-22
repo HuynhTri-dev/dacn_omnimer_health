@@ -30,6 +30,7 @@ class SingleSelectBox<T> extends StatefulWidget {
   final Widget? leftIcon;
   final bool searchable;
   final double maxHeight;
+  final bool required;
 
   const SingleSelectBox({
     Key? key,
@@ -46,29 +47,48 @@ class SingleSelectBox<T> extends StatefulWidget {
     this.leftIcon,
     this.searchable = false,
     this.maxHeight = 300,
+    this.required = false,
   }) : super(key: key);
 
   @override
   State<SingleSelectBox<T>> createState() => _SingleSelectBoxState<T>();
 }
 
-class _SingleSelectBoxState<T> extends State<SingleSelectBox<T>> {
+class _SingleSelectBoxState<T> extends State<SingleSelectBox<T>>
+    with SingleTickerProviderStateMixin {
   String? _internalError;
+  bool _isFocused = false;
+  late FocusNode _focusNode;
   final TextEditingController _searchController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _focusNode = FocusNode();
+    _focusNode.addListener(_handleFocusChange);
+  }
+
+  @override
+  void dispose() {
+    _focusNode.dispose();
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  void _handleFocusChange() {
+    setState(() => _isFocused = _focusNode.hasFocus);
+    if (!_isFocused) _validateOnBlur();
+  }
+
+  void _validateOnBlur() {
+    _validate(widget.value);
+  }
 
   Color _getBorderColor(bool isOpen) {
     if (widget.disabled) return AppColors.gray300;
-    if (widget.error != null || _internalError != null) return AppColors.error;
-
-    if (widget.variant == SelectVariant.secondary) {
-      return (isOpen || widget.value != null)
-          ? AppColors.gray600
-          : AppColors.gray400;
-    }
-
-    return (isOpen || widget.value != null)
-        ? AppColors.secondary
-        : AppColors.primary;
+    if (_internalError != null || widget.error != null) return AppColors.error;
+    if (_isFocused || isOpen) return AppColors.primary;
+    return AppColors.gray200;
   }
 
   void _validate(T? value) {
@@ -86,170 +106,275 @@ class _SingleSelectBoxState<T> extends State<SingleSelectBox<T>> {
   }
 
   @override
-  void dispose() {
-    _searchController.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     final displayError = widget.error ?? _internalError;
-    // final selectedOption = widget.options.firstWhere(
-    //   (opt) => opt.value == widget.value,
-    //   orElse: () => SelectOption(label: '', value: widget.value as T),
-    // );
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        if (widget.label != null) ...[
-          Text(
-            widget.label!,
-            style: AppTypography.bodyBoldStyle(
-              fontSize: AppTypography.fontSizeSm.sp,
-              color: AppColors.textPrimary,
-            ),
-          ),
-          const SizedBox(height: AppSpacing.xs),
-        ],
-        DropdownButtonHideUnderline(
-          child: DropdownButton2<T>(
-            isExpanded: true,
-            hint: Row(
-              children: [
-                if (widget.leftIcon != null) ...[
-                  widget.leftIcon!,
-                  const SizedBox(width: AppSpacing.sm),
-                ],
-                Expanded(
-                  child: Text(
-                    widget.placeholder!,
-                    style: AppTypography.bodyRegularStyle(
-                      fontSize: AppTypography.fontSizeBase.sp,
-                      color: AppColors.textMuted,
-                    ),
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-              ],
-            ),
-            value: widget.value,
-            items: widget.options
-                .map(
-                  (item) => DropdownMenuItem<T>(
-                    value: item.value,
-                    child: Text(
-                      item.label,
-                      style: AppTypography.bodyRegularStyle(
-                        fontSize: AppTypography.fontSizeBase.sp,
-                        color: AppColors.textPrimary,
-                      ),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                )
-                .toList(),
-            onChanged: widget.disabled ? null : _handleChange,
-            buttonStyleData: ButtonStyleData(
-              height: 48,
-              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
-              decoration: BoxDecoration(
-                color: AppColors.white,
-                border: Border.all(color: _getBorderColor(false), width: 1.5),
-                borderRadius: BorderRadius.circular(AppRadius.md.r),
-              ),
-            ),
-            iconStyleData: IconStyleData(
-              icon: _ChevronDownIcon(),
-              iconSize: 18,
-            ),
-            dropdownStyleData: DropdownStyleData(
-              maxHeight: widget.maxHeight,
-              decoration: BoxDecoration(
-                color: AppColors.white,
-                borderRadius: BorderRadius.circular(AppRadius.lg.r),
-              ),
-              offset: const Offset(0, -4),
-              scrollbarTheme: ScrollbarThemeData(
-                radius: const Radius.circular(40),
-                thickness: MaterialStateProperty.all(6),
-                thumbVisibility: MaterialStateProperty.all(true),
-              ),
-            ),
-            menuItemStyleData: MenuItemStyleData(
-              height: 48,
-              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
-              selectedMenuItemBuilder: (context, child) {
-                return Container(
-                  color: AppColors.secondary,
-                  child: DefaultTextStyle(
+    return Focus(
+      focusNode: _focusNode,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (widget.label != null)
+            Padding(
+              padding: EdgeInsets.only(bottom: AppSpacing.xs.h),
+              child: Row(
+                children: [
+                  Text(
+                    widget.label!,
                     style: AppTypography.bodyBoldStyle(
-                      fontSize: AppTypography.fontSizeBase.sp,
-                      color: AppColors.white,
+                      fontSize: AppTypography.fontSizeSm.sp,
+                      color: displayError != null
+                          ? AppColors.error
+                          : AppColors.textPrimary,
                     ),
-                    child: child,
                   ),
-                );
-              },
-            ),
-            dropdownSearchData: widget.searchable
-                ? DropdownSearchData<T>(
-                    searchController: _searchController,
-                    searchInnerWidgetHeight: 50,
-                    searchInnerWidget: Container(
-                      padding: const EdgeInsets.all(AppSpacing.md),
-                      child: TextField(
-                        controller: _searchController,
-                        decoration: InputDecoration(
-                          hintText: 'Tìm kiếm...',
-                          hintStyle: AppTypography.bodyRegularStyle(
-                            fontSize: AppTypography.fontSizeBase.sp,
-                            color: AppColors.textMuted,
-                          ),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(AppRadius.sm.r),
-                            borderSide: const BorderSide(
-                              color: AppColors.border,
-                            ),
-                          ),
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: AppSpacing.md,
-                            vertical: AppSpacing.sm,
-                          ),
+                  if (widget.required)
+                    Padding(
+                      padding: const EdgeInsets.only(left: 4),
+                      child: Container(
+                        width: 8,
+                        height: 8,
+                        decoration: const BoxDecoration(
+                          color: Colors.red,
+                          shape: BoxShape.circle,
                         ),
                       ),
                     ),
-                    searchMatchFn: (item, searchValue) {
-                      return widget.options
-                          .firstWhere((opt) => opt.value == item.value)
-                          .label
-                          .toLowerCase()
-                          .contains(searchValue.toLowerCase());
+                ],
+              ),
+            ),
+          Opacity(
+            opacity: widget.disabled ? 0.6 : 1.0,
+            child: IgnorePointer(
+              ignoring: widget.disabled,
+              child: DropdownButtonHideUnderline(
+                child: DropdownButton2<T>(
+                  isExpanded: true,
+                  hint: Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      if (widget.leftIcon != null)
+                        Container(
+                          width: 40.w,
+                          height: 40.h,
+                          margin: EdgeInsets.only(right: AppSpacing.sm.w),
+                          decoration: BoxDecoration(
+                            color: AppColors.background,
+                            borderRadius: BorderRadius.circular(AppRadius.sm.r),
+                          ),
+                          child: Center(child: widget.leftIcon),
+                        ),
+                      Expanded(
+                        child: Text(
+                          widget.placeholder!,
+                          style: AppTypography.bodyRegularStyle(
+                            fontSize: AppTypography.fontSizeBase.sp,
+                            color: AppColors.textMuted,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
+                  value: widget.value,
+                  items: widget.options
+                      .map(
+                        (item) => DropdownMenuItem<T>(
+                          value: item.value,
+                          child: Text(
+                            item.label,
+                            style: AppTypography.bodyRegularStyle(
+                              fontSize: AppTypography.fontSizeBase.sp,
+                              color: AppColors.textPrimary,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      )
+                      .toList(),
+                  onChanged: widget.disabled ? null : _handleChange,
+                  selectedItemBuilder: (context) {
+                    return widget.options.map((item) {
+                      return Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          if (widget.leftIcon != null)
+                            Container(
+                              width: 40.w,
+                              height: 40.h,
+                              margin: EdgeInsets.only(right: AppSpacing.sm.w),
+                              decoration: BoxDecoration(
+                                color: AppColors.background,
+                                borderRadius: BorderRadius.circular(
+                                  AppRadius.sm.r,
+                                ),
+                              ),
+                              child: Center(child: widget.leftIcon),
+                            ),
+                          Expanded(
+                            child: Text(
+                              item.label,
+                              style: AppTypography.bodyRegularStyle(
+                                fontSize: AppTypography.fontSizeBase.sp,
+                                color: AppColors.textPrimary,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      );
+                    }).toList();
+                  },
+                  buttonStyleData: ButtonStyleData(
+                    height: 48,
+                    padding: EdgeInsets.symmetric(
+                      horizontal: AppSpacing.sm.w,
+                      vertical: 4.h,
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppColors.surface,
+                      border: Border.all(
+                        color: _getBorderColor(false),
+                        width: 1.5,
+                      ),
+                      borderRadius: BorderRadius.circular(AppRadius.md.r),
+                      boxShadow: _isFocused
+                          ? [
+                              BoxShadow(
+                                color: AppColors.primary.withOpacity(0.1),
+                                blurRadius: 6,
+                                offset: const Offset(0, 3),
+                              ),
+                            ]
+                          : [
+                              BoxShadow(
+                                color: AppColors.black.withOpacity(0.02),
+                                blurRadius: 2,
+                                offset: const Offset(0, 1),
+                              ),
+                            ],
+                    ),
+                  ),
+                  iconStyleData: IconStyleData(
+                    icon: Padding(
+                      padding: EdgeInsets.only(left: AppSpacing.sm.w),
+                      child: _ChevronDownIcon(),
+                    ),
+                    iconSize: 18,
+                  ),
+                  dropdownStyleData: DropdownStyleData(
+                    maxHeight: widget.maxHeight,
+                    decoration: BoxDecoration(
+                      color: AppColors.surface,
+                      borderRadius: BorderRadius.circular(AppRadius.lg.r),
+                    ),
+                    offset: const Offset(0, -4),
+                    scrollbarTheme: ScrollbarThemeData(
+                      radius: const Radius.circular(40),
+                      thickness: MaterialStateProperty.all(6),
+                      thumbVisibility: MaterialStateProperty.all(true),
+                    ),
+                  ),
+                  menuItemStyleData: MenuItemStyleData(
+                    height: 48,
+                    padding: EdgeInsets.symmetric(horizontal: AppSpacing.lg.w),
+                    selectedMenuItemBuilder: (context, child) {
+                      return Container(
+                        color: AppColors.primary,
+                        child: DefaultTextStyle(
+                          style: AppTypography.bodyBoldStyle(
+                            fontSize: AppTypography.fontSizeBase.sp,
+                            color: AppColors.white,
+                          ),
+                          child: child,
+                        ),
+                      );
                     },
-                  )
-                : null,
-          ),
-        ),
-        if (displayError != null) ...[
-          const SizedBox(height: AppSpacing.xs),
-          Text(
-            displayError,
-            style: AppTypography.bodyRegularStyle(
-              fontSize: AppTypography.fontSizeXs.sp,
-              color: AppColors.error,
+                  ),
+                  dropdownSearchData: widget.searchable
+                      ? DropdownSearchData<T>(
+                          searchController: _searchController,
+                          searchInnerWidgetHeight: 50,
+                          searchInnerWidget: Container(
+                            padding: EdgeInsets.all(AppSpacing.md.w),
+                            child: TextField(
+                              controller: _searchController,
+                              decoration: InputDecoration(
+                                hintText: 'Tìm kiếm...',
+                                hintStyle: AppTypography.bodyRegularStyle(
+                                  fontSize: AppTypography.fontSizeBase.sp,
+                                  color: AppColors.textMuted,
+                                ),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(
+                                    AppRadius.sm.r,
+                                  ),
+                                  borderSide: const BorderSide(
+                                    color: AppColors.border,
+                                  ),
+                                ),
+                                contentPadding: EdgeInsets.symmetric(
+                                  horizontal: AppSpacing.md.w,
+                                  vertical: AppSpacing.sm.h,
+                                ),
+                              ),
+                            ),
+                          ),
+                          searchMatchFn: (item, searchValue) {
+                            return widget.options
+                                .firstWhere((opt) => opt.value == item.value)
+                                .label
+                                .toLowerCase()
+                                .contains(searchValue.toLowerCase());
+                          },
+                        )
+                      : null,
+                ),
+              ),
             ),
           ),
-        ] else if (widget.helperText != null) ...[
-          const SizedBox(height: AppSpacing.xs),
-          Text(
-            widget.helperText!,
-            style: AppTypography.bodyRegularStyle(
-              fontSize: AppTypography.fontSizeXs.sp,
-              color: AppColors.textSecondary,
+          if (displayError != null)
+            Padding(
+              padding: EdgeInsets.only(
+                top: AppSpacing.xs.h,
+                left: AppSpacing.xs.w,
+              ),
+              child: Row(
+                children: [
+                  const Icon(
+                    Icons.error_outline,
+                    size: 14,
+                    color: AppColors.error,
+                  ),
+                  SizedBox(width: 4.w),
+                  Expanded(
+                    child: Text(
+                      displayError,
+                      style: AppTypography.bodyRegularStyle(
+                        fontSize: AppTypography.fontSizeXs.sp,
+                        color: AppColors.error,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            )
+          else if (widget.helperText != null)
+            Padding(
+              padding: EdgeInsets.only(
+                top: AppSpacing.xs.h,
+                left: AppSpacing.xs.w,
+              ),
+              child: Text(
+                widget.helperText!,
+                style: AppTypography.bodyRegularStyle(
+                  fontSize: AppTypography.fontSizeXs.sp,
+                  color: AppColors.textSecondary,
+                ),
+              ),
             ),
-          ),
         ],
-      ],
+      ),
     );
   }
 }

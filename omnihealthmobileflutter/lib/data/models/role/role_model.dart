@@ -1,4 +1,4 @@
-import 'package:omnihealthmobileflutter/domain/entities/role_entity.dart';
+import 'package:omnihealthmobileflutter/domain/entities/auth/role_entity.dart';
 
 /// RoleSelectBoxModel - Data layer
 /// Chịu trách nhiệm mapping dữ liệu giữa API (JSON) và Domain (Entity)

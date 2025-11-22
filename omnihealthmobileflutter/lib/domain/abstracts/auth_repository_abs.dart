@@ -1,6 +1,6 @@
 import 'package:omnihealthmobileflutter/core/api/api_response.dart';
-import 'package:omnihealthmobileflutter/domain/entities/auth_entity.dart';
-import 'package:omnihealthmobileflutter/domain/entities/user_entity.dart';
+import 'package:omnihealthmobileflutter/domain/entities/auth/auth_entity.dart';
+import 'package:omnihealthmobileflutter/domain/entities/auth/user_entity.dart';
 
 /// Repository interface for authentication domain logic.
 /// Bridges between Domain Entities and Data Source Models.

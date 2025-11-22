@@ -3,7 +3,7 @@ import 'package:omnihealthmobileflutter/data/datasources/auth_datasource.dart';
 import 'package:omnihealthmobileflutter/data/models/auth/login_model.dart';
 import 'package:omnihealthmobileflutter/data/models/auth/register_model.dart';
 import 'package:omnihealthmobileflutter/domain/abstracts/auth_repository_abs.dart';
-import 'package:omnihealthmobileflutter/domain/entities/auth_entity.dart';
+import 'package:omnihealthmobileflutter/domain/entities/auth/auth_entity.dart';
 
 /// Implementation of [AuthRepository].
 /// Converts between domain entities and data models.

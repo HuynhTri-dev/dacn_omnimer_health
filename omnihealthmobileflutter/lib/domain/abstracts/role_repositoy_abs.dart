@@ -1,5 +1,5 @@
 import 'package:omnihealthmobileflutter/core/api/api_response.dart';
-import 'package:omnihealthmobileflutter/domain/entities/role_entity.dart';
+import 'package:omnihealthmobileflutter/domain/entities/auth/role_entity.dart';
 
 /// Abstract repository interface cho Role
 /// Định nghĩa các method cần implement

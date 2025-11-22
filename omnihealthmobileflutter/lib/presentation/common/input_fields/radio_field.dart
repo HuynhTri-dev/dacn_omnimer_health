@@ -45,34 +45,48 @@ class RadioField<T> extends StatefulWidget {
   State<RadioField<T>> createState() => _RadioFieldState<T>();
 }
 
-class _RadioFieldState<T> extends State<RadioField<T>> {
+class _RadioFieldState<T> extends State<RadioField<T>>
+    with SingleTickerProviderStateMixin {
   String? _internalError;
+  bool _isFocused = false;
+  late FocusNode _focusNode;
+
+  @override
+  void initState() {
+    super.initState();
+    _focusNode = FocusNode();
+    _focusNode.addListener(_handleFocusChange);
+  }
+
+  @override
+  void dispose() {
+    _focusNode.dispose();
+    super.dispose();
+  }
+
+  void _handleFocusChange() {
+    setState(() => _isFocused = _focusNode.hasFocus);
+    if (!_isFocused) _validateOnBlur();
+  }
+
+  void _validateOnBlur() {
+    _validate(widget.value);
+  }
 
   Color _getBorderColor(bool isSelected) {
     if (widget.disabled) return AppColors.gray300;
-
-    if (widget.variant == RadioVariant.secondary) {
-      return isSelected ? AppColors.gray600 : AppColors.gray400;
-    }
-
-    return isSelected ? AppColors.secondary : AppColors.primary;
+    if (_internalError != null || widget.error != null) return AppColors.error;
+    if (isSelected || _isFocused) return AppColors.primary;
+    return AppColors.gray200;
   }
 
   Color _getCircleBorderColor(bool isSelected) {
     if (widget.disabled) return AppColors.gray400;
-
-    if (widget.variant == RadioVariant.secondary) {
-      return isSelected ? AppColors.gray600 : AppColors.gray400;
-    }
-
-    return isSelected ? AppColors.secondary : AppColors.primary;
+    return isSelected ? AppColors.primary : AppColors.gray200;
   }
 
   Color _getCircleInnerColor() {
-    if (widget.variant == RadioVariant.secondary) {
-      return AppColors.gray600;
-    }
-    return AppColors.secondary;
+    return AppColors.primary;
   }
 
   void _validate(T? value) {
@@ -92,81 +106,125 @@ class _RadioFieldState<T> extends State<RadioField<T>> {
   Widget build(BuildContext context) {
     final displayError = widget.error ?? _internalError;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        if (widget.label != null) ...[
-          Text(
-            widget.label!,
-            style: AppTypography.bodyBoldStyle(
-              fontSize: AppTypography.fontSizeSm.sp,
-              color: AppColors.textPrimary,
-            ),
-          ),
-          const SizedBox(height: AppSpacing.sm),
-        ],
-        widget.horizontal
-            ? Row(
-                children: widget.options
-                    .asMap()
-                    .entries
-                    .map(
-                      (entry) => Expanded(
-                        child: Padding(
-                          padding: EdgeInsets.only(
-                            left: entry.key > 0 ? AppSpacing.sm.h : 0,
-                          ),
-                          child: _buildRadioOption(entry.value),
-                        ),
-                      ),
-                    )
-                    .toList(),
-              )
-            : Column(
-                children: widget.options
-                    .map(
-                      (option) => Padding(
-                        padding: const EdgeInsets.only(bottom: AppSpacing.sm),
-                        child: _buildRadioOption(option),
-                      ),
-                    )
-                    .toList(),
+    return Focus(
+      focusNode: _focusNode,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (widget.label != null)
+            Padding(
+              padding: EdgeInsets.only(bottom: AppSpacing.xs.h),
+              child: Text(
+                widget.label!,
+                style: AppTypography.bodyBoldStyle(
+                  fontSize: AppTypography.fontSizeSm.sp,
+                  color: displayError != null
+                      ? AppColors.error
+                      : AppColors.textPrimary,
+                ),
               ),
-        if (displayError != null) ...[
-          const SizedBox(height: AppSpacing.xs),
-          Text(
-            displayError,
-            style: AppTypography.bodyRegularStyle(
-              fontSize: AppTypography.fontSizeXs.sp,
-              color: AppColors.error,
             ),
-          ),
-        ] else if (widget.helperText != null) ...[
-          const SizedBox(height: AppSpacing.xs),
-          Text(
-            widget.helperText!,
-            style: AppTypography.bodyRegularStyle(
-              fontSize: AppTypography.fontSizeXs.sp,
-              color: AppColors.textSecondary,
+          widget.horizontal
+              ? Row(
+                  children: widget.options
+                      .asMap()
+                      .entries
+                      .map(
+                        (entry) => Expanded(
+                          child: Padding(
+                            padding: EdgeInsets.only(
+                              left: entry.key > 0 ? AppSpacing.sm.h : 0,
+                            ),
+                            child: _buildRadioOption(entry.value),
+                          ),
+                        ),
+                      )
+                      .toList(),
+                )
+              : Column(
+                  children: widget.options
+                      .map(
+                        (option) => Padding(
+                          padding: EdgeInsets.only(bottom: AppSpacing.sm.h),
+                          child: _buildRadioOption(option),
+                        ),
+                      )
+                      .toList(),
+                ),
+          if (displayError != null)
+            Padding(
+              padding: EdgeInsets.only(
+                top: AppSpacing.xs.h,
+                left: AppSpacing.xs.w,
+              ),
+              child: Row(
+                children: [
+                  const Icon(
+                    Icons.error_outline,
+                    size: 14,
+                    color: AppColors.error,
+                  ),
+                  SizedBox(width: 4.w),
+                  Expanded(
+                    child: Text(
+                      displayError,
+                      style: AppTypography.bodyRegularStyle(
+                        fontSize: AppTypography.fontSizeXs.sp,
+                        color: AppColors.error,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            )
+          else if (widget.helperText != null)
+            Padding(
+              padding: EdgeInsets.only(
+                top: AppSpacing.xs.h,
+                left: AppSpacing.xs.w,
+              ),
+              child: Text(
+                widget.helperText!,
+                style: AppTypography.bodyRegularStyle(
+                  fontSize: AppTypography.fontSizeXs.sp,
+                  color: AppColors.textSecondary,
+                ),
+              ),
             ),
-          ),
         ],
-      ],
+      ),
     );
   }
 
   Widget _buildRadioOption(RadioOption<T> option) {
     final isSelected = option.value == widget.value;
 
-    return InkWell(
+    return GestureDetector(
       onTap: widget.disabled ? null : () => _handleSelect(option.value),
-      borderRadius: BorderRadius.circular(AppRadius.sm.r),
       child: Container(
-        padding: AppSpacing.paddingSm.h,
+        padding: EdgeInsets.symmetric(
+          horizontal: AppSpacing.md.w,
+          vertical: AppSpacing.sm.h,
+        ),
         decoration: BoxDecoration(
-          color: AppColors.white,
+          color: AppColors.surface,
           border: Border.all(color: _getBorderColor(isSelected), width: 1.5),
-          borderRadius: BorderRadius.circular(AppRadius.sm.r),
+          borderRadius: BorderRadius.circular(AppRadius.md.r),
+          boxShadow: isSelected || _isFocused
+              ? [
+                  BoxShadow(
+                    color: AppColors.primary.withOpacity(0.1),
+                    blurRadius: 6,
+                    offset: const Offset(0, 3),
+                  ),
+                ]
+              : [
+                  BoxShadow(
+                    color: AppColors.black.withOpacity(0.02),
+                    blurRadius: 2,
+                    offset: const Offset(0, 1),
+                  ),
+                ],
         ),
         child: Row(
           children: [
@@ -193,7 +251,7 @@ class _RadioFieldState<T> extends State<RadioField<T>> {
                     )
                   : null,
             ),
-            const SizedBox(width: AppSpacing.sm),
+            SizedBox(width: AppSpacing.sm.w),
             Expanded(
               child: Text(
                 option.label,

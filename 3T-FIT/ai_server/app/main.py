@@ -1,7 +1,7 @@
-# app/main.py
+
 from fastapi import FastAPI, HTTPException
-from app.schemas import RecommendRequest
-from app.recommend import recommend
+from recommend_schemas import RecommendRequest
+from recommend import recommend
 
 app = FastAPI(title="OmniMer Health Recommendation API")
 
