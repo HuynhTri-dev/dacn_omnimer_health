@@ -104,17 +104,6 @@ class _ExerciseHomeViewState extends State<_ExerciseHomeView> {
                     return const _ExerciseListSkeleton();
                   }
 
-                  // Empty state
-                  if (state.exercises.isEmpty &&
-                      state.status == ExerciseHomeStatus.exercisesLoaded) {
-                    return Center(
-                      child: Text(
-                        'Không có bài tập',
-                        style: AppTypography.bodyMedium,
-                      ),
-                    );
-                  }
-
                   // Main content
                   return SingleChildScrollView(
                     padding: EdgeInsets.symmetric(
