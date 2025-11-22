@@ -1,0 +1,26 @@
+{
+  "healthProfile": {
+    "age": 25,
+    "height_m": 175,
+    "weight_kg": 70,
+    "bmi": 22.86,
+    "fat_percentage": 15.5,
+    "resting_heartrate": 65,
+    "workout_frequency": 4,
+    "gender": "Male",
+    "experience_level": "Intermediate",
+    "activity_level": "Moderate"
+  },
+  "exercises": [
+    { "exerciseName": "Barbell Bench Press (Wide Grip)" },
+    { "exerciseName": "Squat" },
+    { "exerciseName": "Pull-Up" },
+    { "exerciseName": "Bicep Curl" },
+    { "exerciseName": "Lat Pulldown" },
+    { "exerciseName": "Leg Press" },
+    { "exerciseName": "Seated Row" },
+    { "exerciseName": "Lateral Raise" },
+    { "exerciseName": "Triceps Pushdown" },
+    { "exerciseName": "Leg Extension" }
+  ]
+}

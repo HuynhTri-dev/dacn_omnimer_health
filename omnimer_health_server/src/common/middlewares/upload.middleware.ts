@@ -76,9 +76,7 @@ export const uploadImageAndVideo = (
 ) =>
   multer({
     storage,
-    limits: {
-      fileSize: 50 * 1024 * 1024, // cho phép tối đa 50MB (ưu tiên video)
-    },
+    limits: { fileSize: 50 * 1024 * 1024 },
     fileFilter(req, file, cb) {
       const allowedTypes = [...FILE_TYPES.image, ...FILE_TYPES.video];
       if (allowedTypes.includes(file.mimetype)) {
@@ -88,6 +86,6 @@ export const uploadImageAndVideo = (
       }
     },
   }).fields([
-    { name: imageField, maxCount: 1 }, // chỉ 1 ảnh
-    { name: videoField, maxCount: 1 }, // chỉ 1 video
+    { name: imageField, maxCount: 10 }, // cho phép tối đa 10 ảnh
+    { name: videoField, maxCount: 1 },
   ]);

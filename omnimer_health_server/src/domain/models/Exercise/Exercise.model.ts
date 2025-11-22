@@ -21,7 +21,7 @@ export interface IExercise extends Document {
   location: LocationEnum;
 
   difficulty?: DifficultyLevelEnum;
-  imageUrl?: string | null;
+  imageUrls?: string[];
   videoUrl?: string | null;
 
   met?: number | null;
@@ -66,7 +66,7 @@ const exerciseSchema = new Schema<IExercise>(
       default: DifficultyLevelEnum.Beginner,
     },
 
-    imageUrl: { type: String, default: null },
+    imageUrls: { type: [String], default: [] },
     videoUrl: { type: String, default: null },
 
     met: { type: Number, default: null },

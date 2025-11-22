@@ -15,6 +15,7 @@ const controller = new MuscleController(service);
 router.post("/", verifyAccessToken, uploadImage("image"), controller.create);
 router.put("/:id", verifyAccessToken, uploadImage("image"), controller.update);
 router.get("/", controller.getAll);
+router.get("/:id", controller.getMuscleById);
 router.delete("/:id", verifyAccessToken, controller.delete);
 
 export default router;

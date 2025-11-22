@@ -42,6 +42,6 @@ function setupRoutes(app: Express) {
   // Deices
   app.use("/api/v1/watch-log", watchLogRoute);
   // AI
-  app.use("/api/v1/ai-rag", RAGRoute);
+  app.use("/api/v1/ai", RAGRoute);
 }
 export default setupRoutes;

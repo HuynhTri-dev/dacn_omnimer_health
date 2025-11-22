@@ -16,7 +16,7 @@ import { Response } from "express";
 export const sendSuccess = (
   res: Response,
   data: any = null,
-  message: string = "Thành công",
+  message: string = "Success",
   statusCode: number = 200
 ) => {
   return res.status(statusCode).json({
@@ -36,7 +36,7 @@ export const sendSuccess = (
 export const sendCreated = (
   res: Response,
   data: any = null,
-  message: string = "Tạo thành công"
+  message: string = "Create Success"
 ) => {
   return sendSuccess(res, data, message, 201);
 };
@@ -60,10 +60,7 @@ export const sendNoContent = (res: Response) => {
  * @param res - Đối tượng Response
  * @param message - Thông điệp tùy chọn (default: "Danh sách trống")
  */
-export const sendEmpty = (
-  res: Response,
-  message: string = "Danh sách trống"
-) => {
+export const sendEmpty = (res: Response, message: string = "Empty") => {
   return sendSuccess(res, null, message);
 };
 
@@ -82,7 +79,7 @@ export const sendEmpty = (
  */
 export const sendError = (
   res: Response,
-  message: string = "Lỗi hệ thống",
+  message: string = "Server fail",
   statusCode: number = 500,
   errorData?: any
 ) => {
@@ -101,7 +98,7 @@ export const sendError = (
  */
 export const sendBadRequest = (
   res: Response,
-  message: string = "Yêu cầu không hợp lệ"
+  message: string = "Bad Request"
 ) => {
   return sendError(res, message, 400);
 };
@@ -112,10 +109,7 @@ export const sendBadRequest = (
  * @param res - Đối tượng Response
  * @param message - Thông điệp tùy chọn (default: "Không tìm thấy")
  */
-export const sendNotFound = (
-  res: Response,
-  message: string = "Không tìm thấy"
-) => {
+export const sendNotFound = (res: Response, message: string = "Not Found") => {
   return sendError(res, message, 404);
 };
 
@@ -127,7 +121,7 @@ export const sendNotFound = (
  */
 export const sendUnauthorized = (
   res: Response,
-  message: string = "Người dùng chưa đăng nhập"
+  message: string = "User is not login"
 ) => {
   return sendError(res, message, 401);
 };
@@ -140,7 +134,7 @@ export const sendUnauthorized = (
  */
 export const sendForbidden = (
   res: Response,
-  message: string = "Người dùng không có quyền truy cập"
+  message: string = "User does not have permission to access."
 ) => {
   return sendError(res, message, 403);
 };
@@ -157,7 +151,7 @@ export const sendForbidden = (
  * @returns Chuỗi thông báo lỗi đã được làm sạch
  */
 export const cleanErrorMessage = (err: any): string => {
-  if (!err) return "Lỗi hệ thống";
+  if (!err) return "Server fail";
 
   let message = "";
 
@@ -166,7 +160,7 @@ export const cleanErrorMessage = (err: any): string => {
   } else if (typeof err === "string") {
     message = err;
   } else {
-    return "Lỗi hệ thống";
+    return "Server fail";
   }
 
   // Các pattern thường gặp cần loại bỏ
@@ -184,7 +178,7 @@ export const cleanErrorMessage = (err: any): string => {
 
   // Nếu message rỗng hoặc quá chung chung thì fallback
   if (!message.trim()) {
-    return "Lỗi hệ thống";
+    return "Server fail";
   }
 
   return message.trim();

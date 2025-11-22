@@ -80,7 +80,24 @@ export class HealthProfileController {
 
       const item = await this.healthProfileService.getHealthProfileById(id);
 
-      return sendSuccess(res, item, "Lấy chi tiết hồ sơ sức khỏe thành công");
+      return sendSuccess(res, item, "Get health profile by ID success");
+    } catch (err) {
+      next(err);
+    }
+  };
+
+  getHealthProfileLatest = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const userId = (req.user as DecodePayload)?.id?.toString();
+
+      const profile =
+        await this.healthProfileService.getHealthProfileLatestByUserId(userId);
+
+      return sendSuccess(res, profile, "Get health profile by ID success");
     } catch (err) {
       next(err);
     }

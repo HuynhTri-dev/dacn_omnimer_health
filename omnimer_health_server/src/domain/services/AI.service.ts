@@ -1,6 +1,7 @@
 // src/services/RAGAIService.ts
 import axios from "axios";
 import { IRAGAIResponse, IRAGUserContext } from "../entities";
+import { normalizeUserContext } from "../../utils/normalizeRAGContext";
 
 export class AIService {
   private readonly apiUrl: string;
@@ -14,13 +15,24 @@ export class AIService {
    */
   async recommendExercises(context: IRAGUserContext): Promise<IRAGAIResponse> {
     try {
+      const profile = normalizeUserContext(context);
+
       const payload = {
-        context,
+        profile,
+        top_k: 5,
       };
 
-      const { data } = await axios.post<IRAGAIResponse>(this.apiUrl, payload);
+      console.log("Payload sent to AI:", JSON.stringify(profile, null, 2));
+
+      const { data } = await axios.post<IRAGAIResponse>(
+        `${this.apiUrl}/recommend`,
+        payload
+      );
+
+      console.log("Recommend Data Backend AI Service: ", { data });
       return data;
     } catch (err) {
+      console.log(err);
       throw err;
     }
   }

@@ -29,7 +29,7 @@ export class MuscleController {
         req.body
       );
 
-      return sendCreated(res, muscle, "Tạo cơ thành công");
+      return sendCreated(res, muscle, "Create muscle success");
     } catch (err) {
       next(err);
     }
@@ -52,7 +52,7 @@ export class MuscleController {
         req.body
       );
 
-      return sendSuccess(res, updated, "Cập nhật cơ thành công");
+      return sendSuccess(res, updated, "Update muscle success");
     } catch (err) {
       next(err);
     }
@@ -65,7 +65,19 @@ export class MuscleController {
 
       const list = await this.muscleService.getAllMuscles(options);
 
-      return sendSuccess(res, list, "Lấy danh sách cơ thành công");
+      return sendSuccess(res, list, "Get list muscle success");
+    } catch (err) {
+      next(err);
+    }
+  };
+
+  // =================== GET ALL ===================
+  getMuscleById = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const id = req.params.id;
+      const muscle = await this.muscleService.getMuscleById(id);
+
+      return sendSuccess(res, muscle, "Get Muscle success");
     } catch (err) {
       next(err);
     }
@@ -81,7 +93,7 @@ export class MuscleController {
       const { id } = req.params;
       await this.muscleService.deleteMuscle(userId, id);
 
-      return sendSuccess(res, true, "Xoá cơ thành công");
+      return sendSuccess(res, true, "Delete Muscle error");
     } catch (err) {
       next(err);
     }

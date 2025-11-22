@@ -25,24 +25,25 @@ export class ExerciseService {
   // =================== CREATE ===================
   async createExercise(
     userId: string,
-    imageFile: Express.Multer.File | undefined,
+    imageFiles: Express.Multer.File[] | undefined,
     videoFile: Express.Multer.File | undefined,
     data: Partial<IExercise>
   ) {
-    let imageUrl: string | undefined;
+    let imageUrls: string[] = [];
     let videoUrl: string | undefined;
-
     const session = await mongoose.startSession();
     session.startTransaction();
     try {
-      if (imageFile) {
-        imageUrl = await uploadToCloudflare(
-          imageFile,
-          "exercises/images",
-          userId
-        );
+      if (imageFiles && imageFiles.length > 0) {
+        for (const file of imageFiles) {
+          const url = await uploadToCloudflare(
+            file,
+            "exercises/images",
+            userId
+          );
+          imageUrls.push(url);
+        }
       }
-
       if (videoFile) {
         videoUrl = await uploadToCloudflare(
           videoFile,
@@ -52,16 +53,11 @@ export class ExerciseService {
       }
 
       const exercise = await this.exerciseRepository.createWithSession(
-        {
-          ...data,
-          imageUrl,
-          videoUrl,
-        },
+        { ...data, imageUrls, videoUrl },
         session
       );
 
       await session.commitTransaction();
-
       await logAudit({
         userId,
         action: "createExercise",
@@ -69,19 +65,17 @@ export class ExerciseService {
         status: StatusLogEnum.Success,
         targetId: exercise._id.toString(),
       });
-
       return exercise;
     } catch (err: any) {
       await session.abortTransaction();
-
-      if (imageUrl) {
-        await deleteFileFromCloudflare(imageUrl, "exercises/images");
+      if (imageUrls.length > 0) {
+        for (const url of imageUrls) {
+          await deleteFileFromCloudflare(url, "exercises/images");
+        }
       }
-
       if (videoUrl) {
         await deleteFileFromCloudflare(videoUrl, "exercises/videos");
       }
-
       await logError({
         userId,
         action: "createExercise",
@@ -98,7 +92,7 @@ export class ExerciseService {
   async updateExercise(
     userId: string,
     id: string,
-    imageFile: Express.Multer.File | undefined,
+    imageFiles: Express.Multer.File[] | undefined,
     videoFile: Express.Multer.File | undefined,
     data: Partial<IExercise>
   ) {
@@ -108,27 +102,29 @@ export class ExerciseService {
       const exercise = await this.exerciseRepository.findById(id);
       if (!exercise) throw new HttpError(404, "Exercise không tồn tại");
 
-      let imageUrl = exercise.imageUrl;
-      if (imageFile) {
-        if (imageUrl) {
-          imageUrl = await updateCloudflareImage(
-            imageFile,
-            imageUrl,
+      // copy lại mảng ảnh hiện có
+      let imageUrls: string[] = exercise.imageUrls || [];
+
+      // nếu có upload thêm ảnh mới
+      if (imageFiles && imageFiles.length > 0) {
+        for (const file of imageFiles) {
+          const url = await uploadToCloudflare(
+            file,
             "exercises/images",
             userId
           );
-        } else {
-          imageUrl = await uploadToCloudflare(imageFile, "exercises", userId);
+          imageUrls.push(url);
         }
       }
 
+      // xử lý video
       let videoUrl = exercise.videoUrl;
       if (videoFile) {
         if (videoUrl) {
           videoUrl = await updateCloudflareImage(
             videoFile,
             videoUrl,
-            "exercises/images",
+            "exercises/videos",
             userId
           );
         } else {
@@ -144,7 +140,7 @@ export class ExerciseService {
         id,
         {
           ...data,
-          imageUrl,
+          imageUrls,
           videoUrl,
         },
         session
@@ -179,16 +175,28 @@ export class ExerciseService {
   // =================== GET ALL ===================
   async getAllExercises(options?: PaginationQueryOptions) {
     try {
-      const list = await this.exerciseRepository.findAll({}, options);
-      await logAudit({
-        action: "getAllExercises",
-        message: "Lấy danh sách exercises",
-        status: StatusLogEnum.Success,
-      });
+      const list = await this.exerciseRepository.getExercises(options);
+
       return list;
     } catch (err: any) {
       await logError({
         action: "getAllExercises",
+        message: err.message || err,
+        errorMessage: err.stack || err,
+      });
+      throw err;
+    }
+  }
+
+  // =================== GET ALL ===================
+  async getExerciseById(id: string) {
+    try {
+      const exercise = await this.exerciseRepository.getExerciseById(id);
+
+      return exercise;
+    } catch (err: any) {
+      await logError({
+        action: "getExerciseById",
         message: err.message || err,
         errorMessage: err.stack || err,
       });
@@ -204,10 +212,14 @@ export class ExerciseService {
       const exercise = await this.exerciseRepository.findById(id);
       if (!exercise) throw new HttpError(404, "Exercise không tồn tại");
 
-      if (exercise.imageUrl) {
-        await deleteFileFromCloudflare(exercise.imageUrl, "exercises/images");
+      // xóa tất cả ảnh
+      if (exercise.imageUrls && exercise.imageUrls.length > 0) {
+        for (const url of exercise.imageUrls) {
+          await deleteFileFromCloudflare(url, "exercises/images");
+        }
       }
 
+      // xóa video
       if (exercise.videoUrl) {
         await deleteFileFromCloudflare(exercise.videoUrl, "exercises/videos");
       }

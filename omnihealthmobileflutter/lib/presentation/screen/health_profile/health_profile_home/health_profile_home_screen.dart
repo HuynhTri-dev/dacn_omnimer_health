@@ -1,248 +1,37 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:omnihealthmobileflutter/core/theme/app_colors.dart';
-import 'package:omnihealthmobileflutter/core/theme/app_spacing.dart';
 import 'package:omnihealthmobileflutter/core/theme/app_typography.dart';
+
 /// Trang Health Profile - Hiển thị thông tin sức khỏe người dùng
 /// TODO: Implement health metrics, stats, charts, health data từ devices, etc.
 class HealthProfileHomeScreen extends StatefulWidget {
-  const HealthProfileHomeScreen({Key? key}) : super(key: key);
+  const HealthProfileHomeScreen({super.key});
 
   @override
-  State<HealthProfileHomeScreen> createState() => _HealthProfileHomeScreenState();
+  State<HealthProfileHomeScreen> createState() =>
+      _HealthProfileHomeScreenState();
 }
 
 class _HealthProfileHomeScreenState extends State<HealthProfileHomeScreen> {
   int _selectedTab = 0;
-  int _selectedBottomTab = 2; // Health tab is selected
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.white,
       body: SafeArea(
         child: Column(
           children: [
-            // Tabs Section
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-              child: Row(
-                children: [
-                  _buildTab('Summary', 0),
-                  const SizedBox(width: 8),
-                  _buildTab('Fitness', 1),
-                  const SizedBox(width: 8),
-                  _buildTab('Advance', 2),
-                  const Spacer(),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      const Text(
-                        'Checkup Date',
-                        style: TextStyle(
-                          fontSize: 11,
-                          color: Colors.black87,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                      Text(
-                        '04/11/2025',
-                        style: TextStyle(
-                          fontSize: 11,
-                          color: Colors.grey[600],
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
+            // Header Section
+            _buildHeader(),
 
-            // Add Health Information Card
-            Container(
-              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(16),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
-                    blurRadius: 10,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: Row(
-                children: [
-                  const Expanded(
-                    child: Text(
-                      'Add your health information to start tracking your progress today.',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.black87,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  GestureDetector(
-                    onTap: () {
-                      // Navigate to add health info screen
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const HealthProfileHomeScreen(),
-                        ),
-                      );
-                    },
-                    child: Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: Colors.teal,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: const Icon(
-                        Icons.add,
-                        color: Colors.white,
-                        size: 24,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
+            // Tab Navigation
+            _buildTabNavigation(),
 
-            // My Goal Section
-            Container(
-              margin: const EdgeInsets.only(left: 16, right: 16, top: 24),
-              child: const Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  'My Goal',
-                  style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black87,
-                  ),
-                ),
-              ),
-            ),
-
-            // Setting Goal Card
-            Container(
-              margin: const EdgeInsets.all(16),
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(16),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
-                    blurRadius: 10,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: Row(
-                children: [
-                  const Expanded(
-                    child: Text(
-                      'Setting your goal to follow',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.black87,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  GestureDetector(
-                    onTap: () {
-                      // Navigate to set goal screen
-                      _showAddGoalDialog(context);
-                    },
-                    child: Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: Colors.teal,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: const Icon(
-                        Icons.add,
-                        color: Colors.white,
-                        size: 24,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            const Spacer(),
-          ],
-        ),
-      ),
-      bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.1),
-              blurRadius: 10,
-              offset: const Offset(0, -2),
-            ),
-          ],
-        ),
-        child: BottomNavigationBar(
-          currentIndex: _selectedBottomTab,
-          onTap: (index) {
-            setState(() {
-              _selectedBottomTab = index;
-            });
-          },
-          type: BottomNavigationBarType.fixed,
-          backgroundColor: Colors.white,
-          selectedItemColor: Colors.teal,
-          unselectedItemColor: Colors.grey[400],
-          showSelectedLabels: false,
-          showUnselectedLabels: false,
-          elevation: 0,
-          items: [
-            BottomNavigationBarItem(
-              icon: Container(
-                padding: const EdgeInsets.all(8),
-                child: const Icon(Icons.fitness_center, size: 28),
-              ),
-              label: '',
-            ),
-            BottomNavigationBarItem(
-              icon: Container(
-                padding: const EdgeInsets.all(8),
-                child: const Icon(Icons.restaurant_menu, size: 28),
-              ),
-              label: '',
-            ),
-            BottomNavigationBarItem(
-              icon: Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.teal,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: const Icon(
-                  Icons.favorite,
-                  color: Colors.white,
-                  size: 28,
-                ),
-              ),
-              label: '',
-            ),
-            BottomNavigationBarItem(
-              icon: Container(
-                padding: const EdgeInsets.all(8),
-                child: const Icon(Icons.more_horiz, size: 28),
-              ),
-              label: '',
+            // Content
+            Expanded(
+              child: _selectedTab == 0 ? _buildGeneralTab() : Container(),
             ),
           ],
         ),
@@ -250,83 +39,186 @@ class _HealthProfileHomeScreenState extends State<HealthProfileHomeScreen> {
     );
   }
 
-  Widget _buildTab(String text, int index) {
-    final isSelected = _selectedTab == index;
-    return GestureDetector(
-      onTap: () => setState(() => _selectedTab = index),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        decoration: BoxDecoration(
-          color: isSelected ? Colors.teal : Colors.grey[200],
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: Text(
-          text,
-          style: TextStyle(
-            color: isSelected ? Colors.white : Colors.grey[600],
-            fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-            fontSize: 13,
-          ),
-        ),
-      ),
-    );
-  }
-
-  void _showAddGoalDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-          title: const Text(
-            'Add New Goal',
-            style: TextStyle(fontWeight: FontWeight.bold),
-          ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                decoration: InputDecoration(
-                  labelText: 'Goal Type',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
+  Widget _buildHeader() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          const SizedBox(), // để giữ layout spaceBetween
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end, // căn phải
+            children: const [
+              Text(
+                'Checkup Date',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
-              const SizedBox(height: 16),
-              TextField(
-                decoration: InputDecoration(
-                  labelText: 'Frequency',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
+              SizedBox(height: 4),
+              Text(
+                '04/11/2025',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black,
                 ),
               ),
             ],
           ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel'),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTabNavigation() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Row(
+        children: [
+          _buildTab('Sumary', 0),
+          const SizedBox(width: 12),
+          _buildTab('Fitness', 1),
+          const SizedBox(width: 12),
+          _buildTab('Advance', 2),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTab(String title, int index) {
+    final isSelected = _selectedTab == index;
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          _selectedTab = index;
+        });
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+        decoration: BoxDecoration(
+          color: isSelected ? AppColors.primary : Colors.transparent,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: isSelected ? AppColors.primary : AppColors.gray300,
+          ),
+        ),
+        child: Text(
+          title,
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+            color: isSelected ? AppColors.textLight : AppColors.textSecondary,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildGeneralTab() {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Add Health Information Card
+          _buildAddHealthInfoCard(),
+
+          const SizedBox(height: 24),
+
+          // My Goal Section
+          _buildMyGoalSection(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAddHealthInfoCard() {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: AppColors.gray100,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.border),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(
+              'Add your health information to start tracking your progress today.',
+              style: TextStyle(
+                fontSize: 14,
+                color: AppColors.textSecondary,
+                height: 1.4,
+              ),
             ),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.pop(context);
-                // Add goal logic here
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.teal,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
+          ),
+          const SizedBox(width: 12),
+          Container(
+            width: 36,
+            height: 36,
+            decoration: BoxDecoration(
+              color: AppColors.primary,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: const Icon(Icons.add, color: AppColors.textLight, size: 20),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMyGoalSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'My Goal',
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: AppColors.textPrimary,
+          ),
+        ),
+        const SizedBox(height: 16),
+        Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: AppColors.gray100,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: AppColors.border),
+          ),
+          child: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  'Setting your goal to follow',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: AppColors.textSecondary,
+                  ),
                 ),
               ),
-              child: const Text('Add Goal'),
-            ),
-          ],
-        );
-      },
+              const SizedBox(width: 12),
+              Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(
+                  color: AppColors.primary,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Icon(
+                  Icons.add,
+                  color: AppColors.textLight,
+                  size: 20,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }

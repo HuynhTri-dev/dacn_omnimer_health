@@ -1,16 +1,24 @@
-import { Model, Types } from "mongoose";
-import { IExercise } from "../../models";
-import { BaseRepository } from "../Base.repository";
+import { Model, SortOrder, Types } from "mongoose";
+import { IExercise, IExerciseRating } from "../../models";
+import { BaseRepository, castArrayToObjectIds } from "../Base.repository";
 import {
   IRAGExercise,
   IRAGHealthProfile,
+  PaginationQueryOptions,
   UserRAGRequest,
 } from "../../entities";
 import { getSuitableDifficultyLevels } from "../../../utils/ExerciseHelper";
+import {
+  DEFAULT_LIMIT,
+  DEFAULT_PAGE,
+} from "../../../common/constants/AppConstants";
+import { HttpError } from "../../../utils/HttpError";
 
 export class ExerciseRepository extends BaseRepository<IExercise> {
-  constructor(model: Model<IExercise>) {
+  private readonly exerciseRating: Model<IExerciseRating>;
+  constructor(model: Model<IExercise>, exerciseRating: Model<IExerciseRating>) {
     super(model);
+    this.exerciseRating = exerciseRating;
   }
 
   /**
@@ -107,5 +115,133 @@ export class ExerciseRepository extends BaseRepository<IExercise> {
       exerciseId: e._id.toString(),
       exerciseName: e.name,
     }));
+  }
+
+  /**
+   * Query exercise list with full filtering, sorting, pagination, and population.
+   *
+   * @param {PaginationQueryOptions} options - Query builder config.
+   * @returns {Promise<{ data: any[]; pagination: PaginationInfo }>}
+   */
+  async getExercises(options?: PaginationQueryOptions) {
+    const page = options?.page ?? DEFAULT_PAGE;
+    const limit = options?.limit ?? DEFAULT_LIMIT;
+    const sort = options?.sort ?? { name: 1 };
+    const filter = options?.filter;
+    const search = options?.search;
+
+    const query: any = {};
+
+    if (search) {
+      query.name = { $regex: search, $options: "i" };
+    }
+
+    if (filter) {
+      if (filter.equipmentIds) {
+        query.equipments = { $in: castArrayToObjectIds(filter.equipmentIds) };
+      }
+
+      if (filter.bodyPartIds) {
+        query.bodyParts = { $in: castArrayToObjectIds(filter.bodyPartIds) };
+      }
+
+      if (filter.muscleIds) {
+        const ids = castArrayToObjectIds(filter.muscleIds);
+        query.$or = [
+          { mainMuscles: { $in: ids } },
+          { secondaryMuscles: { $in: ids } },
+        ];
+      }
+
+      if (filter.exerciseTypes) {
+        query.exerciseTypes = {
+          $in: castArrayToObjectIds(filter.exerciseTypes),
+        };
+      }
+
+      if (filter.exerciseCategories) {
+        query.exerciseCategories = {
+          $in: castArrayToObjectIds(filter.exerciseCategories),
+        };
+      }
+
+      if (filter.location) {
+        query.location = filter.location;
+      }
+    }
+
+    const sortObj: Record<string, SortOrder> =
+      sort && Object.keys(sort).length
+        ? (sort as Record<string, SortOrder>)
+        : { name: 1 };
+
+    const data = await this.model
+      .find(query)
+      .select("name imageUrls location difficulty")
+      .populate({ path: "equipments", select: "name" })
+      .populate({ path: "bodyParts", select: "name" })
+      .populate({ path: "mainMuscles", select: "name" })
+      .populate({ path: "secondaryMuscles", select: "name" })
+      .populate({ path: "exerciseTypes", select: "name" })
+      .populate({ path: "exerciseCategories", select: "name" })
+      .sort(sortObj)
+      .skip((page - 1) * limit)
+      .limit(limit)
+      .lean()
+      .exec();
+
+    const processed = data.map((item: any) => ({
+      ...item,
+      imageUrl: item.imageUrls?.[0] || null,
+      imageUrls: undefined,
+    }));
+
+    return processed;
+  }
+
+  /**
+   * Get full exercise detail by ID, including populated fields and rating summary.
+   *
+   * Features:
+   * - Populate all referenced fields (equipments, bodyParts, muscles, types, categories).
+   * - If `videoUrl` is available → media = string (videoUrl).
+   * - If `videoUrl` is not available → media = string[] (imageUrls list).
+   * - Calculate average rating:
+   *      + If no rating exists → default = 5.
+   *      + Otherwise → avg = mean(score).
+   *
+   * @param exerciseId - ID of the exercise to retrieve
+   * @returns Full exercise object with populated references + averageScore + media
+   */
+  async getExerciseById(exerciseId: string) {
+    const id = new Types.ObjectId(exerciseId);
+
+    const exercise = await this.model
+      .findById(id)
+      .populate("equipments", "name")
+      .populate("bodyParts", "name")
+      .populate("mainMuscles", "name")
+      .populate("secondaryMuscles", "name")
+      .populate("exerciseTypes", "name")
+      .populate("exerciseCategories", "name")
+      .lean();
+
+    if (!exercise) {
+      throw new HttpError(401, "Exercise not found");
+    }
+
+    const ratings = await this.exerciseRating.find({ exerciseId: id }).lean();
+
+    let averageScore = 5;
+
+    if (ratings.length > 0) {
+      const total = ratings.reduce((sum, r) => sum + r.score, 0);
+      averageScore = Number((total / ratings.length).toFixed(1));
+    }
+
+    return {
+      ...exercise,
+      averageScore,
+    };
   }
 }

@@ -1,0 +1,49 @@
+version: "3.8"
+
+services:
+  # 1. 🌐 Node.js Backend Server (omnimer_health_server)
+  backend:
+    container_name: omnimer_health_backend
+    build:
+      context: ./omnimer_health_server
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    env_file:
+      - ./omnimer_health_server/.env
+    environment:
+      - PORT=8000
+      - NODE_ENV=production
+    networks:
+      - omnimer_network
+
+  # 2. 🤖 Python AI/FastAPI Service (3T-FIT)
+  ai_service:
+    container_name: omnimer_health_ai
+    build:
+      context: ./3T-FIT
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "8888:8888"
+    environment:
+      - PYTHONUNBUFFERED=1
+    networks:
+      - omnimer_network
+
+  # 3. 📊 Admin Dashboard (React/Vite + NGINX)
+  adminpage:
+    container_name: omnimer_health_admin
+    build:
+      context: ./adminpage
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "3000:80"
+    networks:
+      - omnimer_network
+
+networks:
+  omnimer_network:
+    driver: bridge

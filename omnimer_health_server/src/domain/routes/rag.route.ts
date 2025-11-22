@@ -18,6 +18,7 @@ import {
 } from "../repositories";
 import {
   Exercise,
+  ExerciseRating,
   Goal,
   HealthProfile,
   Permission,
@@ -47,7 +48,9 @@ const healthProfileService = new HealthProfileService(
 
 const goalService = new GoalService(new GoalRepository(Goal));
 
-const exerciseService = new ExerciseService(new ExerciseRepository(Exercise));
+const exerciseService = new ExerciseService(
+  new ExerciseRepository(Exercise, ExerciseRating)
+);
 
 const aiService = new AIService(apiUrl);
 

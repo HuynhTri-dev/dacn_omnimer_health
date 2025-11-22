@@ -1,61 +1,128 @@
-*/node_modules/
-*/node_modules/
-
-*.env
-
+####################################
+# GLOBAL IGNORE
+####################################
 .DS_Store
 *.log
+*.pem
+*.env
+*.env*.local
+*.tsbuildinfo
+*.lock
+*.tmp
+
+# Debug logs
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
+# IDEs
 .vscode/
 .idea/
 
-# Learn more https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files
+# Python cache
+**/__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
 
-# dependencies
-node_modules/
+# Virtual environments
+venv/
+*/venv/
+env/
+*/env/
 
-# Expo
-.expo/
+# Python build artifacts
+*.egg-info/
 dist/
-web-build/
-expo-env.d.ts
+build/
 
-# Native
-.kotlin/
-*.orig.*
-*.jks
-*.p8
-*.p12
-*.key
-*.mobileprovision
+####################################
+# FASTAPI (Python)
+####################################
+# Byte-compiled
+__pycache__/
+*.pyc
 
+# Virtual env
+.venv/
+env/
+venv/
+
+# PyTest & Coverage
+.pytest_cache/
+.coverage
+coverage.xml
+htmlcov/
+
+
+# Local secrets
+**/omnimerhealth-firebase-admin-sdk.json
+
+####################################
+# FLUTTER
+####################################
+# Generated files
+**/build/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub/
+.dart_tool/
+
+# iOS / Android generated
+ios/
+android/
+
+# Flutter specific
+.generated/
+.flutter-plugins
+.flutter-plugins-dependencies
+
+# Fastlane
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots
+
+####################################
+# NODEJS + TYPESCRIPT
+####################################
+node_modules/
+*/node_modules/
+
+# Logs
+logs/
+*.log
+
+# Runtime
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage
+coverage/
+*.lcov
+
+# TS build output
+dist/
+out/
+build/
+
+# Env
+.env
+.env.*.local
+
+####################################
+# OTHER
+####################################
 # Metro
 .metro-health-check*
 
-# debug
-npm-debug.*
-yarn-debug.*
-yarn-error.*
+# Example or test data
+app-example/
 
-# macOS
-.DS_Store
-*.pem
+# Generate Data
+exercises/
 
-# local env files
-.env*.local
-
-# typescript
-*.tsbuildinfo
-
-app-example
-
-# generated native folders
-/ios
-/android
-
-*/venv/
-
-**/omnimerhealth-firebase-admin-sdk.json
+# Data Training
+3T-FIT/DATA/data

@@ -1,222 +1,92 @@
 # OmniHealth Mobile Flutter App
 
-## Project Structure
+Dự án ứng dụng di động OmniHealth được xây dựng bằng Flutter, áp dụng kiến trúc **Clean Architecture** để đảm bảo tính mở rộng, dễ bảo trì và kiểm thử.
 
-```
-Cấu trúc Layers
-┌─────────────────────────────────────────────────────────┐
-│              Presentation Layer                          │
-│  ┌────────────┐  ┌──────────────┐  ┌────────────────┐  │
-│  │  Screens   │  │  Providers   │  │    Widgets     │  │
-│  └────────────┘  └──────────────┘  └────────────────┘  │
-│         ▼                ▼                    ▼          │
-│  Làm việc với ENTITY                                    │
-└─────────────────────────────────────────────────────────┘
-                         │
-                         ▼
-┌─────────────────────────────────────────────────────────┐
-│               Domain Layer                               │
-│  ┌────────────┐  ┌──────────────┐  ┌────────────────┐  │
-│  │  Entities  │  │  Use Cases   │  │  Repositories  │  │
-│  │  (Role)    │  │              │  │  (Interface)   │  │
-│  └────────────┘  └──────────────┘  └────────────────┘  │
-│                                                          │
-│  Business Logic thuần túy, không phụ thuộc framework    │
-└─────────────────────────────────────────────────────────┘
-                         │
-                         ▼
-┌─────────────────────────────────────────────────────────┐
-│                Data Layer                                │
-│  ┌────────────┐  ┌──────────────┐                       │
-│  │   Models   │  │ Repositories │                       │
-│  │ (RoleModel)│  │    (Impl)    │                       │
-│  └────────────┘  └──────────────┘                       │
-│         ▼                ▼                               │
-│  Chuyển đổi: Model ↔ Entity                            │
-└─────────────────────────────────────────────────────────┘
-                         │
-                         ▼
-┌─────────────────────────────────────────────────────────┐
-│           Infrastructure Layer                           │
-│                  API Client                              │
-│         Giao tiếp với Backend API                       │
-└─────────────────────────────────────────────────────────┘
+## 📂 Cấu trúc Dự án
+
+Source code được tổ chức trong thư mục `lib` với cấu trúc phân tầng rõ ràng:
+
+```text
+lib/
+├── core/           # Các thành phần cốt lõi dùng chung
+├── data/           # Lớp dữ liệu (Data Layer)
+├── domain/         # Lớp nghiệp vụ (Domain Layer)
+├── presentation/   # Lớp giao diện (Presentation Layer)
+├── services/       # Các dịch vụ hệ thống/bên ngoài
+├── utils/          # Các tiện ích hỗ trợ
+├── main.dart       # Điểm khởi chạy ứng dụng
+└── injection_container.dart # Cấu hình Dependency Injection
 ```
 
-## Coding Guidelines
+## 🏗 Chi tiết Kiến trúc
 
-### 1. API Integration
+### 1. Domain Layer (`lib/domain`)
+Đây là lớp trong cùng, chứa logic nghiệp vụ thuần túy và không phụ thuộc vào bất kỳ lớp nào khác (kể cả Flutter UI hay Data sources).
 
-The app uses a standardized API integration approach with the following components:
+-   **abstracts/**: Chứa các interfaces (contracts) cho Repositories. Các lớp ở `data` sẽ implement các interface này.
+-   **entities/**: Các đối tượng nghiệp vụ cốt lõi (Business Objects).
+-   **usecases/**: Chứa các logic nghiệp vụ cụ thể (Business Logic), mỗi use case đại diện cho một hành động của người dùng hoặc hệ thống.
 
-#### API Client (`core/api/api_client.dart`)
+### 2. Data Layer (`lib/data`)
+Lớp này chịu trách nhiệm quản lý dữ liệu, bao gồm việc lấy dữ liệu từ API hoặc lưu trữ cục bộ.
 
-- Uses Dio for HTTP requests
-- Supports all standard HTTP methods (GET, POST, PUT, PATCH, DELETE)
-- Includes file upload functionality
-- Handles response parsing and error handling
+-   **datasources/**: Các nguồn dữ liệu (Remote API, Local Database).
+-   **models/**: Các mô hình dữ liệu (Data Models), thường là các subclass của Entities với các phương thức chuyển đổi JSON (fromJson, toJson).
+-   **repositories/**: Triển khai (Implement) các interfaces được định nghĩa trong `domain/abstracts`. Chịu trách nhiệm điều phối dữ liệu giữa Datasources và Domain.
 
-Example usage:
+### 3. Presentation Layer (`lib/presentation`)
+Lớp này chịu trách nhiệm hiển thị giao diện người dùng và xử lý tương tác.
 
-```dart
-final apiClient = ApiClient();
+-   **screen/**: Chứa các màn hình của ứng dụng.
+-   **common/**: Chứa các Widget dùng chung, tái sử dụng được.
+-   **app.dart & app_view.dart**: Cấu hình gốc của ứng dụng (MaterialApp, Theme, Routing setup).
 
-// GET request
-final response = await apiClient.get<UserModel>(
-  '/users',
-  parser: (json) => UserModel.fromJson(json),
-);
+### 4. Core Layer (`lib/core`)
+Chứa các thành phần nền tảng được sử dụng xuyên suốt ứng dụng.
 
-// POST request with data
-final response = await apiClient.post<ResponseType>(
-  '/endpoint',
-  data: {'key': 'value'},
-  parser: (json) => ResponseType.fromJson(json),
-);
-```
+-   **api/**: Cấu hình API Client (Dio/Http), xử lý request/response chung.
+-   **constants/**: Các hằng số (màu sắc, strings, assets path).
+-   **routing/**: Cấu hình điều hướng (Navigation).
+-   **theme/**: Cấu hình giao diện (ThemeData, Styles).
+-   **validation/**: Các logic kiểm tra dữ liệu đầu vào.
 
-#### API Response Format
+### 5. Services & Utils
+-   **services/** (`lib/services`): Các dịch vụ độc lập như `SecureStorageService`, `SharedPreferencesService`.
+-   **utils/** (`lib/utils`): Các hàm tiện ích hỗ trợ như `Logger`, `FilterUtil`, `SortUtil`, `QueryBuilder`.
 
-All API responses are wrapped in `ApiResponse<T>` class with the following structure:
+---
 
-```dart
-class ApiResponse<T> {
-  final bool success;
-  final T? data;
-  final String message;
-  final dynamic error;
-}
-```
+## 🔄 Luồng dữ liệu (Data Flow)
 
-#### Error Handling
+1.  **UI (Presentation)** gọi **UseCase** (Domain).
+2.  **UseCase** gọi **Repository Interface** (Domain).
+3.  **Repository Implementation** (Data) thực thi logic, gọi **DataSource** (Data).
+4.  **DataSource** lấy dữ liệu từ **API** hoặc **Local DB**, trả về **Model**.
+5.  **Repository** chuyển đổi **Model** thành **Entity** và trả về cho **UseCase**.
+6.  **UseCase** trả **Entity** về cho **UI** để hiển thị.
 
-The app implements a comprehensive error handling system:
+---
 
-```dart
-try {
-  final response = await apiClient.get('/endpoint');
-  // Handle success
-} on UnauthorizedException {
-  // Handle 401 unauthorized
-} on BadRequestException {
-  // Handle 400 bad request
-} on NetworkException {
-  // Handle network issues
-} on ServerException {
-  // Handle server errors
-}
-```
+## 🚀 Cài đặt & Chạy ứng dụng
 
-### 2. Project Layer Guidelines
+1.  **Clone repository**:
+    ```bash
+    git clone <repository-url>
+    ```
 
-#### Core Layer (`/core`)
+2.  **Cài đặt dependencies**:
+    ```bash
+    flutter pub get
+    ```
 
-- Contains fundamental application code
-- Should be independent of other layers
-- Houses configurations, constants, and base classes
+3.  **Chạy ứng dụng**:
+    ```bash
+    flutter run
+    ```
 
-#### Data Layer (`/data`)
+## 🤝 Hướng dẫn đóng góp (Contributing)
 
-- Implements repositories
-- Handles data sources (local storage, API)
-- Contains data models and mapping logic
-
-#### Domain Layer (`/domain`)
-
-- Contains business logic
-- Defines entity models
-- Houses use cases/interactors
-
-#### Presentation Layer (`/presentation`)
-
-- Contains all UI components
-- Implements screens and widgets
-- Handles state management
-
-#### Services Layer (`/services`)
-
-- Implements standalone services
-- Handles background tasks
-- Manages third-party integrations
-
-### 3. Best Practices
-
-1. **File Naming**
-
-   - Use snake_case for file names
-   - Add type suffixes: `user_repository.dart`, `home_screen.dart`
-
-2. **Class Naming**
-
-   - Use PascalCase for class names
-   - Add clear suffixes: `UserRepository`, `HomeScreen`
-
-3. **Code Organization**
-
-   - Group related files in appropriate directories
-   - Keep files focused and single-responsibility
-   - Use exports in index files for cleaner imports
-
-4. **Error Handling**
-
-   - Use custom exceptions for different error cases
-   - Handle errors at appropriate levels
-   - Provide user-friendly error messages
-
-5. **State Management**
-
-   - Use appropriate state management solution for different cases
-   - Keep business logic separate from UI
-   - Follow unidirectional data flow
-
-6. **Testing**
-   - Write tests for business logic
-   - Mock dependencies in tests
-   - Use test helpers and fixtures
-
-### 4. Utility Functions
-
-The `/utils` directory contains several helpful utilities:
-
-- **filter_util.dart**: Helpers for filtering data
-- **logger.dart**: Structured logging functionality
-- **query_builder.dart**: SQL/NoSQL query building helpers
-- **sort_util.dart**: Data sorting utilities
-
-### 5. Configuration
-
-1. **Environment Configuration**
-
-   - Use `app_config.dart` for environment-specific settings
-   - Configure API endpoints in `endpoints.dart`
-   - Manage Firebase settings in `firebase_options.dart`
-
-2. **Theme Configuration**
-   - Define app themes in `core/theme`
-   - Use consistent colors and styles
-   - Support light/dark modes
-
-## Getting Started
-
-1. Clone the repository
-2. Install dependencies:
-   ```bash
-   flutter pub get
-   ```
-3. Run the app:
-   ```bash
-   flutter run
-   ```
-
-## Contributing
-
-1. Follow the project structure
-2. Maintain coding guidelines
-3. Write tests for new features
-4. Update documentation as needed
-
-## Additional Resources
-
-- [Flutter Documentation](https://docs.flutter.dev/)
-- [Dart Documentation](https://dart.dev/guides)
-- [Material Design](https://material.io/design)
+1.  Tuân thủ cấu trúc thư mục đã định nghĩa.
+2.  Đặt tên file theo `snake_case`, tên class theo `PascalCase`.
+3.  Luôn viết Unit Test cho các UseCase và Repository mới.
+4.  Đảm bảo code không có lỗi lint trước khi commit.

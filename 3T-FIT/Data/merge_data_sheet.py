@@ -1,7 +1,7 @@
 import pandas as pd
 
 # ========== 1️⃣ Đọc dữ liệu từ 4 sheet ==========
-file_path = "./data/Workout Tracker Dataset.xlsx"
+file_path = "./data/WorkoutTrackerDataset.xlsx"
 
 user_df = pd.read_excel(file_path, sheet_name="User")
 health_df = pd.read_excel(file_path, sheet_name="User Health Profile")
@@ -32,7 +32,7 @@ final_df = pd.merge(
     how="left"
 )
 
-# ========== 5️⃣ Xử lý cột ==========
+# ========== 5️⃣ Xử lý cột (Tên cột) ==========
 # Xóa cột trùng
 final_df = final_df.loc[:, ~final_df.columns.duplicated()]
 
@@ -44,8 +44,14 @@ final_df.columns = (
     .str.replace(" ", "_")   # thay khoảng trắng bằng _
 )
 
-# ========== 6️⃣ Xuất file Excel ==========
+# ========== 6️⃣ Xử lý dữ liệu (Giá trị trong cột) ==========
+# 👉 YÊU CẦU CỦA BẠN: Chỉnh lại tên bài tập thành In Hoa Chữ Cái Đầu
+if 'exercise_name' in final_df.columns:
+    # Chuyển sang dạng chuỗi (đề phòng dữ liệu không phải string) rồi dùng .title()
+    final_df['exercise_name'] = final_df['exercise_name'].astype(str).str.title()
+
+# ========== 7️⃣ Xuất file Excel ==========
 output_path = "./data/merged_omni_health_dataset.xlsx"
 final_df.to_excel(output_path, index=False)
 
-print(f"✅ Đã ghép và chuẩn hóa tên cột, lưu tại: {output_path}")
+print(f"✅ Đã ghép, chuẩn hóa tên cột và chỉnh sửa exercise_name, lưu tại: {output_path}")

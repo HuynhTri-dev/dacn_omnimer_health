@@ -276,15 +276,15 @@ export class WorkoutService {
       const healthProfileId =
         await this.healthProfileRepo.findEarliestIdByUserId(userId);
       if (!healthProfileId)
-        throw new HttpError(404, "Không tìm thấy hồ sơ người dùng");
+        throw new HttpError(404, "Can't find health profile user");
 
       const template = await this.workoutTemplateRepo.findById(
         workoutTemplateId
       );
-      if (!template) throw new HttpError(404, "Không tìm thấy mẫu bài tập");
+      if (!template) throw new HttpError(404, "Can't find the template");
 
       if (!template.workOutDetail || template.workOutDetail.length === 0) {
-        throw new HttpError(400, "Mẫu buổi tập không có bài tập nào");
+        throw new HttpError(400, "The template is empty");
       }
 
       // Clone workOutDetail từ template

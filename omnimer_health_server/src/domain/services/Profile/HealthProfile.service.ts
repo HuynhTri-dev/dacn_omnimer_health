@@ -44,6 +44,8 @@ export class HealthProfileService {
         data.userId?.toString() ?? userId
       );
 
+      console.log("User: ", user);
+
       // Compute key health metrics (e.g., BMI, body fat, etc.)
       const metrics = calculateHealthMetrics({
         gender: user?.gender,
@@ -59,6 +61,8 @@ export class HealthProfileService {
         muscleMass: data.muscleMass,
         whr: data.whr,
       });
+
+      console.log("User metrics: ", metrics);
 
       // Prepare input for AI model evaluation
       const aiInput = {
@@ -168,6 +172,33 @@ export class HealthProfileService {
     } catch (err: any) {
       await logError({
         action: "getHealthProfileById",
+        message: err.message || err,
+        errorMessage: err.stack || err,
+      });
+      throw err;
+    }
+  }
+
+  /**
+   * Retrieve a specific health profile by userId.
+   *
+   * @param userId - The ID of the userId in health profile.
+   * @returns The corresponding HealthProfile document.
+   *
+   * @throws HttpError - If the profile does not exist.
+   */
+  async getHealthProfileLatestByUserId(userId: string) {
+    try {
+      const healthProfile =
+        await this.healthProfileRepo.getHealthProfileLatestByUserId(userId);
+      if (!healthProfile) {
+        throw new HttpError(404, "HealthProfile not found");
+      }
+      return healthProfile;
+    } catch (err: any) {
+      await logError({
+        userId,
+        action: "getHealthProfileLatestByUserId",
         message: err.message || err,
         errorMessage: err.stack || err,
       });

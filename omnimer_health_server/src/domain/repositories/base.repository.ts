@@ -6,6 +6,10 @@ import {
   ClientSession,
 } from "mongoose";
 import { PaginationQueryOptions } from "../entities";
+import {
+  DEFAULT_LIMIT,
+  DEFAULT_PAGE,
+} from "../../common/constants/AppConstants";
 
 /**
  * BaseRepository là class cơ sở để thao tác CRUD với Mongoose.
@@ -28,8 +32,8 @@ export class BaseRepository<T> {
     options?: PaginationQueryOptions
   ): Promise<T[]> {
     try {
-      const page = options?.page ?? 1;
-      const limit = options?.limit ?? 20;
+      const page = options?.page ?? DEFAULT_PAGE;
+      const limit = options?.limit ?? DEFAULT_LIMIT;
       const skip = (page - 1) * limit;
       const sort = options?.sort ?? { _id: -1 };
 
@@ -154,4 +158,10 @@ export class BaseRepository<T> {
       throw e;
     }
   }
+}
+
+export function castArrayToObjectIds(value: any): Types.ObjectId[] {
+  if (!value) return [];
+  if (Array.isArray(value)) return value.map((v) => new Types.ObjectId(v));
+  return [new Types.ObjectId(value)];
 }

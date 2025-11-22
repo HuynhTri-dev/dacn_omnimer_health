@@ -67,4 +67,26 @@ export class HealthProfileRepository extends BaseRepository<IHealthProfile> {
 
     return result;
   }
+
+  /**
+   * Retrieve the latest health profile of a user based on checkupDate.
+   *
+   * Features:
+   * - Query HealthProfile by userId.
+   * - Sort by `checkupDate` in descending order (newest first).
+   * - Populate user information (gender, birthday).
+   * - Return `null` if the user has no health profile.
+   *
+   * @param userId - ID of the user whose latest health profile is required
+   * @returns The newest health profile document with populated user info
+   */
+  async getHealthProfileLatestByUserId(userId: string) {
+    const profile = await this.model
+      .findOne({ userId: new Types.ObjectId(userId) })
+      .populate("userId", "gender birthday")
+      .sort({ checkupDate: -1 })
+      .lean();
+
+    return profile || null;
+  }
 }

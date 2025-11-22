@@ -39,30 +39,36 @@ export interface IHealthProfile extends Document {
   userId: Types.ObjectId;
   checkupDate: Date;
 
+  // Profile
   age: number;
   height?: number;
   weight?: number;
   waist?: number;
   neck?: number;
   hip?: number;
+
+  // Metrics
   whr?: number;
   bmi?: number;
   bmr?: number;
   bodyFatPercentage?: number;
   muscleMass?: number;
+
+  // Fitness
   maxPushUps?: number;
   maxWeightLifted?: number;
   activityLevel?: number;
   experienceLevel?: ExperienceLevelEnum;
   workoutFrequency?: number;
 
+  // Advanced
   restingHeartRate?: number;
   bloodPressure?: IBloodPressure;
   cholesterol?: ICholesterol;
   bloodSugar?: number;
-
   healthStatus?: IHealthStatus;
 
+  // AI Evaluation
   aiEvaluation?: IAiEvaluation;
 }
 
