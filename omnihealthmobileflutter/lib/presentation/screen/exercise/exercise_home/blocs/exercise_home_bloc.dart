@@ -263,19 +263,23 @@ class ExerciseHomeBloc extends Bloc<ExerciseHomeEvent, ExerciseHomeState> {
     final filters = <String, dynamic>{};
 
     if (state.activeLocation != null) {
-      filters['location'] = state.activeLocation;
+      filters['location'] = state.activeLocation!.name;
     }
+
     if (state.activeEquipmentIds.isNotEmpty) {
-      filters['equipmentId'] = state.activeEquipmentIds;
+      filters['equipmentIds'] = state.activeEquipmentIds;
     }
+
     if (state.activeMuscleIds.isNotEmpty) {
-      filters['muscleId'] = state.activeMuscleIds;
+      filters['muscleIds'] = state.activeMuscleIds;
     }
+
     if (state.activeExerciseTypeIds.isNotEmpty) {
-      filters['exerciseTypeId'] = state.activeExerciseTypeIds;
+      filters['exerciseTypes'] = state.activeExerciseTypeIds;
     }
+
     if (state.activeCategoryIds.isNotEmpty) {
-      filters['categoryId'] = state.activeCategoryIds;
+      filters['exerciseCategories'] = state.activeCategoryIds;
     }
 
     return DefaultQueryEntity(

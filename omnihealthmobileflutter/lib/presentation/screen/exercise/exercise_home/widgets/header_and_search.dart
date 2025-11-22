@@ -13,7 +13,7 @@ class _BodyAndMuscleHeader extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Hình người 3D bên trái
+        // ======= MODEL 3D BÊN TRÁI =======
         Expanded(
           flex: 3,
           child: Container(
@@ -29,17 +29,28 @@ class _BodyAndMuscleHeader extends StatelessWidget {
                 ),
               ],
             ),
-            alignment: Alignment.bottomCenter,
-            child: Icon(
-              Icons.accessibility_new,
-              size: 120.r,
-              color: AppColors.primary,
+            alignment: Alignment.center,
+            child: ClipRRect(
+              borderRadius: AppRadius.radiusXl,
+              child: Cube(
+                onSceneCreated: (Scene scene) {
+                  final object = Object(fileName: 'assets/models/mesh.obj');
+
+                  object.scale.setValues(0.32, 0.32, 0.32);
+
+                  scene.world.add(object);
+
+                  scene.camera.zoom = 20;
+                  scene.camera.position.setValues(30, 2, 0);
+                },
+              ),
             ),
           ),
         ),
+
         SizedBox(width: 12.w),
 
-        // Card Muscle bên phải
+        // ======= CARD MUSCLE BÊN PHẢI =======
         Expanded(
           flex: 2,
           child: Container(
@@ -79,21 +90,12 @@ class _BodyAndMuscleHeader extends StatelessWidget {
                 const Spacer(),
                 ClipRRect(
                   borderRadius: AppRadius.radiusLg,
-                  child: (muscle?.imageUrl!.isNotEmpty == true)
+                  child: (muscle?.imageUrl?.isNotEmpty == true)
                       ? Image.network(
                           muscle!.imageUrl!,
                           height: 90.h,
                           width: double.infinity,
                           fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) {
-                            return Container(
-                              height: 90.h,
-                              width: double.infinity,
-                              color: AppColors.background,
-                              alignment: Alignment.center,
-                              child: const Icon(Icons.broken_image),
-                            );
-                          },
                         )
                       : Container(
                           height: 90.h,

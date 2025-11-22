@@ -57,6 +57,7 @@ dependencies:
   flutter_screenutil: ^5.9.3
   font_awesome_flutter: ^10.12.0
   curved_labeled_navigation_bar: ^2.0.6
+  flutter_cube: ^0.1.1
 
 dev_dependencies:
   flutter_test:
@@ -85,6 +86,9 @@ flutter:
     - assets/images/logo/blackH.jpg
     - assets/images/logo/whiteH.jpg
     - assets/images/default/default_avatar.png
+    - assets/models/mesh.obj
+    - assets/models/mesh.mtl
+    - assets/models/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

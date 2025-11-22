@@ -15,6 +15,7 @@ import 'package:omnihealthmobileflutter/presentation/screen/exercise/exercise_ho
 import 'package:omnihealthmobileflutter/presentation/screen/exercise/exercise_home/blocs/exercise_home_state.dart';
 import 'package:omnihealthmobileflutter/presentation/common/button/button_primary.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:flutter_cube/flutter_cube.dart';
 
 part 'widgets/header_and_search.dart';
 part 'widgets/exercise_list.dart';
@@ -150,12 +151,20 @@ class _ExerciseHomeViewState extends State<_ExerciseHomeView> {
                             _FilterButton(
                               resultCount: state.exercises.length,
                               onPressed: () async {
+                                // Lấy bloc hiện tại từ context của màn hình
+                                final bloc = context.read<ExerciseHomeBloc>();
+
                                 await showModalBottomSheet(
                                   context: context,
                                   isScrollControlled: true,
                                   backgroundColor: Colors.transparent,
-                                  builder: (context) =>
-                                      _FilterSheet(state: state),
+                                  builder: (ctx) {
+                                    // "Mang" lại bloc vào trong bottom sheet
+                                    return BlocProvider.value(
+                                      value: bloc,
+                                      child: _FilterSheet(state: state),
+                                    );
+                                  },
                                 );
                               },
                             ),
