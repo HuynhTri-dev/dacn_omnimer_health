@@ -1,7 +1,7 @@
 // lib/presentation/screen/exercise/exercise_home/widgets/exercise_list.dart
 part of '../exercise_home_screen.dart';
 
-class _ExerciseList extends StatefulWidget {
+class _ExerciseList extends StatelessWidget {
   final List<ExerciseListEntity> exercises;
   final List<MuscleEntity> muscles;
   final bool isLoadingMore;
@@ -17,36 +17,8 @@ class _ExerciseList extends StatefulWidget {
   });
 
   @override
-  State<_ExerciseList> createState() => _ExerciseListState();
-}
-
-class _ExerciseListState extends State<_ExerciseList> {
-  final ScrollController _scrollController = ScrollController();
-
-  @override
-  void initState() {
-    super.initState();
-    _scrollController.addListener(_onScroll);
-  }
-
-  @override
-  void dispose() {
-    _scrollController.dispose();
-    super.dispose();
-  }
-
-  void _onScroll() {
-    if (_scrollController.position.pixels >=
-        _scrollController.position.maxScrollExtent * 0.9) {
-      if (widget.hasMore && !widget.isLoadingMore) {
-        widget.onLoadMore();
-      }
-    }
-  }
-
-  @override
   Widget build(BuildContext context) {
-    if (widget.exercises.isEmpty) {
+    if (exercises.isEmpty) {
       return Center(
         child: Padding(
           padding: EdgeInsets.symmetric(vertical: 40.h),
@@ -61,15 +33,13 @@ class _ExerciseListState extends State<_ExerciseList> {
     return Column(
       children: [
         ListView.separated(
-          controller: _scrollController,
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
-          itemCount: widget.exercises.length,
+          itemCount: exercises.length,
           separatorBuilder: (_, __) => SizedBox(height: 10.h),
           itemBuilder: (context, index) {
-            final exercise = widget.exercises[index];
+            final exercise = exercises[index];
 
-            // Get muscle names for this exercise
             final muscleNames = exercise.mainMuscles
                 .map((muscle) => muscle.name)
                 .where((name) => name.isNotEmpty)
@@ -78,10 +48,17 @@ class _ExerciseListState extends State<_ExerciseList> {
             return _ExerciseCard(exercise: exercise, muscleNames: muscleNames);
           },
         ),
-        if (widget.isLoadingMore)
+
+        if (hasMore)
           Padding(
             padding: EdgeInsets.symmetric(vertical: 16.h),
-            child: const CircularProgressIndicator(),
+            child: ButtonPrimary(
+              title: 'Load more',
+              variant: ButtonVariant.primaryOutline,
+              fullWidth: true,
+              loading: isLoadingMore,
+              onPressed: isLoadingMore ? null : onLoadMore,
+            ),
           ),
       ],
     );
