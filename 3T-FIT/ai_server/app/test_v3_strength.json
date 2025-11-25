@@ -1,0 +1,29 @@
+{
+  "profile": {
+    "age": 32,
+    "height_cm": 180,
+    "weight_kg": 88,
+    "bmi": 27.2,
+    "body_fat_percentage": 18.0,
+    "whr": 0.88,
+    "resting_hr": 62,
+    "workout_frequency_per_week": 5,
+    "gender": "male",
+    "experience_level": "advanced",
+    "activity_level": 5,
+    "max_weight_lifted_kg": 120,
+    "mood": "Very Good",
+    "fatigue": "Very Low",
+    "effort": "High",
+    "goal_type": "strength",
+    "health_status": {
+      "knownConditions": [],
+      "painLocations": [],
+      "jointIssues": [],
+      "injuries": ["old_shoulder_strain"],
+      "abnormalities": [],
+      "notes": "Experienced lifter, training for powerlifting competition"
+    }
+  },
+  "top_k": 6
+}

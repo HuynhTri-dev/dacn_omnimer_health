@@ -1,0 +1,37 @@
+{
+  "healthProfile": {
+    "age": 64,
+    "weight": 111,
+    "height": 189,
+    "bmi": 31.07,
+    "gender": "female",
+    "experienceLevel": "Intermediate",
+    "workoutFrequency": 4,
+    "restingHeartRate": 53,
+    "healthStatus": "Good"
+  },
+  "goals": [
+    {
+      "goalType": "WeightLoss",
+      "targetValue": 16,
+      "deadline": "2025-12-31"
+    }
+  ],
+  "exercises": [
+    {
+      "exerciseName": "Bench Press"
+    },
+    {
+      "exerciseName": "Dumbbell Curl"
+    },
+    {
+      "exerciseName": "Barbell Squat"
+    },
+    {
+      "exerciseName": "Deadlift"
+    },
+    {
+      "exerciseName": "Pull-ups"
+    }
+  ]
+}

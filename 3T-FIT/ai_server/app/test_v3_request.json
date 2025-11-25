@@ -1,0 +1,29 @@
+{
+  "profile": {
+    "age": 28,
+    "height_cm": 175,
+    "weight_kg": 72,
+    "bmi": 23.5,
+    "body_fat_percentage": 15.2,
+    "whr": 0.85,
+    "resting_hr": 68,
+    "workout_frequency_per_week": 4,
+    "gender": "male",
+    "experience_level": "intermediate",
+    "activity_level": 4,
+    "max_weight_lifted_kg": 80,
+    "mood": "Good",
+    "fatigue": "Low",
+    "effort": "Medium",
+    "goal_type": "hypertrophy",
+    "health_status": {
+      "knownConditions": [],
+      "painLocations": [],
+      "jointIssues": [],
+      "injuries": [],
+      "abnormalities": [],
+      "notes": "Generally healthy, looking to build muscle mass"
+    }
+  },
+  "top_k": 5
+}

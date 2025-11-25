@@ -1,0 +1,29 @@
+{
+  "profile": {
+    "age": 45,
+    "height_cm": 165,
+    "weight_kg": 85,
+    "bmi": 31.2,
+    "body_fat_percentage": 28.5,
+    "whr": 0.95,
+    "resting_hr": 78,
+    "workout_frequency_per_week": 2,
+    "gender": "female",
+    "experience_level": "beginner",
+    "activity_level": 2,
+    "max_weight_lifted_kg": 40,
+    "mood": "Fair",
+    "fatigue": "Medium",
+    "effort": "Low",
+    "goal_type": "general_fitness",
+    "health_status": {
+      "knownConditions": ["high_blood_pressure"],
+      "painLocations": ["knees"],
+      "jointIssues": ["mild_arthritis"],
+      "injuries": [],
+      "abnormalities": [],
+      "notes": "New to exercise, wants to lose weight and improve cardiovascular health"
+    }
+  },
+  "top_k": 3
+}

@@ -172,29 +172,29 @@ def calculate_readiness_factor(mood: float, fatigue: float, effort: float) -> fl
 WORKOUT_GOAL_MAPPING = {
     'strength': {
         'intensity_percent': (0.85, 0.95),  # 85-95% 1RM
-        'rep_range': (3, 5),
-        'sets_range': (4, 5),
+        'rep_range': (5, 15),  # Updated to ensure 5-15 reps range
+        'sets_range': (1, 5),  # Updated to ensure 1-5 sets range
         'rest_minutes': (3, 5),
         'description': 'Strength Training - Heavy loads, low reps'
     },
     'hypertrophy': {
         'intensity_percent': (0.70, 0.80),  # 70-80% 1RM
-        'rep_range': (8, 12),
-        'sets_range': (3, 4),
+        'rep_range': (8, 20),  # Updated to ensure 8-20 reps range
+        'sets_range': (1, 5),  # Updated to ensure 1-5 sets range
         'rest_minutes': (1, 2),
         'description': 'Hypertrophy - Moderate loads, medium reps'
     },
     'endurance': {
         'intensity_percent': (0.50, 0.60),  # 50-60% 1RM
-        'rep_range': (15, 25),
-        'sets_range': (2, 3),
+        'rep_range': (10, 30),  # Updated to ensure 10-30 reps range
+        'sets_range': (1, 5),  # Updated to ensure 1-5 sets range
         'rest_minutes': (0.5, 1),
         'description': 'Endurance - Light loads, high reps'
     },
     'general_fitness': {
         'intensity_percent': (0.60, 0.75),  # 60-75% 1RM
-        'rep_range': (10, 15),
-        'sets_range': (3, 4),
+        'rep_range': (10, 30),  # Updated to ensure 10-30 reps range (other goals)
+        'sets_range': (1, 5),  # Updated to ensure 1-5 sets range
         'rest_minutes': (1, 2),
         'description': 'General Fitness - Balanced approach'
     }
@@ -383,13 +383,24 @@ def calculate_metrics(y_true, y_pred, task_name=""):
     # Percentage error (MAPE)
     mape = np.mean(np.abs((y_true - y_pred) / (y_true + 1e-8))) * 100
 
-    return {
+    # Correlation coefficient
+    correlation = np.corrcoef(y_true.flatten(), y_pred.flatten())[0, 1]
+    if np.isnan(correlation):
+        correlation = 0.0
+
+    metrics = {
         f'{task_name}_mae': mae,
         f'{task_name}_mse': mse,
         f'{task_name}_rmse': rmse,
         f'{task_name}_r2': r2,
         f'{task_name}_mape': mape
     }
+
+    # Add correlation for multi-task outputs
+    if task_name in ['suitability', 'readiness']:
+        metrics[f'{task_name}_corr'] = correlation
+
+    return metrics
 
 def train_epoch(model, dataloader, optimizer, criterion_1rm, criterion_suit, criterion_ready, device):
     """Training epoch for V3 model"""
@@ -471,6 +482,243 @@ def validate_epoch(model, dataloader, criterion_1rm, criterion_suit, criterion_r
     metrics.update(calculate_metrics(np.array(all_ready_true), np.array(all_ready_pred), "readiness"))
 
     return total_loss / len(dataloader), metrics
+
+# ==================== VISUALIZATION FUNCTIONS ====================
+
+def plot_training_data_analysis(df: pd.DataFrame, artifacts_dir: str):
+    """
+    Create comprehensive visualizations for training data analysis
+    
+    Args:
+        df: Training dataframe
+        artifacts_dir: Directory to save plots
+    """
+    import matplotlib.pyplot as plt
+    import seaborn as sns
+    
+    # Create visualization directory
+    viz_dir = os.path.join(artifacts_dir, 'visualizations')
+    os.makedirs(viz_dir, exist_ok=True)
+    
+    print(f"\n📊 Generating Training Data Visualizations...")
+    
+    # Set style
+    sns.set_style("whitegrid")
+    plt.rcParams['figure.figsize'] = (15, 10)
+    
+    # 1. Target Variable Distributions
+    fig, axes = plt.subplots(2, 2, figsize=(15, 10))
+    fig.suptitle('Target Variable Distributions', fontsize=16, fontweight='bold')
+    
+    # 1RM Distribution
+    if 'estimated_1rm' in df.columns:
+        axes[0, 0].hist(df['estimated_1rm'].dropna(), bins=50, color='steelblue', edgecolor='black', alpha=0.7)
+        axes[0, 0].set_title('Estimated 1RM Distribution')
+        axes[0, 0].set_xlabel('1RM (kg)')
+        axes[0, 0].set_ylabel('Frequency')
+        axes[0, 0].axvline(df['estimated_1rm'].mean(), color='red', linestyle='--', label=f'Mean: {df["estimated_1rm"].mean():.1f}')
+        axes[0, 0].legend()
+    
+    # Suitability Score Distribution
+    if 'suitability_score' in df.columns:
+        axes[0, 1].hist(df['suitability_score'].dropna(), bins=30, color='green', edgecolor='black', alpha=0.7)
+        axes[0, 1].set_title('Suitability Score Distribution')
+        axes[0, 1].set_xlabel('Suitability Score')
+        axes[0, 1].set_ylabel('Frequency')
+        axes[0, 1].axvline(df['suitability_score'].mean(), color='red', linestyle='--', label=f'Mean: {df["suitability_score"].mean():.3f}')
+        axes[0, 1].legend()
+    
+    # Readiness Factor Distribution
+    if 'readiness_factor' in df.columns:
+        axes[1, 0].hist(df['readiness_factor'].dropna(), bins=30, color='orange', edgecolor='black', alpha=0.7)
+        axes[1, 0].set_title('Readiness Factor Distribution')
+        axes[1, 0].set_xlabel('Readiness Factor')
+        axes[1, 0].set_ylabel('Frequency')
+        axes[1, 0].axvline(df['readiness_factor'].mean(), color='red', linestyle='--', label=f'Mean: {df["readiness_factor"].mean():.3f}')
+        axes[1, 0].legend()
+    
+    # BMI Distribution
+    if 'bmi' in df.columns:
+        axes[1, 1].hist(df['bmi'].dropna(), bins=40, color='purple', edgecolor='black', alpha=0.7)
+        axes[1, 1].set_title('BMI Distribution')
+        axes[1, 1].set_xlabel('BMI')
+        axes[1, 1].set_ylabel('Frequency')
+        axes[1, 1].axvline(df['bmi'].mean(), color='red', linestyle='--', label=f'Mean: {df["bmi"].mean():.1f}')
+        axes[1, 1].legend()
+    
+    plt.tight_layout()
+    plt.savefig(os.path.join(viz_dir, '01_target_distributions.png'), dpi=300, bbox_inches='tight')
+    plt.close()
+    print(f"  ✅ Saved: 01_target_distributions.png")
+    
+    # 2. SePA (Sleep, Psychology, Activity) Analysis
+    fig, axes = plt.subplots(1, 3, figsize=(15, 5))
+    fig.suptitle('SePA Features Distribution', fontsize=16, fontweight='bold')
+    
+    sepa_cols = ['mood_numeric', 'fatigue_numeric', 'effort_numeric']
+    sepa_titles = ['Mood (1-5)', 'Fatigue (1-5)', 'Effort (1-5)']
+    colors = ['skyblue', 'salmon', 'lightgreen']
+    
+    for idx, (col, title, color) in enumerate(zip(sepa_cols, sepa_titles, colors)):
+        if col in df.columns:
+            value_counts = df[col].value_counts().sort_index()
+            axes[idx].bar(value_counts.index, value_counts.values, color=color, edgecolor='black', alpha=0.7)
+            axes[idx].set_title(title)
+            axes[idx].set_xlabel('Score')
+            axes[idx].set_ylabel('Count')
+            axes[idx].set_xticks([1, 2, 3, 4, 5])
+    
+    plt.tight_layout()
+    plt.savefig(os.path.join(viz_dir, '02_sepa_distributions.png'), dpi=300, bbox_inches='tight')
+    plt.close()
+    print(f"  ✅ Saved: 02_sepa_distributions.png")
+    
+    # 3. Correlation Heatmap
+    numeric_cols = ['age', 'weight_kg', 'height_m', 'bmi', 'experience_level', 
+                    'workout_frequency', 'resting_heartrate', 'mood_numeric', 
+                    'fatigue_numeric', 'effort_numeric', 'estimated_1rm', 
+                    'suitability_score', 'readiness_factor']
+    
+    available_numeric = [col for col in numeric_cols if col in df.columns]
+    
+    if len(available_numeric) > 2:
+        plt.figure(figsize=(14, 12))
+        correlation_matrix = df[available_numeric].corr()
+        
+        mask = np.triu(np.ones_like(correlation_matrix, dtype=bool))
+        sns.heatmap(correlation_matrix, mask=mask, annot=True, fmt='.2f', 
+                   cmap='coolwarm', center=0, square=True, linewidths=1,
+                   cbar_kws={"shrink": 0.8})
+        
+        plt.title('Feature Correlation Heatmap', fontsize=16, fontweight='bold', pad=20)
+        plt.tight_layout()
+        plt.savefig(os.path.join(viz_dir, '03_correlation_heatmap.png'), dpi=300, bbox_inches='tight')
+        plt.close()
+        print(f"  ✅ Saved: 03_correlation_heatmap.png")
+    
+    # 4. 1RM vs User Characteristics
+    fig, axes = plt.subplots(2, 3, figsize=(18, 10))
+    fig.suptitle('1RM Relationships with User Characteristics', fontsize=16, fontweight='bold')
+    
+    scatter_pairs = [
+        ('age', 'estimated_1rm', 'Age vs 1RM'),
+        ('weight_kg', 'estimated_1rm', 'Weight vs 1RM'),
+        ('bmi', 'estimated_1rm', 'BMI vs 1RM'),
+        ('experience_level', 'estimated_1rm', 'Experience vs 1RM'),
+        ('workout_frequency', 'estimated_1rm', 'Workout Frequency vs 1RM'),
+        ('readiness_factor', 'estimated_1rm', 'Readiness vs 1RM')
+    ]
+    
+    for idx, (x_col, y_col, title) in enumerate(scatter_pairs):
+        row, col = idx // 3, idx % 3
+        if x_col in df.columns and y_col in df.columns:
+            axes[row, col].scatter(df[x_col], df[y_col], alpha=0.5, s=20, color='steelblue')
+            axes[row, col].set_title(title)
+            axes[row, col].set_xlabel(x_col.replace('_', ' ').title())
+            axes[row, col].set_ylabel('1RM (kg)')
+            
+            # Add trend line
+            z = np.polyfit(df[x_col].dropna(), df[y_col].dropna(), 1)
+            p = np.poly1d(z)
+            axes[row, col].plot(df[x_col].sort_values(), p(df[x_col].sort_values()), 
+                              "r--", alpha=0.8, linewidth=2)
+    
+    plt.tight_layout()
+    plt.savefig(os.path.join(viz_dir, '04_1rm_relationships.png'), dpi=300, bbox_inches='tight')
+    plt.close()
+    print(f"  ✅ Saved: 04_1rm_relationships.png")
+    
+    # 5. Gender Analysis
+    if 'gender' in df.columns and 'estimated_1rm' in df.columns:
+        fig, axes = plt.subplots(1, 2, figsize=(14, 5))
+        fig.suptitle('Gender-based Analysis', fontsize=16, fontweight='bold')
+        
+        # 1RM by Gender
+        gender_1rm = df.groupby('gender')['estimated_1rm'].apply(list)
+        axes[0].boxplot(gender_1rm.values, labels=gender_1rm.index)
+        axes[0].set_title('1RM Distribution by Gender')
+        axes[0].set_ylabel('1RM (kg)')
+        axes[0].grid(True, alpha=0.3)
+        
+        # Count by Gender
+        gender_counts = df['gender'].value_counts()
+        axes[1].bar(gender_counts.index, gender_counts.values, color=['lightblue', 'lightpink'], 
+                   edgecolor='black', alpha=0.7)
+        axes[1].set_title('Sample Count by Gender')
+        axes[1].set_ylabel('Count')
+        
+        plt.tight_layout()
+        plt.savefig(os.path.join(viz_dir, '05_gender_analysis.png'), dpi=300, bbox_inches='tight')
+        plt.close()
+        print(f"  ✅ Saved: 05_gender_analysis.png")
+    
+    # 6. Experience Level Analysis
+    if 'experience_level' in df.columns and 'estimated_1rm' in df.columns:
+        plt.figure(figsize=(10, 6))
+        
+        exp_1rm = df.groupby('experience_level')['estimated_1rm'].apply(list)
+        plt.boxplot(exp_1rm.values, labels=exp_1rm.index)
+        plt.title('1RM Distribution by Experience Level', fontsize=14, fontweight='bold')
+        plt.xlabel('Experience Level')
+        plt.ylabel('1RM (kg)')
+        plt.grid(True, alpha=0.3)
+        
+        plt.tight_layout()
+        plt.savefig(os.path.join(viz_dir, '06_experience_analysis.png'), dpi=300, bbox_inches='tight')
+        plt.close()
+        print(f"  ✅ Saved: 06_experience_analysis.png")
+    
+    print(f"\n✅ All visualizations saved to: {viz_dir}/")
+    return viz_dir
+
+def plot_training_history(train_losses: List[float], val_losses: List[float], 
+                          val_metrics_history: List[Dict], artifacts_dir: str):
+    """
+    Plot training history including losses and metrics over epochs
+    
+    Args:
+        train_losses: List of training losses per epoch
+        val_losses: List of validation losses per epoch
+        val_metrics_history: List of validation metrics dictionaries per epoch
+        artifacts_dir: Directory to save plots
+    """
+    import matplotlib.pyplot as plt
+    
+    viz_dir = os.path.join(artifacts_dir, 'visualizations')
+    os.makedirs(viz_dir, exist_ok=True)
+    
+    epochs = range(1, len(train_losses) + 1)
+    
+    # 1. Loss Curves
+    fig, axes = plt.subplots(1, 2, figsize=(15, 5))
+    fig.suptitle('Training History', fontsize=16, fontweight='bold')
+    
+    # Combined Loss
+    axes[0].plot(epochs, train_losses, 'b-', label='Training Loss', linewidth=2)
+    axes[0].plot(epochs, val_losses, 'r-', label='Validation Loss', linewidth=2)
+    axes[0].set_title('Training and Validation Loss')
+    axes[0].set_xlabel('Epoch')
+    axes[0].set_ylabel('Loss')
+    axes[0].legend()
+    axes[0].grid(True, alpha=0.3)
+    
+    # R² Score over time
+    if val_metrics_history:
+        r2_scores = [m.get('1rm_r2', 0) for m in val_metrics_history]
+        axes[1].plot(epochs, r2_scores, 'g-', linewidth=2, marker='o', markersize=3)
+        axes[1].set_title('1RM Prediction R² Score')
+        axes[1].set_xlabel('Epoch')
+        axes[1].set_ylabel('R² Score')
+        axes[1].grid(True, alpha=0.3)
+        axes[1].axhline(y=0.8, color='r', linestyle='--', alpha=0.5, label='Target: 0.8')
+        axes[1].legend()
+    
+    plt.tight_layout()
+    plt.savefig(os.path.join(viz_dir, '07_training_history.png'), dpi=300, bbox_inches='tight')
+    plt.close()
+    print(f"  ✅ Saved: 07_training_history.png")
+
+
 
 # ==================== MAIN TRAINING FUNCTION ====================
 
@@ -619,6 +867,10 @@ def main(data_dir: str, artifacts_dir: str, epochs: int = 100, batch_size: int =
     print(f"Combined dataset shape: {df_combined.shape}")
     print(f"Columns: {list(df_combined.columns)}")
 
+    # Generate training data visualizations
+    print(f"\n📊 Generating Training Data Analysis...")
+    plot_training_data_analysis(df_combined, artifacts_dir)
+
     # Create train/validation/test split
     train_df, val_df, test_df = create_train_val_test_split(df_combined, train_ratio=0.7, val_ratio=0.1, test_ratio=0.2)
 
@@ -739,24 +991,33 @@ def main(data_dir: str, artifacts_dir: str, epochs: int = 100, batch_size: int =
     if hasattr(X_test_processed, 'toarray'):
         X_test_processed = X_test_processed.toarray()
 
-    print(f"  - Processed feature shapes: Train={X_train_processed.shape}, Val={X_val_processed.shape}, Test={X_test_processed.shape}")
+    # ==================== MODEL TRAINING ====================
+
+    print(f"\n[5] Model Training")
+    print(f"  - Input dimension: {X_train_processed.shape[1]}")
+    print(f"  - Training samples: {len(X_train_processed)}")
+    print(f"  - Validation samples: {len(X_val_processed)}")
+    print(f"  - Test samples: {len(X_test_processed)}")
 
     # Create datasets and dataloaders
-    train_dataset = V3Dataset(X_train_processed, y_1rm_train, y_suit_train, y_ready_train)
-    val_dataset = V3Dataset(X_val_processed, y_1rm_val, y_suit_val, y_ready_val)
-    test_dataset = V3Dataset(X_test_processed, y_1rm_test, y_suit_test, y_ready_test)
+    train_dataset = V3Dataset(
+        X_train_processed, y_1rm_train, y_suit_train, y_ready_train
+    )
+    val_dataset = V3Dataset(
+        X_val_processed, y_1rm_val, y_suit_val, y_ready_val
+    )
+    test_dataset = V3Dataset(
+        X_test_processed, y_1rm_test, y_suit_test, y_ready_test
+    )
 
     train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
     val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False)
     test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
 
-    # ==================== MODEL TRAINING ====================
-
-    print(f"\n[5] Model Training")
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    print(f"Using device: {device}")
-
     # Initialize model
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    print(f"  - Using device: {device}")
+
     model = V3EnhancedModel(
         input_dim=X_train_processed.shape[1],
         hidden_dim=256,
@@ -765,86 +1026,100 @@ def main(data_dir: str, artifacts_dir: str, epochs: int = 100, batch_size: int =
         use_transformer=use_transformer
     ).to(device)
 
-    print(f"Model parameters: {sum(p.numel() for p in model.parameters()):,}")
-
-    # Optimizer and loss functions
-    optimizer = torch.optim.AdamW(model.parameters(), lr=lr, weight_decay=1e-4)
+    # Loss functions with weights
     criterion_1rm = nn.MSELoss()
-    criterion_suit = nn.BCELoss()
+    criterion_suit = nn.MSELoss()
     criterion_ready = nn.MSELoss()
 
-    # Training loop
-    best_val_loss = float('inf')
-    best_model_path = os.path.join(artifacts_dir, "best_v3.pt")
+    # Optimizer
+    optimizer = torch.optim.Adam(model.parameters(), lr=lr)
+    scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
+        optimizer, mode='min', factor=0.5, patience=10
+    )
 
-    for epoch in range(1, epochs + 1):
+    # Training loop
+    train_losses = []
+    val_losses = []
+    val_metrics_history = []
+    best_val_loss = float('inf')
+    patience_counter = 0
+
+    print(f"  - Starting training for {epochs} epochs...")
+
+    for epoch in range(epochs):
         # Training
         train_loss, train_loss_1rm, train_loss_suit, train_loss_ready = train_epoch(
-            model, train_loader, optimizer, criterion_1rm, criterion_suit, criterion_ready, device
+            model, train_loader, optimizer, criterion_1rm, criterion_suit,
+            criterion_ready, device
         )
+        train_losses.append(train_loss)
 
         # Validation
         val_loss, val_metrics = validate_epoch(
-            model, val_loader, criterion_1rm, criterion_suit, criterion_ready, device
+            model, val_loader, criterion_1rm, criterion_suit,
+            criterion_ready, device
         )
+        val_losses.append(val_loss)
+        val_metrics_history.append(val_metrics)
+
+        # Track learning rate for verbose logging
+        old_lr = optimizer.param_groups[0]['lr']
+        scheduler.step(val_loss)
+        new_lr = optimizer.param_groups[0]['lr']
+
+        # Manual verbose logging for learning rate changes
+        if new_lr != old_lr:
+            print(f"    Learning rate reduced: {old_lr:.6f} -> {new_lr:.6f}")
 
         # Print progress
-        print(f"Epoch {epoch:03d} | "
-              f"Train Loss: {train_loss:.4f} (1RM:{train_loss_1rm:.4f}, Suit:{train_loss_suit:.4f}, Ready:{train_loss_ready:.4f}) | "
-              f"Val Loss: {val_loss:.4f} | "
-              f"1RM R²: {val_metrics.get('1rm_r2', 0):.3f}")
+        if (epoch + 1) % 10 == 0 or epoch == 0:
+            print(f"    Epoch {epoch+1:3d}/{epochs}: "
+                  f"Train Loss={train_loss:.4f}, Val Loss={val_loss:.4f}, "
+                  f"Val R²={val_metrics['1rm_r2']:.4f}")
 
-        # Save best model
+        # Early stopping
         if val_loss < best_val_loss:
             best_val_loss = val_loss
-            torch.save({
-                'epoch': epoch,
-                'model_state_dict': model.state_dict(),
-                'optimizer_state_dict': optimizer.state_dict(),
-                'val_loss': val_loss,
-                'val_metrics': val_metrics,
-                'input_dim': X_train_processed.shape[1],
-                'model_config': {
-                    'hidden_dim': 256,
-                    'num_layers': 2,
-                    'dropout': 0.2,
-                    'use_transformer': use_transformer
-                }
-            }, best_model_path)
+            patience_counter = 0
+            # Save best model
+            torch.save(model.state_dict(), os.path.join(artifacts_dir, "best_v3.pt"))
+        else:
+            patience_counter += 1
+            if patience_counter >= 20:
+                print(f"    Early stopping at epoch {epoch+1}")
+                break
 
-            print(f"  * New best model saved (Val Loss: {val_loss:.4f})")
+    # Load best model for evaluation
+    model.load_state_dict(torch.load(os.path.join(artifacts_dir, "best_v3.pt")))
 
-    # ==================== TEST SET EVALUATION ====================
-
-    print(f"\n[6] Final Test Set Evaluation")
-    print("Evaluating best model on held-out test set...")
-
-    # Load best model
-    best_checkpoint = torch.load(best_model_path, map_location=device, weights_only=False)
-    model.load_state_dict(best_checkpoint['model_state_dict'])
-    model.eval()
-
-    # Evaluate on test set
+    # Final evaluation on test set
+    print(f"\n[6] Final Test Evaluation")
     test_loss, test_metrics = validate_epoch(
-        model, test_loader, criterion_1rm, criterion_suit, criterion_ready, device
+        model, test_loader, criterion_1rm, criterion_suit,
+        criterion_ready, device
     )
 
-    print(f"\nTest Set Results:")
-    print(f"  Test Loss: {test_loss:.4f}")
-    for metric, value in test_metrics.items():
-        print(f"  {metric}: {value:.4f}")
+    print(f"  - Test Loss: {test_loss:.4f}")
+    print(f"  - Test 1RM RMSE: {test_metrics['1rm_rmse']:.4f}")
+    print(f"  - Test 1RM R²: {test_metrics['1rm_r2']:.4f}")
+    print(f"  - Test 1RM MAE: {test_metrics['1rm_mae']:.4f}")
+    print(f"  - Test Suitability Correlation: {test_metrics['suitability_corr']:.4f}")
+    print(f"  - Test Readiness Correlation: {test_metrics['readiness_corr']:.4f}")
 
-    # Save test results
+    # Create test_results dictionary
     test_results = {
         'test_loss': float(test_loss),
-        'test_metrics': {k: float(v) for k, v in test_metrics.items()},
-        'test_samples': len(X_test_processed),
-        'validation_loss_best': float(best_val_loss)
+        'test_1rm_rmse': float(test_metrics['1rm_rmse']),
+        'test_1rm_r2': float(test_metrics['1rm_r2']),
+        'test_1rm_mae': float(test_metrics['1rm_mae']),
+        'test_suitability_rmse': float(test_metrics['suitability_rmse']),
+        'test_suitability_corr': float(test_metrics['suitability_corr']),
+        'test_readiness_rmse': float(test_metrics['readiness_rmse']),
+        'test_readiness_corr': float(test_metrics['readiness_corr'])
     }
 
-    # ==================== SAVE ARTIFACTS ====================
-
-    print(f"\n[7] Saving Artifacts")
+    # Plot training history
+    plot_training_history(train_losses, val_losses, val_metrics_history, artifacts_dir)
 
     # Save preprocessor
     preprocessor_path = os.path.join(artifacts_dir, "preprocessor_v3.joblib")
@@ -956,10 +1231,10 @@ def main(data_dir: str, artifacts_dir: str, epochs: int = 100, batch_size: int =
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='V3 Enhanced Training with 1RM Prediction and SePA Integration')
     parser.add_argument('--data_dir', type=str,
-                       default='d:/dacn_omnimer_health/3T-FIT/ai_server/artifacts_unified/src/v3/data',
+                       default='./data',
                        help='Directory containing Excel datasets')
     parser.add_argument('--artifacts', type=str,
-                       default='d:/dacn_omnimer_health/3T-FIT/ai_server/artifacts_unified/v3',
+                       default='./model',
                        help='Directory to save model artifacts')
     parser.add_argument('--epochs', type=int, default=100, help='Number of training epochs')
     parser.add_argument('--batch_size', type=int, default=64, help='Batch size for training')

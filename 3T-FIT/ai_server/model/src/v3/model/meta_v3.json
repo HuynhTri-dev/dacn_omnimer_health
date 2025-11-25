@@ -2,7 +2,7 @@
   "model_version": "v3_enhanced",
   "training_date": "2025-11-25",
   "dataset_info": {
-    "data_directory": "d:/dacn_omnimer_health/3T-FIT/ai_server/artifacts_unified/src/v3/data",
+    "data_directory": "./data",
     "total_samples": 10200,
     "train_samples": 7140,
     "val_samples": 1020,
@@ -59,26 +59,14 @@
     }
   },
   "test_results": {
-    "test_loss": 2334.4028310775757,
-    "test_metrics": {
-      "1rm_mae": 24.49979019165039,
-      "1rm_mse": 1167.8641357421875,
-      "1rm_rmse": 34.17402720988832,
-      "1rm_r2": 0.2836495041847229,
-      "1rm_mape": 98251210752.0,
-      "suitability_mae": 0.042951494455337524,
-      "suitability_mse": 0.011834501288831234,
-      "suitability_rmse": 0.10878649405524214,
-      "suitability_r2": -0.08298599720001221,
-      "suitability_mape": 6.3387579917907715,
-      "readiness_mae": 0.07227739691734314,
-      "readiness_mse": 0.0074486383236944675,
-      "readiness_rmse": 0.08630549416864762,
-      "readiness_r2": 0.056674957275390625,
-      "readiness_mape": 7.897366046905518
-    },
-    "test_samples": 2040,
-    "validation_loss_best": 1962.9457378387451
+    "test_loss": 2033.4039459228516,
+    "test_1rm_rmse": 31.907020910740595,
+    "test_1rm_r2": 0.37553834915161133,
+    "test_1rm_mae": 22.665157318115234,
+    "test_suitability_rmse": 0.10878294117688814,
+    "test_suitability_corr": -0.05595958045831813,
+    "test_readiness_rmse": 0.0836521859115191,
+    "test_readiness_corr": 0.3422992527013563
   },
   "sepa_mapping": {
     "mood": {
@@ -111,11 +99,11 @@
         0.95
       ],
       "rep_range": [
-        3,
-        5
+        5,
+        15
       ],
       "sets_range": [
-        4,
+        1,
         5
       ],
       "rest_minutes": [
@@ -131,11 +119,11 @@
       ],
       "rep_range": [
         8,
-        12
+        20
       ],
       "sets_range": [
-        3,
-        4
+        1,
+        5
       ],
       "rest_minutes": [
         1,
@@ -149,12 +137,12 @@
         0.6
       ],
       "rep_range": [
-        15,
-        25
+        10,
+        30
       ],
       "sets_range": [
-        2,
-        3
+        1,
+        5
       ],
       "rest_minutes": [
         0.5,
@@ -169,11 +157,11 @@
       ],
       "rep_range": [
         10,
-        15
+        30
       ],
       "sets_range": [
-        3,
-        4
+        1,
+        5
       ],
       "rest_minutes": [
         1,
@@ -195,25 +183,27 @@
     ]
   },
   "best_validation_metrics": {
-    "1rm_mae": 22.652198791503906,
-    "1rm_mse": 981.1141967773438,
-    "1rm_rmse": 31.322742484931677,
-    "1rm_r2": 0.3593236207962036,
-    "1rm_mape": 87634673664.0,
-    "suitability_mae": 0.011952697299420834,
-    "suitability_mse": 0.0001964629627764225,
-    "suitability_rmse": 0.014016524632604992,
-    "suitability_r2": 0.0028654932975769043,
-    "suitability_mape": 2.3936357498168945,
-    "readiness_mae": 0.07661990076303482,
-    "readiness_mse": 0.0081656314432621,
-    "readiness_rmse": 0.09036388351140127,
-    "readiness_r2": 0.027073323726654053,
-    "readiness_mape": 8.369787216186523
+    "1rm_mae": 19.706819534301758,
+    "1rm_mse": 780.8350219726562,
+    "1rm_rmse": 27.94342538008997,
+    "1rm_r2": 0.4901077151298523,
+    "1rm_mape": 71344160768.0,
+    "suitability_mae": 0.011923559010028839,
+    "suitability_mse": 0.0001970253506442532,
+    "suitability_rmse": 0.014036571897876389,
+    "suitability_r2": 1.1146068572998047e-05,
+    "suitability_mape": 2.3840291500091553,
+    "suitability_corr": 0.03392421909403372,
+    "readiness_mae": 0.06573648005723953,
+    "readiness_mse": 0.006334231235086918,
+    "readiness_rmse": 0.07958788372036862,
+    "readiness_r2": 0.24528276920318604,
+    "readiness_mape": 7.2080841064453125,
+    "readiness_corr": 0.5206180211080181
   },
   "training_config": {
-    "epochs": 3,
-    "batch_size": 32,
+    "epochs": 100,
+    "batch_size": 64,
     "learning_rate": 0.001,
     "loss_weights": {
       "1rm": 2.0,
