@@ -1,0 +1,386 @@
+{
+  "training": {
+    "schema": {
+      "dataset": "Training",
+      "total_columns": 28,
+      "total_rows": 10000,
+      "missing_required_fields": [],
+      "extra_fields": [
+        "location",
+        "injury_or_pain_notes",
+        "estimated_1rm",
+        "pace",
+        "duration_capacity",
+        "rest_period",
+        "intensity_score"
+      ],
+      "field_coverage": 100.0,
+      "status": "PASS"
+    },
+    "quality": {
+      "dataset": "Training",
+      "null_percentages": {
+        "injury_or_pain_notes": 100.0
+      },
+      "data_ranges": {},
+      "invalid_values": {
+        "max_hr": {
+          "count": 28,
+          "percentage": 0.28,
+          "expected_range": "50-220",
+          "actual_range": "120.0-228.0"
+        }
+      },
+      "quality_score": 95.23809523809523,
+      "issues": [
+        "High null rate in 'injury_or_pain_notes': 100.0%"
+      ]
+    },
+    "workout_dist": {
+      "dataset": "Training",
+      "workout_distribution": {
+        "Strength": {
+          "count": 8692,
+          "percentage": 86.92
+        },
+        "Cardio": {
+          "count": 658,
+          "percentage": 6.58
+        },
+        "HIIT": {
+          "count": 470,
+          "percentage": 4.7
+        },
+        "Yoga": {
+          "count": 180,
+          "percentage": 1.8
+        }
+      },
+      "exercise_diversity": 820,
+      "avg_exercises_per_session": 6.0,
+      "strength_metrics": {
+        "avg_1rm": 81.71,
+        "min_1rm": 21.94,
+        "max_1rm": 184.72,
+        "std_1rm": 28.95
+      },
+      "cardio_metrics": {
+        "avg_pace": 3.69,
+        "min_pace": 0.0,
+        "max_pace": 10.9
+      },
+      "recommendations": []
+    },
+    "sepa": {
+      "dataset": "Training",
+      "sepa_fields_present": [
+        "mood",
+        "fatigue",
+        "effort"
+      ],
+      "sepa_distributions": {
+        "mood": {
+          "3": {
+            "count": 4123,
+            "percentage": 41.23
+          },
+          "4": {
+            "count": 2936,
+            "percentage": 29.36
+          },
+          "5": {
+            "count": 1454,
+            "percentage": 14.54
+          },
+          "2": {
+            "count": 987,
+            "percentage": 9.87
+          },
+          "1": {
+            "count": 500,
+            "percentage": 5.0
+          }
+        },
+        "fatigue": {
+          "3": {
+            "count": 3963,
+            "percentage": 39.63
+          },
+          "2": {
+            "count": 2051,
+            "percentage": 20.51
+          },
+          "4": {
+            "count": 1890,
+            "percentage": 18.9
+          },
+          "1": {
+            "count": 1082,
+            "percentage": 10.82
+          },
+          "5": {
+            "count": 1014,
+            "percentage": 10.14
+          }
+        },
+        "effort": {
+          "3": {
+            "count": 4206,
+            "percentage": 42.06
+          },
+          "4": {
+            "count": 2316,
+            "percentage": 23.16
+          },
+          "2": {
+            "count": 1503,
+            "percentage": 15.03
+          },
+          "5": {
+            "count": 1497,
+            "percentage": 14.97
+          },
+          "1": {
+            "count": 478,
+            "percentage": 4.78
+          }
+        }
+      },
+      "readiness_analysis": {
+        "high_fatigue_percentage": 0.0,
+        "poor_mood_percentage": 0.0
+      },
+      "status": "PASS"
+    },
+    "strategy": {
+      "dataset": "Training",
+      "strategy_compliance": {
+        "1rm_estimation": {
+          "present": true,
+          "coverage": 100.0,
+          "status": "PASS"
+        },
+        "intensity_scoring": {
+          "present": true,
+          "coverage": 100.0,
+          "status": "PASS"
+        },
+        "suitability_scoring": {
+          "present": true,
+          "coverage": 100.0,
+          "range": "0.48 - 0.52",
+          "mean": 0.5,
+          "status": "PASS"
+        }
+      },
+      "missing_strategy_fields": [],
+      "compliance_score": 100.0,
+      "issues": []
+    }
+  },
+  "test": {
+    "schema": {
+      "dataset": "Test",
+      "total_columns": 28,
+      "total_rows": 200,
+      "missing_required_fields": [],
+      "extra_fields": [
+        "location",
+        "injury_or_pain_notes",
+        "estimated_1rm",
+        "pace",
+        "duration_capacity",
+        "rest_period",
+        "intensity_score"
+      ],
+      "field_coverage": 100.0,
+      "status": "PASS"
+    },
+    "quality": {
+      "dataset": "Test",
+      "null_percentages": {
+        "injury_or_pain_notes": 80.0
+      },
+      "data_ranges": {},
+      "invalid_values": {
+        "workout_frequency": {
+          "count": 8,
+          "percentage": 4.0,
+          "expected_range": "1-7",
+          "actual_range": "0.0-5.0"
+        }
+      },
+      "quality_score": 95.23809523809523,
+      "issues": [
+        "High null rate in 'injury_or_pain_notes': 80.0%"
+      ]
+    },
+    "workout_dist": {
+      "dataset": "Test",
+      "workout_distribution": {
+        "Strength ": {
+          "count": 194,
+          "percentage": 97.0
+        },
+        "Cardio ": {
+          "count": 3,
+          "percentage": 1.5
+        },
+        "Cardio": {
+          "count": 3,
+          "percentage": 1.5
+        }
+      },
+      "exercise_diversity": 63,
+      "avg_exercises_per_session": 0.0,
+      "strength_metrics": {},
+      "cardio_metrics": {
+        "avg_pace": 0.0,
+        "min_pace": 0.0,
+        "max_pace": 0.0
+      },
+      "recommendations": [
+        "Strength workouts are 0.0% of data. README.md suggests 40-60% for balanced training."
+      ]
+    },
+    "sepa": {
+      "dataset": "Test",
+      "sepa_fields_present": [
+        "mood",
+        "fatigue",
+        "effort"
+      ],
+      "sepa_distributions": {
+        "mood": {
+          "3": {
+            "count": 200,
+            "percentage": 100.0
+          }
+        },
+        "fatigue": {
+          "3": {
+            "count": 163,
+            "percentage": 81.5
+          },
+          "5": {
+            "count": 27,
+            "percentage": 13.5
+          },
+          "4": {
+            "count": 9,
+            "percentage": 4.5
+          },
+          "2": {
+            "count": 1,
+            "percentage": 0.5
+          }
+        },
+        "effort": {
+          "3": {
+            "count": 200,
+            "percentage": 100.0
+          }
+        }
+      },
+      "readiness_analysis": {
+        "high_fatigue_percentage": 0.0,
+        "poor_mood_percentage": 0.0
+      },
+      "status": "PASS"
+    },
+    "strategy": {
+      "dataset": "Test",
+      "strategy_compliance": {
+        "intensity_scoring": {
+          "present": true,
+          "coverage": 100.0,
+          "status": "PASS"
+        },
+        "suitability_scoring": {
+          "present": true,
+          "coverage": 100.0,
+          "range": "0.10 - 1.00",
+          "mean": 0.81,
+          "status": "PASS"
+        }
+      },
+      "missing_strategy_fields": [],
+      "compliance_score": 66.66666666666666,
+      "issues": []
+    }
+  },
+  "compatibility": {
+    "schema_match": true,
+    "column_differences": {
+      "training_only": [],
+      "test_only": [],
+      "common": [
+        "age",
+        "gender",
+        "session_duration",
+        "mood",
+        "injury_or_pain_notes",
+        "calories",
+        "experience_level",
+        "resting_heartrate",
+        "rest_period",
+        "exercise_name",
+        "height_m",
+        "estimated_1rm",
+        "weight_kg",
+        "fatigue",
+        "workout_frequency",
+        "duration_min",
+        "max_hr",
+        "pace",
+        "health_status",
+        "workout_type",
+        "bmi",
+        "location",
+        "effort",
+        "fat_percentage",
+        "avg_hr",
+        "intensity_score",
+        "duration_capacity",
+        "suitability_x"
+      ]
+    },
+    "data_distribution_similarity": {
+      "age": {
+        "training_mean": 38.83,
+        "test_mean": 20.86,
+        "difference_pct": 46.28,
+        "status": "DIFFERENT"
+      },
+      "weight_kg": {
+        "training_mean": 73.5,
+        "test_mean": 75.29,
+        "difference_pct": 2.43,
+        "status": "SIMILAR"
+      },
+      "bmi": {
+        "training_mean": 24.89,
+        "test_mean": 29.37,
+        "difference_pct": 18.03,
+        "status": "SIMILAR"
+      },
+      "avg_hr": {
+        "training_mean": 139.98,
+        "test_mean": 122.79,
+        "difference_pct": 12.28,
+        "status": "SIMILAR"
+      },
+      "calories": {
+        "training_mean": 191.97,
+        "test_mean": 64.16,
+        "difference_pct": 66.58,
+        "status": "DIFFERENT"
+      }
+    },
+    "recommendations": [
+      "Large distribution difference in 'age': 46.3%. This may affect model generalization.",
+      "Large distribution difference in 'calories': 66.6%. This may affect model generalization."
+    ]
+  },
+  "recommendations": []
+}
