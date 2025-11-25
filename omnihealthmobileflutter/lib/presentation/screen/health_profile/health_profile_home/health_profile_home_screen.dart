@@ -1,40 +1,81 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:omnihealthmobileflutter/core/theme/app_colors.dart';
-import 'package:omnihealthmobileflutter/core/theme/app_typography.dart';
+import 'package:omnihealthmobileflutter/injection_container.dart' as di;
+import 'package:omnihealthmobileflutter/presentation/screen/health_profile/health_profile_home/bloc/health_profile_bloc.dart';
+import 'package:omnihealthmobileflutter/presentation/screen/health_profile/health_profile_home/bloc/health_profile_event.dart';
+import 'package:omnihealthmobileflutter/presentation/screen/health_profile/health_profile_home/bloc/health_profile_state.dart';
+import 'package:omnihealthmobileflutter/presentation/screen/health_profile/health_profile_personal/personal_health_profile_screen.dart';
+import 'package:omnihealthmobileflutter/presentation/screen/health_profile/health_profile_menu/health_profile_summary_screen.dart';
 
-/// Trang Health Profile - Hiển thị thông tin sức khỏe người dùng
-/// TODO: Implement health metrics, stats, charts, health data từ devices, etc.
-class HealthProfileHomeScreen extends StatefulWidget {
+class HealthProfileHomeScreen extends StatelessWidget {
   const HealthProfileHomeScreen({super.key});
 
   @override
-  State<HealthProfileHomeScreen> createState() =>
-      _HealthProfileHomeScreenState();
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (context) => di.sl<HealthProfileBloc>()
+        ..add(const GetLatestHealthProfileEvent()),
+      child: const HealthProfileHomeView(),
+    );
+  }
 }
 
-class _HealthProfileHomeScreenState extends State<HealthProfileHomeScreen> {
+class HealthProfileHomeView extends StatefulWidget {
+  const HealthProfileHomeView({super.key});
+
+  @override
+  State<HealthProfileHomeView> createState() => _HealthProfileHomeViewState();
+}
+
+class _HealthProfileHomeViewState extends State<HealthProfileHomeView> {
   int _selectedTab = 0;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.white,
-      body: SafeArea(
-        child: Column(
-          children: [
-            // Header Section
-            _buildHeader(),
+      body: BlocConsumer<HealthProfileBloc, HealthProfileState>(
+        listener: (context, state) {
+          if (state is HealthProfileCreateSuccess) {
+            // After creating profile successfully, reload to show summary
+            context
+                .read<HealthProfileBloc>()
+                .add(const GetLatestHealthProfileEvent());
+          }
+        },
+        builder: (context, state) {
+          if (state is HealthProfileLoading) {
+            return const Center(child: CircularProgressIndicator());
+          }
 
-            // Tab Navigation
-            _buildTabNavigation(),
+          if (state is HealthProfileLoaded) {
+            // User has profile -> Show Summary Screen
+            return HealthProfileSummaryScreen(profile: state.profile);
+          }
 
-            // Content
-            Expanded(
-              child: _selectedTab == 0 ? _buildGeneralTab() : Container(),
-            ),
-          ],
-        ),
+          if (state is HealthProfileError) {
+            // No profile found or error -> Show empty state
+            return _buildEmptyState();
+          }
+
+          // Initial state -> Show empty state
+          return _buildEmptyState();
+        },
+      ),
+    );
+  }
+
+  Widget _buildEmptyState() {
+    return SafeArea(
+      child: Column(
+        children: [
+          _buildHeader(),
+          _buildTabNavigation(),
+          Expanded(
+            child: _selectedTab == 0 ? _buildGeneralTab() : Container(),
+          ),
+        ],
       ),
     );
   }
@@ -45,9 +86,9 @@ class _HealthProfileHomeScreenState extends State<HealthProfileHomeScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          const SizedBox(), // để giữ layout spaceBetween
+          const SizedBox(),
           Column(
-            crossAxisAlignment: CrossAxisAlignment.end, // căn phải
+            crossAxisAlignment: CrossAxisAlignment.end,
             children: const [
               Text(
                 'Checkup Date',
@@ -78,7 +119,7 @@ class _HealthProfileHomeScreenState extends State<HealthProfileHomeScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Row(
         children: [
-          _buildTab('Sumary', 0),
+          _buildTab('Summary', 0),
           const SizedBox(width: 12),
           _buildTab('Fitness', 1),
           const SizedBox(width: 12),
@@ -123,12 +164,8 @@ class _HealthProfileHomeScreenState extends State<HealthProfileHomeScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Add Health Information Card
           _buildAddHealthInfoCard(),
-
           const SizedBox(height: 24),
-
-          // My Goal Section
           _buildMyGoalSection(),
         ],
       ),
@@ -136,36 +173,55 @@ class _HealthProfileHomeScreenState extends State<HealthProfileHomeScreen> {
   }
 
   Widget _buildAddHealthInfoCard() {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: AppColors.gray100,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.border),
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Text(
-              'Add your health information to start tracking your progress today.',
-              style: TextStyle(
-                fontSize: 14,
-                color: AppColors.textSecondary,
-                height: 1.4,
+    return GestureDetector(
+      onTap: () async {
+        // Navigate to create profile screen
+        final result = await Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const PersonalHealthProfileScreen(),
+          ),
+        );
+
+        // If profile created successfully, reload
+        if (result == true && mounted) {
+          context
+              .read<HealthProfileBloc>()
+              .add(const GetLatestHealthProfileEvent());
+        }
+      },
+      child: Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: AppColors.gray100,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: AppColors.border),
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: Text(
+                'Add your health information to start tracking your progress today.',
+                style: TextStyle(
+                  fontSize: 14,
+                  color: AppColors.textSecondary,
+                  height: 1.4,
+                ),
               ),
             ),
-          ),
-          const SizedBox(width: 12),
-          Container(
-            width: 36,
-            height: 36,
-            decoration: BoxDecoration(
-              color: AppColors.primary,
-              borderRadius: BorderRadius.circular(8),
+            const SizedBox(width: 12),
+            Container(
+              width: 36,
+              height: 36,
+              decoration: BoxDecoration(
+                color: AppColors.primary,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child:
+                  const Icon(Icons.add, color: AppColors.textLight, size: 20),
             ),
-            child: const Icon(Icons.add, color: AppColors.textLight, size: 20),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
