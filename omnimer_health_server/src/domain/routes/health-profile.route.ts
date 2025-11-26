@@ -20,6 +20,7 @@ router.post("/", verifyAccessToken, controller.create);
 //! For Admin
 router.get("/", controller.getAll);
 //! For User
+router.get("/date", verifyAccessToken, controller.getByDate);
 router.get("/latest", verifyAccessToken, controller.getHealthProfileLatest);
 router.get("/user/:userId", verifyAccessToken, controller.getAllByUserId);
 router.get("/:id", controller.getById);

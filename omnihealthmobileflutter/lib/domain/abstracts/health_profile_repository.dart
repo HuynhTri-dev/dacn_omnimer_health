@@ -5,6 +5,7 @@ abstract class HealthProfileRepository {
   Future<ApiResponse<List<HealthProfile>>> getHealthProfiles();
   Future<ApiResponse<HealthProfile>> getHealthProfileById(String id);
   Future<ApiResponse<HealthProfile>> getLatestHealthProfile();
+  Future<ApiResponse<HealthProfile>> getHealthProfileByDate(String date);
   Future<ApiResponse<List<HealthProfile>>> getHealthProfilesByUserId(
     String userId,
   );

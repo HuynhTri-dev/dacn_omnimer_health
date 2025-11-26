@@ -13,7 +13,10 @@ import 'package:omnihealthmobileflutter/presentation/screen/exercise/exercise_de
 import 'package:omnihealthmobileflutter/presentation/screen/exercise/exercise_home/blocs/exercise_home_bloc.dart';
 import 'package:omnihealthmobileflutter/presentation/screen/exercise/exercise_home/blocs/exercise_home_event.dart';
 import 'package:omnihealthmobileflutter/presentation/screen/exercise/exercise_home/exercise_home_screen.dart';
+
 import 'package:omnihealthmobileflutter/presentation/screen/home_screen.dart';
+import 'package:omnihealthmobileflutter/presentation/screen/health_profile/health_profile_home/health_profile_page.dart';
+import 'package:omnihealthmobileflutter/presentation/screen/health_profile/health_profile_from/personal_profile_form_page.dart';
 
 class RouteConfig {
   // ==================== ROUTE NAMES ====================
@@ -28,7 +31,10 @@ class RouteConfig {
   static const String profile = '/profile';
   static const String settings = '/settings';
   static const String exerciseHome = '/exercise-home';
+
   static const String exerciseDetail = '/exercise-detail';
+  static const String healthProfile = '/health-profile';
+  static const String healthProfileForm = '/health-profile-form';
 
   // ==================== BUILD AUTH PAGES ====================
   static Widget buildAuthPage(String? routeName) {
@@ -98,6 +104,13 @@ class RouteConfig {
           create: (_) => sl<ExerciseDetailCubit>(),
           child: ExerciseDetailScreen(exerciseId: exerciseId),
         );
+
+      case healthProfile:
+        return const HealthProfilePage();
+
+      case healthProfileForm:
+        final profileId = arguments?['profileId'] as String?;
+        return PersonalProfileFormPage(profileId: profileId);
 
       default:
         return _ErrorPage(message: 'Không tìm thấy trang: $routeName');

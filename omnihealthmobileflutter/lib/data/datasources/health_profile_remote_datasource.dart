@@ -8,6 +8,7 @@ abstract class HealthProfileRemoteDataSource {
   Future<ApiResponse<List<HealthProfileModel>>> getHealthProfiles();
   Future<ApiResponse<HealthProfileModel>> getHealthProfileById(String id);
   Future<ApiResponse<HealthProfileModel>> getLatestHealthProfile();
+  Future<ApiResponse<HealthProfileModel>> getHealthProfileByDate(String date);
   Future<ApiResponse<List<HealthProfileModel>>> getHealthProfilesByUserId(
     String userId,
   );
@@ -82,6 +83,25 @@ class HealthProfileRemoteDataSourceImpl
       logger.e(e);
       return ApiResponse.error(
         "Lấy hồ sơ sức khỏe mới nhất thất bại: ${e.toString()}",
+      );
+    }
+  }
+
+  @override
+  Future<ApiResponse<HealthProfileModel>> getHealthProfileByDate(
+    String date,
+  ) async {
+    try {
+      final response = await apiClient.get<HealthProfileModel>(
+        Endpoints.getHealthProfileByDate(date),
+        parser: (json) =>
+            HealthProfileModel.fromJson(json as Map<String, dynamic>),
+      );
+      return response;
+    } catch (e) {
+      logger.e(e);
+      return ApiResponse.error(
+        "Lấy hồ sơ sức khỏe theo ngày thất bại: ${e.toString()}",
       );
     }
   }

@@ -103,6 +103,24 @@ export class HealthProfileController {
     }
   };
 
+  getByDate = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const userId = (req.user as DecodePayload)?.id?.toString();
+      const { date } = req.query;
+
+      if (!date) return sendBadRequest(res, "Date is required");
+
+      const profile = await this.healthProfileService.getHealthProfileByDate(
+        userId!,
+        date as string
+      );
+
+      return sendSuccess(res, profile, "Get health profile by date success");
+    } catch (err) {
+      next(err);
+    }
+  };
+
   // =================== UPDATE ===================
   update = async (req: Request, res: Response, next: NextFunction) => {
     try {

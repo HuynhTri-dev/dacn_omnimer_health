@@ -87,7 +87,7 @@ export class HealthProfileService {
       await logAudit({
         userId,
         action: "createHealthProfile",
-        message: `Created HealthProfile for user "${data.userId}" successfully`,
+        message: `Created HealthProfile for user "${userId}" successfully`,
         status: StatusLogEnum.Success,
         targetId: healthProfile._id.toString(),
       });
@@ -199,6 +199,37 @@ export class HealthProfileService {
       await logError({
         userId,
         action: "getHealthProfileLatestByUserId",
+        message: err.message || err,
+        errorMessage: err.stack || err,
+      });
+      throw err;
+    }
+  }
+
+  /**
+   * Retrieve a specific health profile by userId and date.
+   *
+   * @param userId - The ID of the user.
+   * @param date - The date to search for.
+   * @returns The corresponding HealthProfile document or null.
+   */
+  async getHealthProfileByDate(userId: string, date: string) {
+    try {
+      const parsedDate = new Date(date);
+      if (isNaN(parsedDate.getTime())) {
+        throw new HttpError(400, "Invalid date format");
+      }
+
+      const profile = await this.healthProfileRepo.findByDate(
+        userId,
+        parsedDate
+      );
+
+      return profile;
+    } catch (err: any) {
+      await logError({
+        userId,
+        action: "getHealthProfileByDate",
         message: err.message || err,
         errorMessage: err.stack || err,
       });

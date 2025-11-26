@@ -8,7 +8,9 @@ import 'package:omnihealthmobileflutter/injection_container.dart';
 import 'package:omnihealthmobileflutter/presentation/screen/exercise/exercise_home/blocs/exercise_home_bloc.dart';
 import 'package:omnihealthmobileflutter/presentation/screen/exercise/exercise_home/blocs/exercise_home_event.dart';
 import 'package:omnihealthmobileflutter/presentation/screen/exercise/exercise_home/exercise_home_screen.dart';
-import 'package:omnihealthmobileflutter/presentation/screen/health_profile/health_profile_home/health_profile_home_screen.dart';
+import 'package:omnihealthmobileflutter/presentation/screen/health_profile/health_profile_home/bloc/health_profile_bloc.dart';
+import 'package:omnihealthmobileflutter/presentation/screen/health_profile/health_profile_home/bloc/health_profile_event.dart';
+import 'package:omnihealthmobileflutter/presentation/screen/health_profile/health_profile_home/health_profile_page.dart';
 import 'package:omnihealthmobileflutter/presentation/screen/more/more_screen.dart';
 import 'package:omnihealthmobileflutter/presentation/screen/workout/workout_home/workout_home_screen.dart';
 
@@ -43,7 +45,11 @@ class _HomeScreenState extends State<HomeScreen> {
         child: const ExerciseHomeScreen(),
       ),
       const WorkoutHomeScreen(),
-      const HealthProfileHomeScreen(),
+      BlocProvider(
+        create: (_) =>
+            sl<HealthProfileBloc>()..add(const GetLatestHealthProfileEvent()),
+        child: const HealthProfilePage(),
+      ),
       const MoreScreen(),
     ];
   }

@@ -171,3 +171,29 @@ enum NameDeviceEnum {
     );
   }
 }
+
+// =================== ACTIVITY LEVEL ===================
+enum ActivityLevelEnum {
+  sedentary(1, "Sedentary (little or no exercise)"),
+  lightlyActive(2, "Lightly active (light exercise/sports 1-3 days/week)"),
+  moderatelyActive(
+    3,
+    "Moderately active (moderate exercise/sports 3-5 days/week)",
+  ),
+  veryActive(4, "Very active (hard exercise/sports 6-7 days/week)"),
+  extraActive(
+    5,
+    "Extra active (very hard exercise/sports & physical job or 2x training)",
+  );
+
+  final int value;
+  final String displayName;
+  const ActivityLevelEnum(this.value, this.displayName);
+
+  static ActivityLevelEnum fromValue(int? value) {
+    return ActivityLevelEnum.values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => ActivityLevelEnum.sedentary,
+    );
+  }
+}

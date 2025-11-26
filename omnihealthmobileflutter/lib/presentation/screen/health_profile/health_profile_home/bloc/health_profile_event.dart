@@ -25,6 +25,15 @@ class GetLatestHealthProfileEvent extends HealthProfileEvent {
   const GetLatestHealthProfileEvent();
 }
 
+class GetHealthProfileByDateEvent extends HealthProfileEvent {
+  final String date;
+
+  const GetHealthProfileByDateEvent(this.date);
+
+  @override
+  List<Object?> get props => [date];
+}
+
 class GetHealthProfilesByUserIdEvent extends HealthProfileEvent {
   final String userId;
 

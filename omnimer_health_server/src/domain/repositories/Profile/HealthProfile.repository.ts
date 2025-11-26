@@ -89,4 +89,26 @@ export class HealthProfileRepository extends BaseRepository<IHealthProfile> {
 
     return profile || null;
   }
+
+  /**
+   * 🔹 Tìm hồ sơ sức khỏe theo ngày
+   * @param userId - ID người dùng
+   * @param date - Ngày cần tìm
+   * @returns Hồ sơ sức khỏe hoặc null
+   */
+  async findByDate(userId: string, date: Date): Promise<IHealthProfile | null> {
+    const startOfDay = new Date(date);
+    startOfDay.setHours(0, 0, 0, 0);
+
+    const endOfDay = new Date(date);
+    endOfDay.setHours(23, 59, 59, 999);
+
+    return await this.model.findOne({
+      userId,
+      checkupDate: {
+        $gte: startOfDay,
+        $lte: endOfDay,
+      },
+    });
+  }
 }

@@ -71,6 +71,25 @@ class HealthProfileRepositoryImpl implements HealthProfileRepository {
   }
 
   @override
+  Future<ApiResponse<HealthProfile>> getHealthProfileByDate(String date) async {
+    try {
+      final response = await remoteDataSource.getHealthProfileByDate(date);
+
+      return ApiResponse<HealthProfile>(
+        success: response.success,
+        message: response.message,
+        data: response.data?.toEntity(),
+        error: response.error,
+      );
+    } catch (e) {
+      return ApiResponse<HealthProfile>.error(
+        "Không thể lấy hồ sơ sức khỏe theo ngày: ${e.toString()}",
+        error: e,
+      );
+    }
+  }
+
+  @override
   Future<ApiResponse<List<HealthProfile>>> getHealthProfilesByUserId(
     String userId,
   ) async {

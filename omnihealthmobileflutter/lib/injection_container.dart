@@ -55,6 +55,7 @@ import 'package:omnihealthmobileflutter/domain/usecases/health_profile/get_healt
 import 'package:omnihealthmobileflutter/domain/usecases/health_profile/create_health_profile.dart';
 import 'package:omnihealthmobileflutter/domain/usecases/health_profile/update_health_profile.dart';
 import 'package:omnihealthmobileflutter/domain/usecases/health_profile/delete_health_profile.dart';
+import 'package:omnihealthmobileflutter/domain/usecases/health_profile/get_health_profile_by_date.dart';
 import 'package:omnihealthmobileflutter/domain/usecases/goal/create_goal_usecase.dart';
 import 'package:omnihealthmobileflutter/domain/usecases/goal/delete_goal_usecase.dart';
 import 'package:omnihealthmobileflutter/domain/usecases/goal/get_goals_usecase.dart';
@@ -68,6 +69,7 @@ import 'package:omnihealthmobileflutter/presentation/screen/exercise/exercise_ho
 import 'package:omnihealthmobileflutter/services/secure_storage_service.dart';
 import 'package:omnihealthmobileflutter/services/shared_preferences_service.dart';
 import 'package:omnihealthmobileflutter/presentation/screen/health_profile/health_profile_home/bloc/health_profile_bloc.dart';
+import 'package:omnihealthmobileflutter/presentation/screen/health_profile/health_profile_from/bloc/health_profile_form_bloc.dart';
 import 'package:omnihealthmobileflutter/presentation/screen/goal/bloc/goal_bloc.dart';
 
 final sl = GetIt.instance;
@@ -221,6 +223,9 @@ Future<void> init() async {
   sl.registerLazySingleton<GetLatestHealthProfileUseCase>(
     () => GetLatestHealthProfileUseCase(sl()),
   );
+  sl.registerLazySingleton<GetHealthProfileByDateUseCase>(
+    () => GetHealthProfileByDateUseCase(sl()),
+  );
   sl.registerLazySingleton<GetHealthProfilesByUserIdUseCase>(
     () => GetHealthProfilesByUserIdUseCase(sl()),
   );
@@ -284,10 +289,19 @@ Future<void> init() async {
       getHealthProfilesUseCase: sl(),
       getHealthProfileByIdUseCase: sl(),
       getLatestHealthProfileUseCase: sl(),
+      getHealthProfileByDateUseCase: sl(),
       getHealthProfilesByUserIdUseCase: sl(),
       createHealthProfileUseCase: sl(),
       updateHealthProfileUseCase: sl(),
       deleteHealthProfileUseCase: sl(),
+    ),
+  );
+
+  sl.registerFactory(
+    () => HealthProfileFormBloc(
+      getHealthProfileByIdUseCase: sl(),
+      createHealthProfileUseCase: sl(),
+      updateHealthProfileUseCase: sl(),
     ),
   );
 

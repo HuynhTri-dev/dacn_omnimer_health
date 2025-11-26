@@ -1,3 +1,4 @@
+import 'package:omnihealthmobileflutter/core/constants/enum_constant.dart';
 import 'package:omnihealthmobileflutter/domain/entities/health_profile/health_profile_entity.dart';
 
 class HealthProfileModel {
@@ -17,13 +18,14 @@ class HealthProfileModel {
   final int? maxPushUps;
   final double? maxWeightLifted;
   final int? activityLevel;
-  final String? experienceLevel;
+  final ExperienceLevelEnum? experienceLevel;
   final int? workoutFrequency;
   final int? restingHeartRate;
   final BloodPressureModel? bloodPressure;
   final CholesterolModel? cholesterol;
   final double? bloodSugar;
-  final List<String>? healthStatus;
+  final HealthStatusModel? healthStatus;
+  final AiEvaluationModel? aiEvaluation;
   final String? createdAt;
   final String? updatedAt;
 
@@ -51,6 +53,7 @@ class HealthProfileModel {
     this.cholesterol,
     this.bloodSugar,
     this.healthStatus,
+    this.aiEvaluation,
     this.createdAt,
     this.updatedAt,
   });
@@ -62,20 +65,6 @@ class HealthProfileModel {
       userId = json['userId']['_id'] as String?;
     } else {
       userId = json['userId'] as String?;
-    }
-
-    // Handle healthStatus being a Map (from API) or List (legacy/local)
-    List<String>? healthStatusList;
-    if (json['healthStatus'] is Map) {
-      final statusMap = json['healthStatus'] as Map<String, dynamic>;
-      healthStatusList = [];
-      statusMap.forEach((key, value) {
-        if (value is List) {
-          healthStatusList!.addAll(value.map((e) => e.toString()));
-        }
-      });
-    } else if (json['healthStatus'] is List) {
-      healthStatusList = List<String>.from(json['healthStatus']);
     }
 
     return HealthProfileModel(
@@ -96,7 +85,7 @@ class HealthProfileModel {
       maxPushUps: json['maxPushUps'] as int?,
       maxWeightLifted: json['maxWeightLifted']?.toDouble(),
       activityLevel: json['activityLevel'] as int?,
-      experienceLevel: json['experienceLevel'] as String?,
+      experienceLevel: ExperienceLevelEnum.fromString(json['experienceLevel']),
       workoutFrequency: json['workoutFrequency'] as int?,
       restingHeartRate: json['restingHeartRate'] as int?,
       bloodPressure: json['bloodPressure'] != null
@@ -106,7 +95,12 @@ class HealthProfileModel {
           ? CholesterolModel.fromJson(json['cholesterol'])
           : null,
       bloodSugar: json['bloodSugar']?.toDouble(),
-      healthStatus: healthStatusList,
+      healthStatus: json['healthStatus'] != null
+          ? HealthStatusModel.fromJson(json['healthStatus'])
+          : null,
+      aiEvaluation: json['aiEvaluation'] != null
+          ? AiEvaluationModel.fromJson(json['aiEvaluation'])
+          : null,
       createdAt: json['createdAt'] as String?,
       updatedAt: json['updatedAt'] as String?,
     );
@@ -130,13 +124,14 @@ class HealthProfileModel {
       if (maxPushUps != null) 'maxPushUps': maxPushUps,
       if (maxWeightLifted != null) 'maxWeightLifted': maxWeightLifted,
       if (activityLevel != null) 'activityLevel': activityLevel,
-      if (experienceLevel != null) 'experienceLevel': experienceLevel,
+      if (experienceLevel != null) 'experienceLevel': experienceLevel?.name,
       if (workoutFrequency != null) 'workoutFrequency': workoutFrequency,
       if (restingHeartRate != null) 'restingHeartRate': restingHeartRate,
       if (bloodPressure != null) 'bloodPressure': bloodPressure!.toJson(),
       if (cholesterol != null) 'cholesterol': cholesterol!.toJson(),
       if (bloodSugar != null) 'bloodSugar': bloodSugar,
-      if (healthStatus != null) 'healthStatus': healthStatus,
+      if (healthStatus != null) 'healthStatus': healthStatus!.toJson(),
+      if (aiEvaluation != null) 'aiEvaluation': aiEvaluation!.toJson(),
       if (createdAt != null) 'createdAt': createdAt,
       if (updatedAt != null) 'updatedAt': updatedAt,
     };
@@ -166,7 +161,8 @@ class HealthProfileModel {
       bloodPressure: bloodPressure?.toEntity(),
       cholesterol: cholesterol?.toEntity(),
       bloodSugar: bloodSugar,
-      healthStatus: healthStatus,
+      healthStatus: healthStatus?.toEntity(),
+      aiEvaluation: aiEvaluation?.toEntity(),
       createdAt: createdAt != null ? DateTime.parse(createdAt!) : null,
       updatedAt: updatedAt != null ? DateTime.parse(updatedAt!) : null,
     );
@@ -200,7 +196,12 @@ class HealthProfileModel {
           ? CholesterolModel.fromEntity(entity.cholesterol!)
           : null,
       bloodSugar: entity.bloodSugar,
-      healthStatus: entity.healthStatus,
+      healthStatus: entity.healthStatus != null
+          ? HealthStatusModel.fromEntity(entity.healthStatus!)
+          : null,
+      aiEvaluation: entity.aiEvaluation != null
+          ? AiEvaluationModel.fromEntity(entity.aiEvaluation!)
+          : null,
       createdAt: entity.createdAt?.toIso8601String(),
       updatedAt: entity.updatedAt?.toIso8601String(),
     );
@@ -264,6 +265,141 @@ class CholesterolModel {
       total: entity.total,
       hdl: entity.hdl,
       ldl: entity.ldl,
+    );
+  }
+}
+
+class HealthStatusModel {
+  final List<String> knownConditions;
+  final List<String> painLocations;
+  final List<String> jointIssues;
+  final List<String> injuries;
+  final List<String> abnormalities;
+  final String? notes;
+
+  HealthStatusModel({
+    this.knownConditions = const [],
+    this.painLocations = const [],
+    this.jointIssues = const [],
+    this.injuries = const [],
+    this.abnormalities = const [],
+    this.notes,
+  });
+
+  factory HealthStatusModel.fromJson(dynamic json) {
+    if (json is List) {
+      // Handle legacy format where healthStatus was List<String>
+      // Map all items to knownConditions as a fallback
+      return HealthStatusModel(knownConditions: List<String>.from(json));
+    } else if (json is Map<String, dynamic>) {
+      return HealthStatusModel(
+        knownConditions: json['knownConditions'] != null
+            ? List<String>.from(json['knownConditions'])
+            : [],
+        painLocations: json['painLocations'] != null
+            ? List<String>.from(json['painLocations'])
+            : [],
+        jointIssues: json['jointIssues'] != null
+            ? List<String>.from(json['jointIssues'])
+            : [],
+        injuries: json['injuries'] != null
+            ? List<String>.from(json['injuries'])
+            : [],
+        abnormalities: json['abnormalities'] != null
+            ? List<String>.from(json['abnormalities'])
+            : [],
+        notes: json['notes'] as String?,
+      );
+    }
+    return HealthStatusModel();
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'knownConditions': knownConditions,
+      'painLocations': painLocations,
+      'jointIssues': jointIssues,
+      'injuries': injuries,
+      'abnormalities': abnormalities,
+      if (notes != null) 'notes': notes,
+    };
+  }
+
+  HealthStatus toEntity() {
+    return HealthStatus(
+      knownConditions: knownConditions,
+      painLocations: painLocations,
+      jointIssues: jointIssues,
+      injuries: injuries,
+      abnormalities: abnormalities,
+      notes: notes,
+    );
+  }
+
+  factory HealthStatusModel.fromEntity(HealthStatus entity) {
+    return HealthStatusModel(
+      knownConditions: entity.knownConditions,
+      painLocations: entity.painLocations,
+      jointIssues: entity.jointIssues,
+      injuries: entity.injuries,
+      abnormalities: entity.abnormalities,
+      notes: entity.notes,
+    );
+  }
+}
+
+class AiEvaluationModel {
+  final String summary;
+  final int? score;
+  final RiskLevelEnum? riskLevel;
+  final String? updatedAt;
+  final String? modelVersion;
+
+  AiEvaluationModel({
+    required this.summary,
+    this.score,
+    this.riskLevel,
+    this.updatedAt,
+    this.modelVersion,
+  });
+
+  factory AiEvaluationModel.fromJson(Map<String, dynamic> json) {
+    return AiEvaluationModel(
+      summary: json['summary'] as String? ?? '',
+      score: json['score'] as int?,
+      riskLevel: RiskLevelEnum.fromString(json['riskLevel']),
+      updatedAt: json['updatedAt'] as String?,
+      modelVersion: json['modelVersion'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'summary': summary,
+      if (score != null) 'score': score,
+      if (riskLevel != null) 'riskLevel': riskLevel?.name,
+      if (updatedAt != null) 'updatedAt': updatedAt,
+      if (modelVersion != null) 'modelVersion': modelVersion,
+    };
+  }
+
+  AiEvaluation toEntity() {
+    return AiEvaluation(
+      summary: summary,
+      score: score,
+      riskLevel: riskLevel,
+      updatedAt: updatedAt != null ? DateTime.parse(updatedAt!) : null,
+      modelVersion: modelVersion,
+    );
+  }
+
+  factory AiEvaluationModel.fromEntity(AiEvaluation entity) {
+    return AiEvaluationModel(
+      summary: entity.summary,
+      score: entity.score,
+      riskLevel: entity.riskLevel,
+      updatedAt: entity.updatedAt?.toIso8601String(),
+      modelVersion: entity.modelVersion,
     );
   }
 }
