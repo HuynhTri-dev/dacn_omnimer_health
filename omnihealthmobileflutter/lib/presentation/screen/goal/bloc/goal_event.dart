@@ -8,13 +8,13 @@ abstract class GoalEvent extends Equatable {
   List<Object?> get props => [];
 }
 
-class LoadGoalsEvent extends GoalEvent {
-  final String userId;
+class GetGoalByIdEvent extends GoalEvent {
+  final String id;
 
-  const LoadGoalsEvent(this.userId);
+  const GetGoalByIdEvent(this.id);
 
   @override
-  List<Object?> get props => [userId];
+  List<Object?> get props => [id];
 }
 
 class CreateGoalEvent extends GoalEvent {
@@ -37,9 +37,10 @@ class UpdateGoalEvent extends GoalEvent {
 
 class DeleteGoalEvent extends GoalEvent {
   final String goalId;
+  final String userId;
 
-  const DeleteGoalEvent(this.goalId);
+  const DeleteGoalEvent(this.goalId, this.userId);
 
   @override
-  List<Object?> get props => [goalId];
+  List<Object?> get props => [goalId, userId];
 }

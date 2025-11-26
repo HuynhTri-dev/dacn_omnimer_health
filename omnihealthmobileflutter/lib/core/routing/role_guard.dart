@@ -17,6 +17,7 @@ class RoleGuard {
     '/exercises-detail': ['user', 'coach', 'admin'],
     '/health-profile': ['user', 'coach', 'admin'],
     '/health-profile-form': ['user', 'coach', 'admin'],
+    '/goal-form': ['user', 'coach', 'admin'],
   };
 
   /// Kiểm tra xem người dùng (với danh sách roleName) có quyền truy cập route không

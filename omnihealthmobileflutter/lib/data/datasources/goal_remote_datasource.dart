@@ -6,6 +6,7 @@ import 'package:omnihealthmobileflutter/utils/logger.dart';
 
 abstract class GoalRemoteDataSource {
   Future<ApiResponse<List<GoalModel>>> getGoalsByUserId(String userId);
+  Future<ApiResponse<GoalModel>> getGoalById(String id);
   Future<ApiResponse<GoalModel>> createGoal(GoalModel goal);
   Future<ApiResponse<GoalModel>> updateGoal(GoalModel goal);
   Future<ApiResponse<bool>> deleteGoal(String goalId);
@@ -40,11 +41,28 @@ class GoalRemoteDataSourceImpl implements GoalRemoteDataSource {
   }
 
   @override
+  Future<ApiResponse<GoalModel>> getGoalById(String id) async {
+    try {
+      final response = await apiClient.get<GoalModel>(
+        Endpoints.getGoalById(id),
+        parser: (json) => GoalModel.fromJson(json as Map<String, dynamic>),
+      );
+      return response;
+    } catch (e) {
+      logger.e(e);
+      return ApiResponse.error(
+        "Lấy chi tiết mục tiêu thất bại: ${e.toString()}",
+      );
+    }
+  }
+
+  @override
   Future<ApiResponse<GoalModel>> createGoal(GoalModel goal) async {
     try {
       final response = await apiClient.post<GoalModel>(
         Endpoints.createGoal,
         data: goal.toJson(),
+        requiresAuth: true,
         parser: (json) => GoalModel.fromJson(json as Map<String, dynamic>),
       );
       return response;

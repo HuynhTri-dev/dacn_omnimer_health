@@ -1,40 +1,83 @@
 import 'package:equatable/equatable.dart';
+import 'package:omnihealthmobileflutter/core/constants/enum_constant.dart';
+
+class TargetMetricEntity extends Equatable {
+  final String metricName;
+  final double value;
+  final String? unit;
+
+  const TargetMetricEntity({
+    required this.metricName,
+    required this.value,
+    this.unit,
+  });
+
+  @override
+  List<Object?> get props => [metricName, value, unit];
+}
+
+class RepeatMetadataEntity extends Equatable {
+  final String frequency; // "daily" | "weekly" | "monthly"
+  final int? interval;
+  final List<int>? daysOfWeek;
+
+  const RepeatMetadataEntity({
+    required this.frequency,
+    this.interval,
+    this.daysOfWeek,
+  });
+
+  @override
+  List<Object?> get props => [frequency, interval, daysOfWeek];
+}
 
 class GoalEntity extends Equatable {
   final String? id;
   final String userId;
-  final String title;
+  final GoalTypeEnum goalType;
   final DateTime startDate;
   final DateTime endDate;
-  final String frequency; // e.g., 'Daily', 'Weekly', 'Monthly'
+  final RepeatMetadataEntity? repeat;
+  final List<TargetMetricEntity> targetMetric;
 
   const GoalEntity({
     this.id,
     required this.userId,
-    required this.title,
+    required this.goalType,
     required this.startDate,
     required this.endDate,
-    required this.frequency,
+    this.repeat,
+    required this.targetMetric,
   });
 
   @override
-  List<Object?> get props => [id, userId, title, startDate, endDate, frequency];
+  List<Object?> get props => [
+    id,
+    userId,
+    goalType,
+    startDate,
+    endDate,
+    repeat,
+    targetMetric,
+  ];
 
   GoalEntity copyWith({
     String? id,
     String? userId,
-    String? title,
+    GoalTypeEnum? goalType,
     DateTime? startDate,
     DateTime? endDate,
-    String? frequency,
+    RepeatMetadataEntity? repeat,
+    List<TargetMetricEntity>? targetMetric,
   }) {
     return GoalEntity(
       id: id ?? this.id,
       userId: userId ?? this.userId,
-      title: title ?? this.title,
+      goalType: goalType ?? this.goalType,
       startDate: startDate ?? this.startDate,
       endDate: endDate ?? this.endDate,
-      frequency: frequency ?? this.frequency,
+      repeat: repeat ?? this.repeat,
+      targetMetric: targetMetric ?? this.targetMetric,
     );
   }
 }

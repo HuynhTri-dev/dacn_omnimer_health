@@ -15,6 +15,8 @@ import 'package:omnihealthmobileflutter/presentation/screen/health_profile/healt
 import 'package:omnihealthmobileflutter/presentation/common/blocs/auth/authentication_bloc.dart';
 import 'package:omnihealthmobileflutter/presentation/common/blocs/auth/authentication_state.dart';
 import 'package:omnihealthmobileflutter/presentation/screen/health_profile/health_profile_from/personal_profile_form_page.dart';
+import 'package:omnihealthmobileflutter/presentation/screen/goal/bloc/goal_bloc.dart';
+import 'package:omnihealthmobileflutter/presentation/screen/goal/bloc/goal_event.dart';
 
 class HealthProfilePage extends StatefulWidget {
   const HealthProfilePage({super.key});
@@ -65,87 +67,96 @@ class _HealthProfilePageState extends State<HealthProfilePage> {
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
-        child: BlocConsumer<HealthProfileBloc, HealthProfileState>(
+        child: BlocListener<AuthenticationBloc, AuthenticationState>(
           listener: (context, state) {
-            if (state is HealthProfileLoaded) {
-              setState(() {
-                _currentProfile = state.profile;
-                _selectedDate = state.profile.checkupDate;
-              });
-            } else if (state is HealthProfileError) {
-              setState(() {
-                _currentProfile = null;
-              });
-            } else if (state is HealthProfileDeleteSuccess) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Xóa hồ sơ thành công'),
-                  backgroundColor: AppColors.success,
+            if (state is AuthenticationAuthenticated) {
+              context.read<HealthProfileBloc>().add(
+                GetHealthProfileGoalsEvent(state.user.id),
+              );
+            }
+          },
+          child: BlocConsumer<HealthProfileBloc, HealthProfileState>(
+            listener: (context, state) {
+              if (state is HealthProfileLoaded) {
+                setState(() {
+                  _currentProfile = state.profile;
+                  _selectedDate = state.profile.checkupDate;
+                });
+              } else if (state is HealthProfileError) {
+                setState(() {
+                  _currentProfile = null;
+                });
+              } else if (state is HealthProfileDeleteSuccess) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Xóa hồ sơ thành công'),
+                    backgroundColor: AppColors.success,
+                  ),
+                );
+                setState(() {
+                  _currentProfile = null;
+                });
+                context.read<HealthProfileBloc>().add(
+                  const GetLatestHealthProfileEvent(),
+                );
+              }
+            },
+            builder: (context, state) {
+              if (state is HealthProfileLoading && _currentProfile == null) {
+                return const Center(child: CircularProgressIndicator());
+              }
+
+              return SingleChildScrollView(
+                padding: const EdgeInsets.only(bottom: 24),
+                child: Column(
+                  children: [
+                    BlocBuilder<AuthenticationBloc, AuthenticationState>(
+                      builder: (context, authState) {
+                        String? imageUrl;
+                        if (authState is AuthenticationAuthenticated) {
+                          imageUrl = authState.user.imageUrl;
+                        }
+                        return HealthProfileHeaderWidget(
+                          profile: _currentProfile,
+                          onDateTap: () => _selectCheckupDate(context),
+                          imageUrl: imageUrl,
+                          selectedDate: _selectedDate,
+                          onCreateTap: () => _navigateToCreateProfile(context),
+                        );
+                      },
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        children: [
+                          _currentProfile != null
+                              ? BlocBuilder<
+                                  AuthenticationBloc,
+                                  AuthenticationState
+                                >(
+                                  builder: (context, authState) {
+                                    String? imageUrl;
+                                    if (authState
+                                        is AuthenticationAuthenticated) {
+                                      imageUrl = authState.user.imageUrl;
+                                    }
+                                    return HealthProfileFolder(
+                                      profile: _currentProfile!,
+                                      imageUrl: imageUrl,
+                                    );
+                                  },
+                                )
+                              : const HealthProfileEmptyView(),
+                          const SizedBox(height: 24),
+                          const MyGoalSection(),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
               );
-              setState(() {
-                _currentProfile = null;
-              });
-              context.read<HealthProfileBloc>().add(
-                const GetLatestHealthProfileEvent(),
-              );
-            }
-          },
-          builder: (context, state) {
-            if (state is HealthProfileLoading && _currentProfile == null) {
-              return const Center(child: CircularProgressIndicator());
-            }
-
-            return SingleChildScrollView(
-              padding: const EdgeInsets.only(bottom: 24),
-              child: Column(
-                children: [
-                  BlocBuilder<AuthenticationBloc, AuthenticationState>(
-                    builder: (context, authState) {
-                      String? imageUrl;
-                      if (authState is AuthenticationAuthenticated) {
-                        imageUrl = authState.user.imageUrl;
-                      }
-                      return HealthProfileHeaderWidget(
-                        profile: _currentProfile,
-                        onDateTap: () => _selectCheckupDate(context),
-                        imageUrl: imageUrl,
-                        selectedDate: _selectedDate,
-                        onCreateTap: () => _navigateToCreateProfile(context),
-                      );
-                    },
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      children: [
-                        _currentProfile != null
-                            ? BlocBuilder<
-                                AuthenticationBloc,
-                                AuthenticationState
-                              >(
-                                builder: (context, authState) {
-                                  String? imageUrl;
-                                  if (authState
-                                      is AuthenticationAuthenticated) {
-                                    imageUrl = authState.user.imageUrl;
-                                  }
-                                  return HealthProfileFolder(
-                                    profile: _currentProfile!,
-                                    imageUrl: imageUrl,
-                                  );
-                                },
-                              )
-                            : const HealthProfileEmptyView(),
-                        const SizedBox(height: 24),
-                        const MyGoalSection(),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            );
-          },
+            },
+          ),
         ),
       ),
     );

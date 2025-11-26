@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:omnihealthmobileflutter/domain/entities/health_profile/health_profile_entity.dart';
+import 'package:omnihealthmobileflutter/domain/entities/goal_entity.dart';
 
 abstract class HealthProfileState extends Equatable {
   const HealthProfileState();
@@ -27,11 +28,22 @@ class HealthProfilesLoaded extends HealthProfileState {
 
 class HealthProfileLoaded extends HealthProfileState {
   final HealthProfile profile;
+  final List<GoalEntity> goals;
 
-  const HealthProfileLoaded(this.profile);
+  const HealthProfileLoaded(this.profile, {this.goals = const []});
 
   @override
-  List<Object?> get props => [profile];
+  List<Object?> get props => [profile, goals];
+
+  HealthProfileLoaded copyWith({
+    HealthProfile? profile,
+    List<GoalEntity>? goals,
+  }) {
+    return HealthProfileLoaded(
+      profile ?? this.profile,
+      goals: goals ?? this.goals,
+    );
+  }
 }
 
 class HealthProfileError extends HealthProfileState {

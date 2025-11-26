@@ -47,6 +47,7 @@ import 'package:omnihealthmobileflutter/domain/usecases/exercise/get_exercise_by
 import 'package:omnihealthmobileflutter/domain/usecases/exercise/get_exercises_usecase.dart';
 import 'package:omnihealthmobileflutter/domain/usecases/exercise/get_muscle_by_id_usecase.dart';
 import 'package:omnihealthmobileflutter/domain/usecases/exercise/rate_exercise_usecase.dart';
+import 'package:omnihealthmobileflutter/domain/usecases/goal/get_goal_by_id_usecase.dart';
 import 'package:omnihealthmobileflutter/domain/usecases/role/get_roles_for_select_box_usecase.dart';
 import 'package:omnihealthmobileflutter/domain/usecases/health_profile/get_health_profiles.dart';
 import 'package:omnihealthmobileflutter/domain/usecases/health_profile/get_health_profile_by_id.dart';
@@ -243,6 +244,7 @@ Future<void> init() async {
   sl.registerLazySingleton<CreateGoalUseCase>(() => CreateGoalUseCase(sl()));
   sl.registerLazySingleton<UpdateGoalUseCase>(() => UpdateGoalUseCase(sl()));
   sl.registerLazySingleton<DeleteGoalUseCase>(() => DeleteGoalUseCase(sl()));
+  sl.registerLazySingleton<GetGoalByIdUseCase>(() => GetGoalByIdUseCase(sl()));
 
   // ======================
   // Blocs / Cubits
@@ -294,6 +296,7 @@ Future<void> init() async {
       createHealthProfileUseCase: sl(),
       updateHealthProfileUseCase: sl(),
       deleteHealthProfileUseCase: sl(),
+      getGoalsUseCase: sl(),
     ),
   );
 
@@ -307,10 +310,10 @@ Future<void> init() async {
 
   sl.registerFactory(
     () => GoalBloc(
-      getGoalsUseCase: sl(),
       createGoalUseCase: sl(),
       updateGoalUseCase: sl(),
       deleteGoalUseCase: sl(),
+      getGoalByIdUseCase: sl(),
     ),
   );
 }

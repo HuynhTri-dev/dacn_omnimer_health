@@ -30,6 +30,7 @@ export class UserRepository extends BaseRepository<IUser> {
         : [];
 
       const userResponse: IUserResponse = {
+        _id: user._id,
         fullname: user.fullname,
         email: user.email ?? null,
         imageUrl: user.imageUrl,

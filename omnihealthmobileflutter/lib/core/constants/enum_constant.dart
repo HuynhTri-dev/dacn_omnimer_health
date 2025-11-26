@@ -19,15 +19,15 @@ enum GenderEnum {
 
 // =================== GOAL TYPE ===================
 enum GoalTypeEnum {
-  WeightLoss("Giảm cân, giảm mỡ"),
-  MuscleGain("Tăng cơ, săn chắc cơ bắp"),
-  Endurance("Tăng sức bền, sức chịu đựng"),
-  Flexibility("Tăng linh hoạt, dẻo dai"),
-  StressRelief("Giảm căng thẳng, thư giãn"),
-  HeartHealth("Cải thiện tim mạch, sức khỏe tổng quát"),
-  Mobility("Cải thiện khả năng vận động khớp"),
-  AthleticPerformance("Cải thiện hiệu suất thể thao"),
-  Custom("Mục tiêu tùy chỉnh");
+  WeightLoss("Weight Loss"),
+  MuscleGain("Muscle Gain"),
+  Endurance("Endurance"),
+  Flexibility("Flexibility"),
+  StressRelief("Stress Relief"),
+  HeartHealth("Heart Health"),
+  Mobility("Mobility"),
+  AthleticPerformance("Athletic Performance"),
+  Custom("Custom");
 
   final String displayName;
   const GoalTypeEnum(this.displayName);

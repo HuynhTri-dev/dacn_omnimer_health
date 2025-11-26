@@ -1,48 +1,47 @@
-import 'package:bloc/bloc.dart';
-import 'package:omnihealthmobileflutter/domain/entities/goal_entity.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:omnihealthmobileflutter/domain/usecases/goal/create_goal_usecase.dart';
 import 'package:omnihealthmobileflutter/domain/usecases/goal/delete_goal_usecase.dart';
-import 'package:omnihealthmobileflutter/domain/usecases/goal/get_goals_usecase.dart';
 import 'package:omnihealthmobileflutter/domain/usecases/goal/update_goal_usecase.dart';
+import 'package:omnihealthmobileflutter/domain/usecases/goal/get_goal_by_id_usecase.dart';
 import 'goal_event.dart';
 import 'goal_state.dart';
 
 class GoalBloc extends Bloc<GoalEvent, GoalState> {
-  final GetGoalsUseCase _getGoalsUseCase;
   final CreateGoalUseCase _createGoalUseCase;
   final UpdateGoalUseCase _updateGoalUseCase;
   final DeleteGoalUseCase _deleteGoalUseCase;
+  final GetGoalByIdUseCase _getGoalByIdUseCase;
 
   GoalBloc({
-    required GetGoalsUseCase getGoalsUseCase,
     required CreateGoalUseCase createGoalUseCase,
     required UpdateGoalUseCase updateGoalUseCase,
     required DeleteGoalUseCase deleteGoalUseCase,
-  }) : _getGoalsUseCase = getGoalsUseCase,
-       _createGoalUseCase = createGoalUseCase,
+    required GetGoalByIdUseCase getGoalByIdUseCase,
+  }) : _createGoalUseCase = createGoalUseCase,
        _updateGoalUseCase = updateGoalUseCase,
        _deleteGoalUseCase = deleteGoalUseCase,
+       _getGoalByIdUseCase = getGoalByIdUseCase,
        super(GoalLoading()) {
-    on<LoadGoalsEvent>(_onLoadGoals);
+    on<GetGoalByIdEvent>(_onGetGoalById);
     on<CreateGoalEvent>(_onCreateGoal);
     on<UpdateGoalEvent>(_onUpdateGoal);
     on<DeleteGoalEvent>(_onDeleteGoal);
   }
 
-  Future<void> _onLoadGoals(
-    LoadGoalsEvent event,
+  Future<void> _onGetGoalById(
+    GetGoalByIdEvent event,
     Emitter<GoalState> emit,
   ) async {
     emit(GoalLoading());
     try {
-      final response = await _getGoalsUseCase(event.userId);
+      final response = await _getGoalByIdUseCase(event.id);
       if (response.success && response.data != null) {
-        emit(GoalsLoaded(response.data!));
+        emit(GoalLoaded(response.data!));
       } else {
         emit(GoalError(response.message));
       }
     } catch (e) {
-      emit(GoalError('Không thể tải mục tiêu: ${e.toString()}'));
+      emit(GoalError('Lấy chi tiết mục tiêu thất bại: ${e.toString()}'));
     }
   }
 
@@ -55,7 +54,6 @@ class GoalBloc extends Bloc<GoalEvent, GoalState> {
       final response = await _createGoalUseCase(event.goal);
       if (response.success && response.data != null) {
         emit(GoalOperationSuccess(response.data!));
-        add(LoadGoalsEvent(event.goal.userId));
       } else {
         emit(GoalError(response.message));
       }
@@ -73,7 +71,6 @@ class GoalBloc extends Bloc<GoalEvent, GoalState> {
       final response = await _updateGoalUseCase(event.goal);
       if (response.success && response.data != null) {
         emit(GoalOperationSuccess(response.data!));
-        add(LoadGoalsEvent(event.goal.userId));
       } else {
         emit(GoalError(response.message));
       }

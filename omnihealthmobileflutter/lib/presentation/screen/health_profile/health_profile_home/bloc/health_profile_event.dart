@@ -70,3 +70,12 @@ class DeleteHealthProfileEvent extends HealthProfileEvent {
   @override
   List<Object?> get props => [id];
 }
+
+class GetHealthProfileGoalsEvent extends HealthProfileEvent {
+  final String userId;
+
+  const GetHealthProfileGoalsEvent(this.userId);
+
+  @override
+  List<Object?> get props => [userId];
+}

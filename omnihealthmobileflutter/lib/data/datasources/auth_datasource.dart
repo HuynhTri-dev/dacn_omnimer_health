@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:omnihealthmobileflutter/core/api/api_client.dart';
 import 'package:omnihealthmobileflutter/core/api/endpoints.dart';
 import 'package:omnihealthmobileflutter/core/constants/storage_constant.dart';
@@ -77,9 +78,7 @@ class AuthDataSourceImpl implements AuthDataSource {
         );
         await sharedPreferencesService.create(
           StorageConstant.kUserInfoKey,
-          auth.user.toString(),
-
-          /// key:
+          jsonEncode(auth.user.toJson()),
         );
       }
 
@@ -112,7 +111,7 @@ class AuthDataSourceImpl implements AuthDataSource {
         );
         await sharedPreferencesService.create(
           StorageConstant.kUserInfoKey,
-          auth.user.toString(),
+          jsonEncode(auth.user.toJson()),
         );
       }
 

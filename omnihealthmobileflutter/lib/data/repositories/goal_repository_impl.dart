@@ -28,6 +28,23 @@ class GoalRepositoryImpl implements GoalRepository {
   }
 
   @override
+  Future<ApiResponse<GoalEntity>> getGoalById(String id) async {
+    try {
+      final response = await remoteDataSource.getGoalById(id);
+      if (response.success && response.data != null) {
+        return ApiResponse.success(
+          response.data!.toEntity(),
+          message: response.message,
+        );
+      }
+      return ApiResponse.error(response.message);
+    } catch (e) {
+      logger.e(e);
+      return ApiResponse.error(e.toString());
+    }
+  }
+
+  @override
   Future<ApiResponse<GoalEntity>> createGoal(GoalEntity goal) async {
     try {
       final model = GoalModel.fromEntity(goal);

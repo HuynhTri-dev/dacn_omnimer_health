@@ -19,6 +19,15 @@ class GoalsLoaded extends GoalState {
   List<Object?> get props => [goals];
 }
 
+class GoalLoaded extends GoalState {
+  final GoalEntity goal;
+
+  const GoalLoaded(this.goal);
+
+  @override
+  List<Object?> get props => [goal];
+}
+
 class GoalOperationSuccess extends GoalState {
   final GoalEntity goal;
 
