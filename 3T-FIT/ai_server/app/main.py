@@ -1,8 +1,10 @@
 
 from fastapi import FastAPI, HTTPException
 from api.schemas import RecommendRequest
+from api.schemas_v4 import RecommendRequestV4, RecommendResponseV4
 from services.recommendation_v1 import recommend
 from services.recommendation_v3 import recommend_v3, validate_profile_for_v3, get_goal_suggestions
+from services.recommendation_v4 import recommend_v4, load_model_v4_artifacts
 from models.model_v3 import load_model_v3
 from utils.preprocess_v3 import load_preprocessor_v3
 import logging
@@ -11,24 +13,35 @@ import logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-app = FastAPI(title="OmniMer Health Recommendation API", version="2.0.0")
+app = FastAPI(title="OmniMer Health Recommendation API", version="4.0.0")
 
-# Load Model v3 on startup
+# Load Models on startup
 @app.on_event("startup")
 async def startup_event():
-    """Load Model v3 and preprocessor on app startup"""
+    """Load Models (v3, v4) and artifacts on app startup"""
     try:
+        # Load V3
         logger.info("Loading Model v3...")
-        model_loaded = load_model_v3()
-        preprocessor_loaded = load_preprocessor_v3()
-
-        if model_loaded and preprocessor_loaded:
-            logger.info("✅ Model v3 and preprocessor loaded successfully")
+        model_v3_loaded = load_model_v3()
+        preprocessor_v3_loaded = load_preprocessor_v3()
+        
+        if model_v3_loaded and preprocessor_v3_loaded:
+            logger.info("✅ Model v3 loaded successfully")
         else:
-            logger.warning("⚠️ Model v3 loading failed, falling back to v1")
+            logger.warning("⚠️ Model v3 loading failed")
+
+        # Load V4
+        logger.info("Loading Model v4...")
+        # Adjust path to point to correct model directory relative to app/main.py
+        model_v4_loaded = load_model_v4_artifacts("../model/src/v4/model_v4")
+        
+        if model_v4_loaded:
+            logger.info("✅ Model v4 loaded successfully")
+        else:
+            logger.warning("⚠️ Model v4 loading failed")
 
     except Exception as e:
-        logger.error(f"❌ Failed to load Model v3: {e}")
+        logger.error(f"❌ Failed to load models: {e}")
 
 @app.post("/recommend")
 def get_recommendation(req: RecommendRequest):
@@ -141,6 +154,21 @@ def get_recommendation_v3_enhanced(req: RecommendRequest):
         logger.error("Error in enhanced v3 recommendation: %s", str(e))
         raise HTTPException(status_code=500, detail=str(e))
 
+@app.post("/recommend/v4", response_model=RecommendResponseV4)
+def get_recommendation_v4(req: RecommendRequestV4):
+    """
+    Next-Gen recommendation endpoint using Model v4 (Two-Branch Neural Network).
+    Predicts both Intensity (RPE) and Suitability based on real-time user state (Mood, Fatigue).
+    """
+    try:
+        logger.info(f"V4 Request - User: {req.user_context.gender}, Goal: {req.goal_context.goal_type}")
+        result = recommend_v4(req)
+        logger.info(f"V4 Result - Generated {len(result.recommendations)} recommendations")
+        return result
+    except Exception as e:
+        logger.error(f"Error in v4 recommendation: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 @app.get("/health")
 def health_check():
     """Health check endpoint"""
@@ -151,9 +179,9 @@ def get_model_info():
     """Get information about available models"""
     try:
         from model_v3 import get_model_v3_info
-
+        # Import v4 info if available, or mock it
         v3_info = get_model_v3_info()
-
+        
         return {
             "models": {
                 "v1": {
@@ -166,6 +194,12 @@ def get_model_info():
                     "description": "Enhanced capability prediction model",
                     "endpoint": "/recommend/v3",
                     "info": v3_info
+                },
+                "v4": {
+                    "status": "active",
+                    "description": "Two-Branch Neural Network (Intensity & Suitability)",
+                    "endpoint": "/recommend/v4",
+                    "features": ["Real-time State Adaptation", "RPE Prediction"]
                 }
             }
         }
@@ -174,6 +208,7 @@ def get_model_info():
         return {
             "models": {
                 "v1": {"status": "available"},
-                "v3": {"status": "error", "error": str(e)}
+                "v3": {"status": "error", "error": str(e)},
+                "v4": {"status": "unknown"}
             }
         }
