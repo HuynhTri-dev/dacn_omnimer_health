@@ -480,8 +480,49 @@ Sau khi user hoàn thành workout, hệ thống sẽ thực hiện quy trình sa
 
 Backend sẽ tổng hợp dữ liệu từ 3 nguồn chính:
 
-- **WatchLog** (`src/domain/models/Devices/WatchLog.model.ts`): Dữ liệu sinh trắc học thực tế (HR avg, HR max, Calories, Steps, Sleep Quality).
 - **Workout** (`src/domain/models/Workout/Workout.model.ts`): Chi tiết bài tập thực tế đã thực hiện (Sets, Reps, Weight, Duration).
+
+```json
+workoutDetail: {
+      type: [
+        {
+          exerciseId: {
+            type: Schema.Types.ObjectId,
+            ref: "Exercise",
+            required: true,
+          },
+          type: {
+            type: String,
+            enum: WorkoutDetailTypeTuple,
+            required: true,
+          },
+          sets: {
+            type: [
+              {
+                setOrder: { type: Number, required: true },
+                reps: { type: Number },
+                weight: { type: Number },
+                duration: { type: Number },
+                distance: { type: Number },
+                restAfterSetSeconds: { type: Number, default: 0 },
+                notes: { type: String },
+                done: { type: Boolean, default: false },
+              },
+            ],
+            default: [],
+          },
+          durationMin: { type: Number },
+          deviceData: {
+            heartRateAvg: Number,
+            heartRateMax: Number,
+            caloriesBurned: Number,
+          },
+        },
+      ],
+      default: [],
+    }
+```
+
 - **WorkoutFeedback** (`src/domain/models/Workout/WorkoutFeedback.model.ts`): Cảm nhận chủ quan của người dùng (Suitability rating, Pain/Injury notes, Goal achieved).
 
 ### 2. Biến đổi & Tính toán Cường độ (Intensity Transformation)
