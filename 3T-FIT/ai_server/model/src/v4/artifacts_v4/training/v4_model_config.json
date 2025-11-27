@@ -1,0 +1,7 @@
+{
+  "model_type": "V4TwoBranchModel",
+  "branch_a_input_dim": 15,
+  "branch_b_input_dim": 19,
+  "shared_dim": 256,
+  "use_attention": true
+}

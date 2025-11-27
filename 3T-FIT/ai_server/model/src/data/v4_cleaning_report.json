@@ -1,0 +1,103 @@
+{
+  "sepa_standardization": {
+    "mood_numeric": {
+      "mean": 3.3781372549019606,
+      "std": 1.003988741111165,
+      "min": "1",
+      "max": "5",
+      "distribution": {
+        "1": 500,
+        "2": 987,
+        "3": 4323,
+        "4": 2936,
+        "5": 1454
+      }
+    },
+    "fatigue_numeric": {
+      "mean": 2.9769607843137256,
+      "std": 1.1043055343689705,
+      "min": "1",
+      "max": "5",
+      "distribution": {
+        "1": 1082,
+        "2": 2052,
+        "3": 4126,
+        "4": 1899,
+        "5": 1041
+      }
+    },
+    "effort_numeric": {
+      "mean": 3.2795098039215684,
+      "std": 1.0348433835206527,
+      "min": "1",
+      "max": "5",
+      "distribution": {
+        "1": 478,
+        "2": 1503,
+        "3": 4406,
+        "4": 2316,
+        "5": 1497
+      }
+    },
+    "readiness_factor_v4": {
+      "mean": 1.0093686274509805,
+      "std": 0.09811515870227047,
+      "min": 0.75,
+      "max": 1.2300000000000002
+    },
+    "sepa_composite": {
+      "mean": 1.080673202614379,
+      "std": 0.20361877375991402,
+      "min": 0.3333333333333333,
+      "max": 1.6666666666666667
+    }
+  },
+  "data_info": {
+    "original_samples": 10200,
+    "final_samples": 10200,
+    "retention_rate": 1.0,
+    "original_columns": 28,
+    "final_columns": 67,
+    "new_v4_features": [
+      "resistance_intensity",
+      "cardio_intensity",
+      "volume_load",
+      "rest_density",
+      "tempo_factor",
+      "metabolic_stress",
+      "mood_numeric",
+      "fatigue_numeric",
+      "effort_numeric",
+      "readiness_factor_v4",
+      "sepa_composite",
+      "lean_body_mass_estimate",
+      "strength_to_weight_ratio",
+      "body_size_factor",
+      "experience_intensity_product",
+      "age_experience_interaction",
+      "cardio_fitness_indicator",
+      "resistance_cardio_balance",
+      "training_density",
+      "metabolic_load",
+      "mood_intensity_interaction",
+      "fatigue_intensity_impact",
+      "effort_recovery_ratio",
+      "fitness_goal",
+      "goal_strength",
+      "goal_hypertrophy",
+      "goal_endurance",
+      "goal_general",
+      "overall_performance_score",
+      "intensity_branch_features",
+      "suitability_branch_features",
+      "target_resistance_intensity",
+      "target_cardio_intensity",
+      "target_overall_intensity",
+      "target_suitability",
+      "target_readiness_v4",
+      "target_1rm_enhanced",
+      "target_performance_class",
+      "target_performance_class_encoded"
+    ]
+  }
+}

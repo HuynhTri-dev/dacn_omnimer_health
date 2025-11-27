@@ -1,1 +1,0 @@
-\*\* ĐÚNG DỮ LIỆU NHƯNG SAI SÓT VỀ REP/SETS

@@ -1,0 +1,88 @@
+{
+  "intensity_branch_features": {
+    "primary_features": [
+      "resistance_intensity",
+      "cardio_intensity",
+      "volume_load",
+      "rest_density",
+      "tempo_factor",
+      "metabolic_stress"
+    ],
+    "description": "Features for intensity prediction branch",
+    "target_variable": "target_overall_intensity"
+  },
+  "suitability_branch_features": {
+    "primary_features": [
+      "age",
+      "weight_kg",
+      "height_m",
+      "bmi",
+      "experience_level",
+      "workout_frequency",
+      "resting_heartrate",
+      "mood_numeric",
+      "fatigue_numeric",
+      "effort_numeric",
+      "readiness_factor_v4",
+      "strength_to_weight_ratio",
+      "sepa_composite"
+    ],
+    "description": "Features for suitability prediction branch",
+    "target_variable": "target_suitability"
+  },
+  "shared_features": {
+    "features": [
+      "age",
+      "weight_kg",
+      "height_m",
+      "experience_level",
+      "mood_numeric",
+      "fatigue_numeric",
+      "effort_numeric"
+    ],
+    "description": "Features shared between both branches"
+  },
+  "target_variables": {
+    "intensity_targets": [
+      "target_resistance_intensity",
+      "target_cardio_intensity",
+      "target_overall_intensity"
+    ],
+    "suitability_targets": [
+      "target_suitability"
+    ],
+    "additional_targets": [
+      "target_readiness_v4",
+      "target_1rm_enhanced"
+    ],
+    "classification_targets": [
+      "target_performance_class_encoded"
+    ]
+  },
+  "dataset_statistics": {
+    "total_samples": 2000,
+    "total_features": 50,
+    "exercise_types": {
+      "compound": 604,
+      "bodyweight": 572,
+      "isolation": 406,
+      "cardio": 333,
+      "plyometric": 85
+    },
+    "fitness_goals": {
+      "general_fitness": 572,
+      "hypertrophy": 519,
+      "strength": 491,
+      "endurance": 418
+    },
+    "muscle_groups": {
+      "legs": 670,
+      "chest": 400,
+      "core": 289,
+      "back": 202,
+      "full_body": 175,
+      "shoulders": 146,
+      "arms": 118
+    }
+  }
+}

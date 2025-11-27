@@ -1,0 +1,38 @@
+{
+  "branch_a_features": [
+    "age",
+    "weight_kg",
+    "height_m",
+    "bmi",
+    "experience_level",
+    "workout_frequency",
+    "fitness_goal",
+    "exercise_name"
+  ],
+  "branch_b_features": [
+    "age",
+    "weight_kg",
+    "height_m",
+    "bmi",
+    "experience_level",
+    "workout_frequency",
+    "resting_heartrate",
+    "mood",
+    "fatigue",
+    "effort",
+    "strength_to_weight_ratio",
+    "overall_performance_score",
+    "training_density",
+    "resistance_intensity",
+    "cardio_intensity",
+    "volume_load",
+    "rest_density",
+    "tempo_factor"
+  ],
+  "target_columns": {
+    "intensity": "target_overall_intensity",
+    "suitability": "target_suitability",
+    "readiness": "target_readiness_v4",
+    "performance": "overall_performance_score"
+  }
+}

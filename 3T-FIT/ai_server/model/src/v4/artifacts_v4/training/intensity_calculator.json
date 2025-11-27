@@ -1,0 +1,10 @@
+{
+  "exercise_coefficients": {},
+  "default_coefficients": {
+    "resistance_coefficient": 1.0,
+    "cardio_coefficient": 0.5,
+    "volume_coefficient": 0.7,
+    "rest_density_coefficient": 0.3,
+    "tempo_coefficient": 0.5
+  }
+}

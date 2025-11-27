@@ -1,0 +1,42 @@
+{
+  "train_losses": [
+    1.264075765904692,
+    1.1726713905629425
+  ],
+  "val_losses": [
+    1.136989454428355,
+    1.1063164671262105
+  ],
+  "val_metrics": [
+    {
+      "intensity_mae": 0.012446401961918535,
+      "intensity_rmse": 0.0124486229679117,
+      "intensity_r2": 0.0,
+      "suitability_mae": 0.14180351533534397,
+      "suitability_rmse": 0.17371277950267747,
+      "suitability_r2": -0.009632992250506511,
+      "readiness_mae": 0.1069140813507148,
+      "readiness_rmse": 0.12838140112233218,
+      "readiness_r2": -0.8145590549763779,
+      "performance_mae": 0.08569789118443236,
+      "performance_rmse": 0.10550144827871949,
+      "performance_r2": -0.04823466215286154
+    },
+    {
+      "intensity_mae": 0.009936759809862918,
+      "intensity_rmse": 0.009936891826144177,
+      "intensity_r2": 0.0,
+      "suitability_mae": 0.12916355108525251,
+      "suitability_rmse": 0.15627363684350412,
+      "suitability_r2": 0.18290710568937885,
+      "readiness_mae": 0.0880184581998458,
+      "readiness_rmse": 0.10754773280297036,
+      "readiness_r2": -0.27341336501811053,
+      "performance_mae": 0.0819767940296347,
+      "performance_rmse": 0.10078130981018646,
+      "performance_r2": 0.04346322776991951
+    }
+  ],
+  "best_val_loss": 1.1063164671262105,
+  "total_epochs": 2
+}
