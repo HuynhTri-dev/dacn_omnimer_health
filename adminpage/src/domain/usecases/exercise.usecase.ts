@@ -8,10 +8,15 @@ import type {
   Exercise,
   PaginationParams,
   PaginationResponse,
+  ExerciseTypeFormValues,
 } from "../../shared/types";
 
 export class ExerciseUseCase {
-  constructor(private exerciseRepository: IExerciseRepository) {}
+  private exerciseRepository: IExerciseRepository;
+
+  constructor(exerciseRepository: IExerciseRepository) {
+    this.exerciseRepository = exerciseRepository;
+  }
 
   // Equipment
   async getEquipment(
@@ -102,7 +107,9 @@ export class ExerciseUseCase {
     return await this.exerciseRepository.getExerciseTypeById(id);
   }
 
-  async createExerciseType(typeData: any): Promise<ExerciseType> {
+  async createExerciseType(
+    typeData: ExerciseTypeFormValues
+  ): Promise<ExerciseType> {
     return await this.exerciseRepository.createExerciseType(typeData);
   }
 

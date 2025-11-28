@@ -108,14 +108,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           dispatch({ type: "AUTH_SUCCESS", payload: user });
         } catch (error) {
           // If getCurrentUser fails, clear tokens
-          authUseCase.logout();
+          await authUseCase.logout();
           dispatch({
             type: "AUTH_FAILURE",
             payload: "Session expired. Please login again.",
           });
         }
       } else {
-        dispatch({ type: "AUTH_FAILURE", payload: "Not authenticated" });
+        dispatch({ type: "LOGOUT" }); // Set to not authenticated without error
       }
     };
 
@@ -162,7 +162,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const refreshToken = async (): Promise<void> => {
     try {
-      const response = await authUseCase.refreshToken();
+      await authUseCase.refreshToken();
       // Token is automatically updated in the usecase
       console.log("Token refreshed");
     } catch (error: any) {

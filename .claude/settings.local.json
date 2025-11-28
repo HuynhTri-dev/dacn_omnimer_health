@@ -7,7 +7,8 @@
       "Bash(nul:*)",
       "Bash(flutter analyze:*)",
       "Bash(npm install:*)",
-      "Bash(npm run dev)"
+      "Bash(npm run dev)",
+      "Bash(npm run build:*)"
     ],
     "deny": [],
     "ask": []

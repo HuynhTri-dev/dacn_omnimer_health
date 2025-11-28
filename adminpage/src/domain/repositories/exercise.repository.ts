@@ -7,6 +7,7 @@ import type {
   Exercise,
   PaginationParams,
   PaginationResponse,
+  ExerciseTypeFormValues,
 } from "../../shared/types";
 
 export interface IExerciseRepository {
@@ -49,7 +50,7 @@ export interface IExerciseRepository {
     params?: PaginationParams
   ): Promise<PaginationResponse<ExerciseType>>;
   getExerciseTypeById(id: string): Promise<ExerciseType>;
-  createExerciseType(typeData: any): Promise<ExerciseType>;
+  createExerciseType(typeData: ExerciseTypeFormValues): Promise<ExerciseType>;
   updateExerciseType(
     id: string,
     typeData: Partial<ExerciseType>
