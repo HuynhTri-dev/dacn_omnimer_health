@@ -1,7 +1,7 @@
 import { Model, Types } from "mongoose";
 import { IHealthProfile } from "../../models";
 import { BaseRepository } from "../base.repository";
-import { IRAGHealthProfile } from "../../entities/RAG.entity";
+import { IRAGHealthProfile } from "../../entities/RecommendAI.entity";
 import { GenderEnum } from "../../../common/constants/EnumConstants";
 
 export class HealthProfileRepository extends BaseRepository<IHealthProfile> {
@@ -35,7 +35,7 @@ export class HealthProfileRepository extends BaseRepository<IHealthProfile> {
       .populate({ path: "userId", select: "gender" }) // chỉ lấy gender
       .sort({ checkupDate: -1 })
       .select(
-        "userId age height weight whr bmi bmr bodyFatPercentage muscleMass maxWeightLifted activityLevel experienceLevel workoutFrequency restingHeartRate healthStatus"
+        "userId age height weight bmi bodyFatPercentage activityLevel experienceLevel workoutFrequency restingHeartRate healthStatus maxWeightLifted"
       )
       .lean()
       .exec();
@@ -50,19 +50,16 @@ export class HealthProfileRepository extends BaseRepository<IHealthProfile> {
     const result: IRAGHealthProfile = {
       gender: populatedUser.gender,
       age: profile.age,
-      height: profile.height,
-      weight: profile.weight,
-      whr: profile.whr,
-      bmi: profile.bmi,
-      bmr: profile.bmr,
-      bodyFatPercentage: profile.bodyFatPercentage,
-      muscleMass: profile.muscleMass,
-      maxWeightLifted: profile.maxWeightLifted,
-      activityLevel: profile.activityLevel,
-      experienceLevel: profile.experienceLevel,
-      workoutFrequency: profile.workoutFrequency,
-      restingHeartRate: profile.restingHeartRate,
-      healthStatus: profile.healthStatus,
+      height: profile.height ?? null,
+      weight: profile.weight ?? null,
+      bmi: profile.bmi ?? null,
+      bodyFatPercentage: profile.bodyFatPercentage ?? null,
+      activityLevel: profile.activityLevel ?? null,
+      experienceLevel: profile.experienceLevel ?? null,
+      workoutFrequency: profile.workoutFrequency ?? null,
+      restingHeartRate: profile.restingHeartRate ?? null,
+      maxWeightLifted: profile.maxWeightLifted ?? null,
+      healthStatus: profile.healthStatus ?? null,
     };
 
     return result;

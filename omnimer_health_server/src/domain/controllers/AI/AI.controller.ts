@@ -67,6 +67,7 @@ export class RAGController {
         healthProfile: profile,
         goals: goals,
         exercises: exercises,
+        k: userRequest.k ?? 5,
       };
 
       console.log(context);
@@ -79,7 +80,8 @@ export class RAGController {
         await this.workoutTemplateService.createWorkoutTemplateByAI(
           userId,
           userRequest,
-          aiResponse
+          aiResponse,
+          exercises
         );
 
       return sendCreated(res, workoutTemplate, "Tạo buổi tập thành công");

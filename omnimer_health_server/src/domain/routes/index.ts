@@ -16,8 +16,7 @@ import workoutTemplateRoute from "./workout-template.route";
 import workoutRoute from "./workout.route";
 import workoutFeedbackRoute from "./workout-feedback.route";
 import watchLogRoute from "./watch-log.route";
-import RAGRoute from "./rag.route";
-import AIRoute from "./AI.route";
+import AIRoute from "./ai.route";
 
 function setupRoutes(app: Express) {
   // System
@@ -43,7 +42,6 @@ function setupRoutes(app: Express) {
   // Deices
   app.use("/api/v1/watch-log", watchLogRoute);
   // AI
-  app.use("/api/v1/ai", RAGRoute);
-  app.use("/api/v1/ai/v4", AIRoute);
+  app.use("/api/v1/ai", AIRoute);
 }
 export default setupRoutes;

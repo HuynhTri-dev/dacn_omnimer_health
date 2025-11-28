@@ -19,7 +19,6 @@ class RecommendInput(BaseModel):
 class SetDetail(BaseModel):
     reps: Optional[int] = None
     kg: Optional[float] = None
-    minRest: Optional[int] = None
     distance: Optional[float] = None
     duration: Optional[int] = None
     restAfterSetSeconds: Optional[int] = None

@@ -89,34 +89,30 @@ Hệ thống đã chọn ra 3 bài tập (**Barbell Bench Press**, **Barbell Squ
         {
           "reps": 10,
           "kg": 25.0,
-          "minRest": 60,
           "distance": null,
           "duration": null,
-          "restAfterSetSeconds": null
+          "restAfterSetSeconds": 60
         },
         {
           "reps": 10,
           "kg": 25.0,
-          "minRest": 60,
           "distance": null,
           "duration": null,
-          "restAfterSetSeconds": null
+          "restAfterSetSeconds": 60
         },
         {
           "reps": 10,
           "kg": 25.0,
-          "minRest": 60,
           "distance": null,
           "duration": null,
-          "restAfterSetSeconds": null
+          "restAfterSetSeconds": 60
         },
         {
           "reps": 10,
           "kg": 25.0,
-          "minRest": 60,
           "distance": null,
           "duration": null,
-          "restAfterSetSeconds": null
+          "restAfterSetSeconds": 60
         }
       ]
     },
@@ -126,34 +122,30 @@ Hệ thống đã chọn ra 3 bài tập (**Barbell Bench Press**, **Barbell Squ
         {
           "reps": 10,
           "kg": 25.0,
-          "minRest": 60,
           "distance": null,
           "duration": null,
-          "restAfterSetSeconds": null
+          "restAfterSetSeconds": 60
         },
         {
           "reps": 10,
           "kg": 25.0,
-          "minRest": 60,
           "distance": null,
           "duration": null,
-          "restAfterSetSeconds": null
+          "restAfterSetSeconds": 60
         },
         {
           "reps": 10,
           "kg": 25.0,
-          "minRest": 60,
           "distance": null,
           "duration": null,
-          "restAfterSetSeconds": null
+          "restAfterSetSeconds": 60
         },
         {
           "reps": 10,
           "kg": 25.0,
-          "minRest": 60,
           "distance": null,
           "duration": null,
-          "restAfterSetSeconds": null
+          "restAfterSetSeconds": 60
         }
       ]
     },
@@ -163,7 +155,6 @@ Hệ thống đã chọn ra 3 bài tập (**Barbell Bench Press**, **Barbell Squ
         {
           "reps": null,
           "kg": null,
-          "minRest": null,
           "distance": 2.4,
           "duration": null,
           "restAfterSetSeconds": null

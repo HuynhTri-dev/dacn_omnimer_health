@@ -68,7 +68,7 @@ def convert_intensity_to_params(
             sets.append(SetDetail(
                 reps=reps,
                 kg=target_weight,
-                minRest=rest_seconds
+                restAfterSetSeconds=rest_seconds
             ))
             
     elif exercise_type == "distance":

@@ -5,6 +5,7 @@ import { WorkoutTemplateRepository } from "../../repositories";
 import { HttpError } from "../../../utils/HttpError";
 import {
   IRAGAIResponse,
+  IRAGExercise,
   PaginationQueryOptions,
   UserRAGRequest,
 } from "../../entities";
@@ -252,17 +253,16 @@ export class WorkoutTemplateService {
   async createWorkoutTemplateByAI(
     userId: string,
     userRequest: UserRAGRequest,
-    aiResponse: IRAGAIResponse
+    aiResponse: IRAGAIResponse,
+    exerciseStuitable: IRAGExercise[]
   ): Promise<IWorkoutTemplate> {
     try {
       // Convert AI exercises to WorkoutTemplateDetail using your utils
       const workOutDetail: IWorkoutTemplateDetail[] =
-        mapAIResponseToWorkoutDetail(aiResponse);
+        mapAIResponseToWorkoutDetail(aiResponse, exerciseStuitable);
 
       const newTemplateData: Partial<IWorkoutTemplate> = {
-        name: `AI Generated Workout - ${
-          new Date().toISOString().split("T")[0]
-        }`,
+        name: `AI Workout - ${new Date().toISOString().split("T")[0]}`,
         description: `Generated based on user profile and AI recommendation`,
         createdByAI: true,
         createdForUserId: new Types.ObjectId(userId),
