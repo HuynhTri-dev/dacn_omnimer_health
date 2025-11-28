@@ -15,10 +15,8 @@ PREPROCESSOR_V3_PATH = os.path.join(MODEL_V3_PATH, "preprocessor_v3.joblib")
 META_V3_PATH = os.path.join(MODEL_V3_PATH, "meta_v3.json")
 
 class PreprocessorV3:
-    """
-    Preprocessor for Model v3 with enhanced feature engineering
-    Based on Strategy_Analysis.md principles
-    """
+    # Preprocessor for Model v3 with enhanced feature engineering
+    # Based on Strategy_Analysis.md principles
 
     def __init__(self):
         self.preprocessor = None
@@ -271,6 +269,20 @@ preprocessor_v3 = PreprocessorV3()
 def load_preprocessor_v3() -> bool:
     """Load Model v3 preprocessor - call this during app startup"""
     return preprocessor_v3.load_artifacts()
+
+def get_preprocessor_v3():
+    """Get the loaded preprocessor v3 instance"""
+    if preprocessor_v3.preprocessor is None:
+        raise RuntimeError("Preprocessor v3 not loaded. Call load_preprocessor_v3() first.")
+    return preprocessor_v3
+
+def transform_profile_v3(profile: Dict) -> np.ndarray:
+    """Transform user profile using Model v3 preprocessor"""
+    return preprocessor_v3.transform_profile(profile)
+
+def get_feature_info_v3() -> Dict:
+    """Get Model v3 feature information"""
+    return preprocessor_v3.get_feature_info()
 
 def get_preprocessor_v3():
     """Get the loaded preprocessor v3 instance"""

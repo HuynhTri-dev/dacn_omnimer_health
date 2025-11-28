@@ -6,18 +6,21 @@ import json
 import os
 import logging
 from typing import List, Dict, Any
-from app.models.model_v4_arch import TwoBranchRecommendationModel
-from app.api.schemas_v4 import RecommendRequestV4, RecommendationItem
+
+from models.model_v4_arch import TwoBranchRecommendationModel
+from schema.recommend_schemas import RecommendInput, RecommendOutput, RecommendedExercise, SetDetail
+from schema.common_schemas import HealthProfile
+from utils.intensity_converter import convert_intensity_to_params
 
 logger = logging.getLogger(__name__)
 
-# Global variables to hold model and artifacts
+# Global variables
 MODEL_V4 = None
 SCALER_V4 = None
 METADATA_V4 = None
 DEVICE = 'cpu'
 
-# Feature order MUST match training data exactly
+# Feature columns must match the trained model's input
 FEATURE_COLUMNS = [
     'duration_min', 'avg_hr', 'max_hr', 'calories', 'fatigue', 'effort', 'mood', 
     'age', 'height_m', 'weight_kg', 'bmi', 'fat_percentage', 'resting_heartrate', 
@@ -27,7 +30,7 @@ FEATURE_COLUMNS = [
     'hr_reserve', 'calorie_efficiency'
 ]
 
-def load_model_v4_artifacts(model_dir: str = "../model/src/v4/model_v4"):
+def load_model_v4_artifacts(model_dir: str = "d:/dacn_omnimer_health/3T-FIT/ai_server/model/src/v4/personal_model_v4"):
     """Load Model v4 weights, scaler, and metadata"""
     global MODEL_V4, SCALER_V4, METADATA_V4, DEVICE
     
@@ -72,8 +75,8 @@ def load_model_v4_artifacts(model_dir: str = "../model/src/v4/model_v4"):
         logger.error(f"❌ Error loading Model v4: {e}")
         return False
 
-def _map_sepa_to_numeric(value: str) -> int:
-    """Map SePA text values to 1-5 scale"""
+def _map_text_to_numeric(value: str) -> int:
+    """Map text values to 1-5 scale"""
     mapping = {
         'very bad': 1, 'bad': 2, 'neutral': 3, 'good': 4, 'very good': 5, 'excellent': 5,
         'very low': 1, 'low': 2, 'medium': 3, 'high': 4, 'very high': 5,
@@ -82,52 +85,48 @@ def _map_sepa_to_numeric(value: str) -> int:
     }
     return mapping.get(str(value).lower(), 3)
 
-def _prepare_input_vector(req: RecommendRequestV4, exercise: Dict[str, Any]) -> np.ndarray:
+def _prepare_input_vector(profile: HealthProfile, exercise: Dict[str, Any], goal_type: str) -> np.ndarray:
     """Convert request + exercise candidate into feature vector"""
     
-    # Extract user metrics
-    metrics = req.health_metrics
-    user_ctx = req.user_context
-    state = req.current_state
-    
     # 1. Basic User Stats
-    age = metrics.age
-    height = metrics.height_cm / 100.0 # Convert to meters
-    weight = metrics.weight_kg
-    bmi = metrics.bmi if metrics.bmi else weight / (height ** 2)
-    fat = metrics.body_fat_percentage if metrics.body_fat_percentage else 20.0
-    rhr = metrics.resting_heart_rate if metrics.resting_heart_rate else 70
+    age = profile.age
+    height = profile.height / 100.0 # Convert cm to meters
+    weight = profile.weight
+    bmi = profile.bmi
+    fat = profile.bodyFatPercentage
+    rhr = profile.restingHeartRate
     
     # 2. Context & State
-    gender = _map_sepa_to_numeric(user_ctx.gender)
-    exp_level = _map_sepa_to_numeric(user_ctx.experience_level)
-    freq = user_ctx.workout_frequency
-    mood = _map_sepa_to_numeric(state.mood)
-    fatigue = _map_sepa_to_numeric(state.fatigue)
-    effort = 3 # Default effort prediction
+    gender = _map_text_to_numeric(profile.gender)
+    exp_level = _map_text_to_numeric(profile.experienceLevel)
+    freq = profile.workoutFrequency
+    
+    # Defaults for missing context in new schema
+    mood = 3 # Neutral
+    fatigue = 3 # Medium
+    effort = 3 # Moderate
     
     # 3. Exercise Specifics (Estimated)
-    # Note: For prediction, we use estimated values based on exercise metadata
-    duration = req.goal_context.duration_preference_min or 45
-    met = exercise.get('met_value', 5.0)
+    duration = 60 # Default duration
+    met = 5.0 # Default MET
     
     # Estimate HR based on intensity/METs
     max_hr_age = 208 - (0.7 * age)
-    avg_hr = rhr + (max_hr_age - rhr) * 0.6 # Assume 60% intensity
+    avg_hr = rhr + (max_hr_age - rhr) * 0.6 
     max_hr = max_hr_age
     
     # Estimate Calories
     calories = (met * 3.5 * weight / 200) * duration
     
-    # Derived Features (defaults for prediction)
+    # Derived Features
     session_duration = duration / 60.0 # hours
-    estimated_1rm = weight * 0.8 # Rough proxy if unknown
+    estimated_1rm = weight * 0.8 
     pace = 0.0
-    duration_capacity = duration * 60 # seconds
+    duration_capacity = duration * 60 
     rest_period = 60.0
-    intensity_score = met # Use MET as proxy for intensity score
+    intensity_score = met 
     
-    # Advanced Derived Features (Calculated same as data_processor.py)
+    # Advanced Derived Features
     resistance_intensity = intensity_score / estimated_1rm if estimated_1rm > 0 else 0
     cardio_intensity = avg_hr / max_hr if max_hr > 0 else 0
     volume_load = intensity_score * duration
@@ -171,71 +170,95 @@ def _prepare_input_vector(req: RecommendRequestV4, exercise: Dict[str, Any]) -> 
     vector = [features.get(col, 0.0) for col in FEATURE_COLUMNS]
     return np.array(vector, dtype=np.float32)
 
-def recommend_v4(req: RecommendRequestV4) -> RecommendResponseV4:
-    """Generate recommendations using Model v4"""
-    global MODEL_V4, SCALER_V4
-    
-    if MODEL_V4 is None:
-        raise Exception("Model v4 is not loaded")
-
-    # 1. Get Candidate Exercises
-    # In production, this would fetch from DB. Here we use input or mock.
-    candidates = req.available_exercises or []
-    if not candidates:
-        # Mock candidates if none provided
-        candidates = [
-            {"id": "ex1", "name": "Barbell Squat", "met_value": 6.0},
-            {"id": "ex2", "name": "Running", "met_value": 8.0},
-            {"id": "ex3", "name": "Yoga", "met_value": 3.0},
-            {"id": "ex4", "name": "HIIT", "met_value": 10.0},
-            {"id": "ex5", "name": "Bench Press", "met_value": 5.0}
-        ]
-    
-    recommendations = []
-    
-    # 2. Prepare Batch Input
-    input_vectors = []
-    for ex in candidates:
-        # Handle both dict and object (Pydantic)
-        ex_dict = ex.dict() if hasattr(ex, 'dict') else ex
-        vec = _prepare_input_vector(req, ex_dict)
-        input_vectors.append(vec)
-        
-    X = np.array(input_vectors)
-    
-    # 3. Scale Features
-    X_scaled = SCALER_V4.transform(X)
-    X_tensor = torch.FloatTensor(X_scaled).to(DEVICE)
-    
-    # 4. Inference
-    with torch.no_grad():
-        intensity_pred, suitability_pred = MODEL_V4(X_tensor)
-        
-    # 5. Process Results
-    intensity_vals = intensity_pred.cpu().numpy().flatten()
-    suitability_vals = suitability_pred.cpu().numpy().flatten()
-    
-    for i, ex in enumerate(candidates):
-        ex_dict = ex.dict() if hasattr(ex, 'dict') else ex
-        score = float(suitability_vals[i])
-        rpe = float(intensity_vals[i])
-        
-        # Filter logic (e.g. threshold > 0.4)
-        if score > 0.4:
-            rec = RecommendationItem(
-                exercise_id=ex_dict.get('id', f'ex_{i}'),
-                exercise_name=ex_dict.get('name', 'Unknown'),
-                predicted_rpe=round(rpe, 1),
-                suitability_score=round(score, 3),
-                reason=f"Matches your current mood and energy (Score: {int(score*100)}%)",
-                suggested_params={"duration": req.goal_context.duration_preference_min}
-            )
-            recommendations.append(rec)
+class RecommendationService:
+    def __init__(self):
+        if MODEL_V4 is None:
+            load_model_v4_artifacts()
             
-    # 6. Sort by Suitability
-    recommendations.sort(key=lambda x: x.suitability_score, reverse=True)
-    
-    return RecommendResponseV4(
-        recommendations=recommendations[:req.top_k],
-        session_id="sess_v4_demo"
-    )
+    def recommend_exercises(self, req: RecommendInput) -> RecommendOutput:
+        """Generate recommendations using Model v4"""
+        global MODEL_V4, SCALER_V4
+        
+        if MODEL_V4 is None:
+            # Try loading again if not loaded
+            if not load_model_v4_artifacts():
+                raise Exception("Model v4 could not be loaded")
+
+        candidates = req.exercises
+        if not candidates:
+            return RecommendOutput(exercises=[])
+        
+        # Prepare Batch Input
+        input_vectors = []
+        # Use first goal as primary for context
+        primary_goal = req.goals[0].goalType if req.goals else "General"
+        
+        for ex in candidates:
+            # We treat ExerciseInput as a dictionary for feature extraction
+            # In a real scenario, we might need to fetch more metadata about the exercise (MET, etc.)
+            # Here we just pass the object and let _prepare_input_vector handle defaults
+            ex_dict = ex.dict()
+            vec = _prepare_input_vector(req.healthProfile, ex_dict, primary_goal)
+            input_vectors.append(vec)
+            
+        X = np.array(input_vectors)
+        
+        # Scale Features
+        X_scaled = SCALER_V4.transform(X)
+        X_tensor = torch.FloatTensor(X_scaled).to(DEVICE)
+        
+        # Inference
+        with torch.no_grad():
+            intensity_pred, suitability_pred = MODEL_V4(X_tensor)
+            
+        # Process Results
+        intensity_vals = intensity_pred.cpu().numpy().flatten()
+        suitability_vals = suitability_pred.cpu().numpy().flatten()
+        
+        recommended_exercises = []
+        
+        for i, ex in enumerate(candidates):
+            suitability = float(suitability_vals[i])
+            predicted_rpe = float(intensity_vals[i])
+            
+            # Filter logic (e.g. threshold > 0.4)
+            if suitability > 0.4:
+                # Determine exercise type (Mock logic: assume 'reps' unless name implies cardio)
+                ex_type = "reps"
+                name_lower = ex.exerciseName.lower()
+                if any(x in name_lower for x in ['run', 'cardio', 'treadmill', 'cycle', 'bike']):
+                    ex_type = "distance"
+                elif any(x in name_lower for x in ['plank', 'hiit', 'yoga']):
+                    ex_type = "time"
+                
+                # Generate Parameters using the utility function
+                sets = convert_intensity_to_params(
+                    exercise_name=ex.exerciseName,
+                    exercise_type=ex_type,
+                    intensity_score=predicted_rpe,
+                    user_profile=req.healthProfile,
+                    goal_type=primary_goal
+                )
+                
+                recommended_exercises.append(RecommendedExercise(
+                    name=ex.exerciseName,
+                    sets=sets
+                ))
+                
+        # Sort by suitability (implicitly handled by the order of processing if we wanted, but let's sort)
+        # We need to pair them up to sort, but RecommendedExercise doesn't have score. 
+        # For now, we return them in the order processed (which matches input order), 
+        # or we could zip and sort.
+        
+        # Let's zip, sort, and unzip
+        zipped = zip(recommended_exercises, suitability_vals)
+        sorted_zipped = sorted(zipped, key=lambda x: x[1], reverse=True)
+        final_recommendations = [x[0] for x in sorted_zipped if x[1] > 0.4]
+        
+        # Limit to k
+        final_recommendations = final_recommendations[:req.k]
+        
+        return RecommendOutput(exercises=final_recommendations)
+
+# Singleton instance
+recommendation_service = RecommendationService()

@@ -11,100 +11,166 @@ API v4 giới thiệu kiến trúc **Two-Branch Neural Network** cho phép dự 
 
 ## Endpoint
 
-`POST /recommend/v4`
+### Recommend Exercises
 
-## Request Structure
+| Phương thức | Endpoint            | Chức năng                                                                                  |
+| :---------- | :------------------ | :----------------------------------------------------------------------------------------- |
+| **POST**    | `/api/ai/recommend` | Yêu cầu hệ thống gợi ý `k` bài tập phù hợp nhất dựa trên hồ sơ và mục tiêu của người dùng. |
 
-### 1. Health Metrics (`health_metrics`)
+---
 
-Thông tin cơ bản về thể trạng người dùng.
+**1. Request: Dữ liệu Đầu vào (IRAGUserContext)**
 
-```json
-{
-  "age": 25,
-  "height_cm": 175,
-  "weight_kg": 70,
-  "bmi": 22.8,
-  "body_fat_percentage": 15.0,
-  "resting_heart_rate": 60
-}
-```
-
-### 2. User Context (`user_context`)
-
-Thông tin nền tảng và thói quen.
+Dữ liệu mô tả hồ sơ sức khỏe, mục tiêu và danh sách các bài tập ứng viên có sẵn. Mục tiêu là gợi ý `k=3` bài tập.
 
 ```json
 {
-  "gender": "Male",
-  "experience_level": "Intermediate",
-  "activity_level": 3,
-  "workout_frequency": 4,
-  "injuries": ["Knee"]
-}
-```
-
-### 3. Current State (`current_state`) - **NEW & CRITICAL**
-
-Trạng thái hiện tại của người dùng. Đây là input quan trọng cho Branch B.
-
-```json
-{
-  "mood": "Good", // Very Bad, Bad, Neutral, Good, Excellent
-  "fatigue": "Low", // Very Low, Low, Medium, High, Very High
-  "sleep_quality": "Good", // Optional
-  "stress_level": "Low" // Optional
-}
-```
-
-### 4. Goal Context (`goal_context`)
-
-Mục tiêu của buổi tập này.
-
-```json
-{
-  "goal_type": "MuscleGain",
-  "duration_preference_min": 60
-}
-```
-
-### 5. Available Exercises (`available_exercises`)
-
-Danh sách các bài tập ứng viên để AI đánh giá.
-
-```json
-[
-  {
-    "id": "ex_001",
-    "name": "Barbell Squat",
-    "met_value": 6.0
+  "healthProfile": {
+    "gender": "male",
+    "age": 25,
+    "height": 175,
+    "weight": 70,
+    "bmi": 22.86,
+    "bodyFatPercentage": 15.0,
+    "activityLevel": 3,
+    "experienceLevel": "intermediate",
+    "workoutFrequency": 4,
+    "restingHeartRate": 60,
+    "healthStatus": {
+      "injuries": []
+    }
   },
-  {
-    "id": "ex_002",
-    "name": "Running",
-    "met_value": 8.0
-  }
-]
-```
-
-## Response Structure
-
-```json
-{
-  "recommendations": [
+  "goals": [
     {
-      "exercise_id": "ex_001",
-      "exercise_name": "Barbell Squat",
-      "predicted_rpe": 7.5,
-      "suitability_score": 0.92,
-      "reason": "Matches your current mood and energy (Score: 92%)",
-      "suggested_params": {
-        "duration": 60
-      }
+      "goalType": "muscle_gain",
+      "targetMetric": ["hypertrophy", "strength"]
     }
   ],
-  "session_id": "sess_v4_demo",
-  "model_version": "v4.0.0"
+  "exercises": [
+    {
+      "exerciseId": "ex_001",
+      "exerciseName": "Barbell Bench Press"
+    },
+    {
+      "exerciseId": "ex_002",
+      "exerciseName": "Barbell Squat"
+    },
+    {
+      "exerciseId": "ex_003",
+      "exerciseName": "Treadmill Running"
+    },
+    {
+      "exerciseId": "ex_004",
+      "exerciseName": "Plank"
+    },
+    {
+      "exerciseId": "ex_005",
+      "exerciseName": "Dumbbell Curl"
+    }
+  ],
+  "k": 3
+}
+```
+
+**2. Response: Dữ liệu Đầu ra (IRAGAIResponse)**
+
+Hệ thống đã chọn ra 3 bài tập (**Barbell Bench Press**, **Barbell Squat**, **Treadmill Running**) và tính toán các tham số cụ thể (Sets, Reps, Kg, Distance) dựa trên mục tiêu Tăng Cơ (Hypertrophy/Strength) và trình độ Trung bình (Intermediate).
+
+---
+
+## 🏋️ Chi tiết Gợi ý JSON
+
+```json
+{
+  "exercises": [
+    {
+      "name": "Barbell Bench Press",
+      "sets": [
+        {
+          "reps": 10,
+          "kg": 25.0,
+          "minRest": 60,
+          "distance": null,
+          "duration": null,
+          "restAfterSetSeconds": null
+        },
+        {
+          "reps": 10,
+          "kg": 25.0,
+          "minRest": 60,
+          "distance": null,
+          "duration": null,
+          "restAfterSetSeconds": null
+        },
+        {
+          "reps": 10,
+          "kg": 25.0,
+          "minRest": 60,
+          "distance": null,
+          "duration": null,
+          "restAfterSetSeconds": null
+        },
+        {
+          "reps": 10,
+          "kg": 25.0,
+          "minRest": 60,
+          "distance": null,
+          "duration": null,
+          "restAfterSetSeconds": null
+        }
+      ]
+    },
+    {
+      "name": "Barbell Squat",
+      "sets": [
+        {
+          "reps": 10,
+          "kg": 25.0,
+          "minRest": 60,
+          "distance": null,
+          "duration": null,
+          "restAfterSetSeconds": null
+        },
+        {
+          "reps": 10,
+          "kg": 25.0,
+          "minRest": 60,
+          "distance": null,
+          "duration": null,
+          "restAfterSetSeconds": null
+        },
+        {
+          "reps": 10,
+          "kg": 25.0,
+          "minRest": 60,
+          "distance": null,
+          "duration": null,
+          "restAfterSetSeconds": null
+        },
+        {
+          "reps": 10,
+          "kg": 25.0,
+          "minRest": 60,
+          "distance": null,
+          "duration": null,
+          "restAfterSetSeconds": null
+        }
+      ]
+    },
+    {
+      "name": "Treadmill Running",
+      "sets": [
+        {
+          "reps": null,
+          "kg": null,
+          "minRest": null,
+          "distance": 2.4,
+          "duration": null,
+          "restAfterSetSeconds": null
+        }
+      ]
+    }
+  ]
 }
 ```
 

@@ -3,9 +3,12 @@ import pandas as pd
 import numpy as np
 import json
 
-ART = "./model"
-PRE = f"{ART}/preprocessor.joblib"
-META = f"{ART}/meta.json"
+import os
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+ART = os.path.join(BASE_DIR, "model", "src", "v1", "model")
+PRE = os.path.join(ART, "preprocessor.joblib")
+META = os.path.join(ART, "meta.json")
 
 pre = joblib.load(PRE)
 meta = json.load(open(META, "r", encoding="utf-8"))
