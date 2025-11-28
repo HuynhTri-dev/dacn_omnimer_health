@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:omnihealthmobileflutter/core/constants/enum_constant.dart';
-import 'package:omnihealthmobileflutter/core/theme/app_colors.dart';
 import 'package:omnihealthmobileflutter/core/theme/app_radius.dart';
 import 'package:omnihealthmobileflutter/core/theme/app_spacing.dart';
 import 'package:omnihealthmobileflutter/core/theme/app_typography.dart';
@@ -15,18 +14,7 @@ import 'package:omnihealthmobileflutter/presentation/screen/auth/register/widget
 import 'package:omnihealthmobileflutter/presentation/screen/auth/register/widgets/register_foot.dart';
 import 'package:omnihealthmobileflutter/presentation/screen/auth/register/widgets/register_form.dart';
 
-/// Register screen
-/// Allows users to create a new account with information:
-/// - Email (required)
-/// - Password (required)
-/// - Full name (required)
-/// - Birthday (optional)
-/// - Gender (optional)
-/// - Role (optional)
-/// - Profile image (optional)
-///
-/// Users must agree to privacy policy and terms of service
-/// before they can register
+/// Register screen with beautiful design
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({Key? key}) : super(key: key);
 
@@ -34,7 +22,8 @@ class RegisterScreen extends StatefulWidget {
   State<RegisterScreen> createState() => _RegisterScreenState();
 }
 
-class _RegisterScreenState extends State<RegisterScreen> {
+class _RegisterScreenState extends State<RegisterScreen>
+    with SingleTickerProviderStateMixin {
   // Text field controllers
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
@@ -58,11 +47,34 @@ class _RegisterScreenState extends State<RegisterScreen> {
   bool _isLoadingRoles = false;
   String? _rolesError;
 
+  // Animation
+  late AnimationController _animationController;
+  late Animation<double> _fadeAnimation;
+  late Animation<Offset> _slideAnimation;
+
   @override
   void initState() {
     super.initState();
-    // Load roles when screen initializes
     _loadRoles();
+
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 600),
+    );
+
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
+    );
+
+    _slideAnimation =
+        Tween<Offset>(begin: const Offset(0, 0.05), end: Offset.zero).animate(
+          CurvedAnimation(
+            parent: _animationController,
+            curve: Curves.easeOutCubic,
+          ),
+        );
+
+    _animationController.forward();
   }
 
   @override
@@ -70,19 +82,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
     _emailController.dispose();
     _passwordController.dispose();
     _fullnameController.dispose();
+    _animationController.dispose();
     super.dispose();
   }
 
-  /// Load roles list from API
   void _loadRoles() {
     context.read<RegisterCubit>().loadRoles();
   }
 
-  /// Validate entire form before submit
   bool _validateForm() {
     bool isValid = true;
 
-    // Validate email
     if (_emailController.text.trim().isEmpty) {
       setState(() => _emailError = 'Email is required');
       isValid = false;
@@ -93,7 +103,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
       setState(() => _emailError = null);
     }
 
-    // Validate password
     if (_passwordController.text.isEmpty) {
       setState(() => _passwordError = 'Password is required');
       isValid = false;
@@ -104,7 +113,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
       setState(() => _passwordError = null);
     }
 
-    // Validate fullname
     if (_fullnameController.text.trim().isEmpty) {
       setState(() => _fullnameError = 'Full name is required');
       isValid = false;
@@ -117,7 +125,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
       setState(() => _fullnameError = null);
     }
 
-    // Validate policy checkbox
     if (!_isPolicyAccepted) {
       setState(() => _policyError = 'You must agree to the policy and terms');
       isValid = false;
@@ -128,25 +135,21 @@ class _RegisterScreenState extends State<RegisterScreen> {
     return isValid;
   }
 
-  /// Check if email is valid
   bool _isValidEmail(String email) {
     return RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(email);
   }
 
-  /// Handle registration
   void _handleRegister() {
     if (!_validateForm()) {
       _showErrorSnackBar('Please check your information');
       return;
     }
 
-    // Format birthday if exists
     String? birthdayStr;
     if (_selectedBirthday != null) {
       birthdayStr = _selectedBirthday!.toIso8601String();
     }
 
-    // Call cubit to register
     context.read<RegisterCubit>().register(
       email: _emailController.text.trim(),
       password: _passwordController.text,
@@ -158,75 +161,76 @@ class _RegisterScreenState extends State<RegisterScreen> {
     );
   }
 
-  /// Show privacy policy PDF
   void _showPrivacyPolicy() {
-    // TODO: Implement PDF viewer
     _showInfoDialog('Privacy Policy', 'PDF viewer feature will be updated');
   }
 
-  /// Show terms of service PDF
   void _showTermsOfService() {
-    // TODO: Implement PDF viewer
     _showInfoDialog('Terms of Service', 'PDF viewer feature will be updated');
   }
 
-  /// Navigate back to login page
   void _navigateToLogin() {
     Navigator.pushReplacementNamed(context, '/login');
   }
 
-  /// Navigate to Home after successful registration
   void _navigateToHome() {
     Navigator.pushReplacementNamed(context, '/home');
   }
 
-  /// Show error message
   void _showErrorSnackBar(String message) {
+    final theme = Theme.of(context);
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(message),
-        backgroundColor: AppColors.error,
+        content: Row(
+          children: [
+            Icon(Icons.error_outline, color: Colors.white, size: 20.sp),
+            SizedBox(width: AppSpacing.sm.w),
+            Expanded(child: Text(message)),
+          ],
+        ),
+        backgroundColor: theme.colorScheme.error,
         behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12.r),
+        ),
+        margin: EdgeInsets.all(AppSpacing.md.w),
       ),
     );
   }
 
-  /// Show success message
   void _showSuccessSnackBar(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(message),
-        backgroundColor: AppColors.success,
+        content: Row(
+          children: [
+            Icon(Icons.check_circle_outline, color: Colors.white, size: 20.sp),
+            SizedBox(width: AppSpacing.sm.w),
+            Expanded(child: Text(message)),
+          ],
+        ),
+        backgroundColor: Colors.green,
         behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12.r),
+        ),
+        margin: EdgeInsets.all(AppSpacing.md.w),
       ),
     );
   }
 
-  /// Show info dialog
   void _showInfoDialog(String title, String message) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(
-          title,
-          style: AppTypography.headingBoldStyle(
-            fontSize: AppTypography.fontSizeLg.sp,
-          ),
-        ),
-        content: Text(
-          message,
-          style: AppTypography.bodyRegularStyle(
-            fontSize: AppTypography.fontSizeBase.sp,
-          ),
-        ),
+        title: Text(title, style: Theme.of(context).textTheme.titleLarge),
+        content: Text(message, style: Theme.of(context).textTheme.bodyMedium),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
             child: Text(
               'Close',
-              style: AppTypography.bodyBoldStyle(
-                fontSize: AppTypography.fontSizeBase.sp,
-                color: AppColors.primary,
+              style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                color: Theme.of(context).colorScheme.primary,
               ),
             ),
           ),
@@ -237,13 +241,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Scaffold(
-      backgroundColor: AppColors.background,
       body: BlocConsumer<RegisterCubit, RegisterState>(
         listener: (context, state) {
           if (state is RegisterSuccess) {
             _showSuccessSnackBar('Registration successful!');
-            // Navigate to home after 500ms
             Future.delayed(const Duration(milliseconds: 500), _navigateToHome);
           } else if (state is RegisterFailure) {
             _showErrorSnackBar(state.message);
@@ -273,120 +277,174 @@ class _RegisterScreenState extends State<RegisterScreen> {
             child: SingleChildScrollView(
               padding: EdgeInsets.symmetric(
                 horizontal: AppSpacing.lg.w,
-                vertical: AppSpacing.md.h,
+                vertical: AppSpacing.lg.h,
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  // Back button
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: GestureDetector(
-                      onTap: isLoading ? null : _navigateToLogin,
-                      child: Container(
-                        width: 40.w,
-                        height: 40.h,
-                        decoration: BoxDecoration(
-                          color: AppColors.surface,
-                          borderRadius: BorderRadius.circular(AppRadius.md.r),
-                          border: Border.all(
-                            color: AppColors.gray200,
-                            width: 1.5,
+              child: FadeTransition(
+                opacity: _fadeAnimation,
+                child: SlideTransition(
+                  position: _slideAnimation,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      // Back button and header in same row
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          GestureDetector(
+                            onTap: isLoading ? null : _navigateToLogin,
+                            child: Container(
+                              width: 44.w,
+                              height: 44.h,
+                              decoration: BoxDecoration(
+                                color: theme.cardColor,
+                                borderRadius: BorderRadius.circular(
+                                  AppRadius.md.r,
+                                ),
+                                border: Border.all(
+                                  color: theme.dividerColor,
+                                  width: 1.5,
+                                ),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: theme.shadowColor.withOpacity(0.05),
+                                    blurRadius: 4,
+                                    offset: const Offset(0, 2),
+                                  ),
+                                ],
+                              ),
+                              child: Icon(
+                                Icons.arrow_back,
+                                color: theme.iconTheme.color,
+                                size: 20.sp,
+                              ),
+                            ),
                           ),
+                          SizedBox(width: AppSpacing.md.w),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                ShaderMask(
+                                  shaderCallback: (bounds) => LinearGradient(
+                                    colors: [
+                                      theme.colorScheme.primary,
+                                      theme.colorScheme.primary.withOpacity(
+                                        0.7,
+                                      ),
+                                    ],
+                                  ).createShader(bounds),
+                                  child: Text(
+                                    'Create Account',
+                                    style: theme.textTheme.displayLarge
+                                        ?.copyWith(
+                                          fontSize:
+                                              AppTypography.fontSize2Xl.sp,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.white,
+                                        ),
+                                  ),
+                                ),
+                                SizedBox(height: AppSpacing.xs.h),
+                                Text(
+                                  'Join us and start your wellness journey today',
+                                  style: theme.textTheme.bodyMedium?.copyWith(
+                                    fontSize: AppTypography.fontSizeXs.sp,
+                                    color: theme.textTheme.bodyMedium?.color
+                                        ?.withOpacity(0.7),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: AppSpacing.xl.h),
+
+                      // Form in card container
+                      Container(
+                        padding: EdgeInsets.all(AppSpacing.xl.w),
+                        decoration: BoxDecoration(
+                          color: theme.cardColor,
+                          borderRadius: BorderRadius.circular(AppRadius.xl.r),
+                          boxShadow: [
+                            BoxShadow(
+                              color: theme.shadowColor.withOpacity(0.08),
+                              blurRadius: 20,
+                              spreadRadius: 2,
+                              offset: const Offset(0, 8),
+                            ),
+                          ],
                         ),
-                        child: const Icon(
-                          Icons.arrow_back,
-                          color: AppColors.textPrimary,
-                          size: 20,
+                        child: Column(
+                          children: [
+                            RegisterForm(
+                              emailController: _emailController,
+                              passwordController: _passwordController,
+                              fullnameController: _fullnameController,
+                              birthday: _selectedBirthday,
+                              gender: _selectedGender,
+                              selectedRoleId: _selectedRoleId,
+                              selectedImage: _selectedImage,
+                              onBirthdayChanged: (date) {
+                                setState(() => _selectedBirthday = date);
+                              },
+                              onGenderChanged: (gender) {
+                                setState(() => _selectedGender = gender);
+                              },
+                              onRoleChanged: (roleId) {
+                                setState(() => _selectedRoleId = roleId);
+                              },
+                              onImageChanged: (image) {
+                                setState(() => _selectedImage = image);
+                              },
+                              emailError: _emailError,
+                              passwordError: _passwordError,
+                              fullnameError: _fullnameError,
+                              isLoading: isLoading,
+                              roles: _roles,
+                              isLoadingRoles: _isLoadingRoles,
+                              rolesError: _rolesError,
+                            ),
+                            SizedBox(height: AppSpacing.lg.h),
+
+                            // Policy checkbox
+                            PolicyCheckbox(
+                              isChecked: _isPolicyAccepted,
+                              onChanged: (value) {
+                                setState(() {
+                                  _isPolicyAccepted = value;
+                                  _policyError = null;
+                                });
+                              },
+                              onPrivacyPolicyTap: _showPrivacyPolicy,
+                              onTermsOfServiceTap: _showTermsOfService,
+                              errorMessage: _policyError,
+                              disabled: isLoading,
+                            ),
+                            SizedBox(height: AppSpacing.xl.h),
+
+                            // Register button
+                            ButtonPrimary(
+                              title: 'Sign Up',
+                              onPressed: _handleRegister,
+                              loading: isLoading,
+                              disabled: isLoading,
+                              fullWidth: true,
+                              size: ButtonSize.large,
+                            ),
+                          ],
                         ),
                       ),
-                    ),
-                  ),
-                  SizedBox(height: AppSpacing.xl.h),
+                      SizedBox(height: AppSpacing.lg.h),
 
-                  // Header section
-                  Text(
-                    'Create Account',
-                    style: AppTypography.h1.copyWith(
-                      color: AppColors.textPrimary,
-                      fontWeight: FontWeight.bold,
-                    ),
+                      // Footer
+                      RegisterFooter(
+                        onLoginTap: _navigateToLogin,
+                        disabled: isLoading,
+                      ),
+                    ],
                   ),
-                  SizedBox(height: AppSpacing.sm.h),
-                  Text(
-                    'Fill in your information to get started',
-                    style: AppTypography.bodyRegularStyle(
-                      fontSize: AppTypography.fontSizeBase.sp,
-                      color: AppColors.textSecondary,
-                    ),
-                  ),
-                  SizedBox(height: AppSpacing.xxl.h),
-
-                  // Form section
-                  RegisterForm(
-                    emailController: _emailController,
-                    passwordController: _passwordController,
-                    fullnameController: _fullnameController,
-                    birthday: _selectedBirthday,
-                    gender: _selectedGender,
-                    selectedRoleId: _selectedRoleId,
-                    selectedImage: _selectedImage,
-                    onBirthdayChanged: (date) {
-                      setState(() => _selectedBirthday = date);
-                    },
-                    onGenderChanged: (gender) {
-                      setState(() => _selectedGender = gender);
-                    },
-                    onRoleChanged: (roleId) {
-                      setState(() => _selectedRoleId = roleId);
-                    },
-                    onImageChanged: (image) {
-                      setState(() => _selectedImage = image);
-                    },
-                    emailError: _emailError,
-                    passwordError: _passwordError,
-                    fullnameError: _fullnameError,
-                    isLoading: isLoading,
-                    roles: _roles,
-                    isLoadingRoles: _isLoadingRoles,
-                    rolesError: _rolesError,
-                  ),
-                  SizedBox(height: AppSpacing.lg.h),
-
-                  // Policy checkbox
-                  PolicyCheckbox(
-                    isChecked: _isPolicyAccepted,
-                    onChanged: (value) {
-                      setState(() {
-                        _isPolicyAccepted = value;
-                        _policyError = null;
-                      });
-                    },
-                    onPrivacyPolicyTap: _showPrivacyPolicy,
-                    onTermsOfServiceTap: _showTermsOfService,
-                    errorMessage: _policyError,
-                    disabled: isLoading,
-                  ),
-                  SizedBox(height: AppSpacing.xl.h),
-
-                  // Register button
-                  ButtonPrimary(
-                    title: 'Sign Up',
-                    onPressed: _handleRegister,
-                    loading: isLoading,
-                    disabled: isLoading,
-                    fullWidth: true,
-                    size: ButtonSize.large,
-                  ),
-                  SizedBox(height: AppSpacing.md.h),
-
-                  // Footer - Login link
-                  RegisterFooter(
-                    onLoginTap: _navigateToLogin,
-                    disabled: isLoading,
-                  ),
-                  SizedBox(height: AppSpacing.lg.h),
-                ],
+                ),
               ),
             ),
           );

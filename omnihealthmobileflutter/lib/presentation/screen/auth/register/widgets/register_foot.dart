@@ -1,12 +1,10 @@
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:omnihealthmobileflutter/core/theme/app_colors.dart';
+import 'package:omnihealthmobileflutter/core/theme/app_radius.dart';
 import 'package:omnihealthmobileflutter/core/theme/app_spacing.dart';
 import 'package:omnihealthmobileflutter/core/theme/app_typography.dart';
 
-/// Widget footer with text "Already have an account? Login"
-/// Tapping "Login" will navigate back to login page
+/// Beautiful footer widget for register screen
 class RegisterFooter extends StatelessWidget {
   final VoidCallback onLoginTap;
   final bool disabled;
@@ -19,29 +17,52 @@ class RegisterFooter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Container(
-      padding: EdgeInsets.symmetric(vertical: AppSpacing.md.h),
-      child: Center(
-        child: RichText(
-          text: TextSpan(
-            style: AppTypography.bodyRegularStyle(
-              fontSize: AppTypography.fontSizeBase.sp,
-              color: AppColors.textSecondary,
-            ),
-            children: [
-              const TextSpan(text: 'Already have an account? '),
-              TextSpan(
-                text: 'Login',
-                style: AppTypography.bodyBoldStyle(
-                  fontSize: AppTypography.fontSizeBase.sp,
-                  color: AppColors.primary,
-                ),
-                recognizer: TapGestureRecognizer()
-                  ..onTap = disabled ? null : onLoginTap,
-              ),
-            ],
-          ),
+      padding: EdgeInsets.all(AppSpacing.md.w),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.primary.withOpacity(0.05),
+        borderRadius: BorderRadius.circular(AppRadius.md.r),
+        border: Border.all(
+          color: theme.colorScheme.primary.withOpacity(0.1),
+          width: 1,
         ),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.login_outlined,
+            size: 18.sp,
+            color: theme.textTheme.bodyMedium?.color?.withOpacity(0.7),
+          ),
+          SizedBox(width: AppSpacing.sm.w),
+          Text(
+            'Already have an account?',
+            style: theme.textTheme.bodySmall?.copyWith(
+              fontSize: AppTypography.fontSizeXs.sp,
+              color: theme.textTheme.bodyMedium?.color,
+            ),
+          ),
+          SizedBox(width: AppSpacing.xs.w),
+          TextButton(
+            onPressed: disabled ? null : onLoginTap,
+            style: TextButton.styleFrom(
+              padding: EdgeInsets.zero,
+              minimumSize: Size.zero,
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            ),
+            child: Text(
+              'Login Now!',
+              style: theme.textTheme.bodySmall?.copyWith(
+                fontSize: AppTypography.fontSizeXs.sp,
+                fontWeight: FontWeight.bold,
+                color: theme.colorScheme.primary,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

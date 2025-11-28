@@ -227,10 +227,12 @@ class _SingleSelectBoxState<T> extends State<SingleSelectBox<T>>
                     }).toList();
                   },
                   buttonStyleData: ButtonStyleData(
-                    height: 48,
-                    padding: EdgeInsets.symmetric(
-                      horizontal: AppSpacing.sm.w,
-                      vertical: 4.h,
+                    height: 56.h,
+                    padding: EdgeInsets.only(
+                      left: 1.w,
+                      right: AppSpacing.md.w,
+                      top: AppSpacing.sm.h,
+                      bottom: AppSpacing.sm.h,
                     ),
                     decoration: BoxDecoration(
                       color:
@@ -263,13 +265,20 @@ class _SingleSelectBoxState<T> extends State<SingleSelectBox<T>>
                       padding: EdgeInsets.only(left: AppSpacing.sm.w),
                       child: _ChevronDownIcon(),
                     ),
-                    iconSize: 18,
+                    iconSize: 20,
                   ),
                   dropdownStyleData: DropdownStyleData(
                     maxHeight: widget.maxHeight,
                     decoration: BoxDecoration(
                       color: theme.cardColor,
-                      borderRadius: BorderRadius.circular(AppRadius.lg.r),
+                      borderRadius: BorderRadius.circular(AppRadius.md.r),
+                      boxShadow: [
+                        BoxShadow(
+                          color: theme.shadowColor.withOpacity(0.1),
+                          blurRadius: 8,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
                     ),
                     offset: const Offset(0, -4),
                     scrollbarTheme: ScrollbarThemeData(
@@ -279,16 +288,25 @@ class _SingleSelectBoxState<T> extends State<SingleSelectBox<T>>
                     ),
                   ),
                   menuItemStyleData: MenuItemStyleData(
-                    height: 48,
-                    padding: EdgeInsets.symmetric(horizontal: AppSpacing.lg.w),
+                    height: 48.h,
+                    padding: EdgeInsets.symmetric(horizontal: AppSpacing.md.w),
+                    overlayColor: MaterialStateProperty.resolveWith((states) {
+                      if (states.contains(MaterialState.hovered)) {
+                        return theme.primaryColor.withOpacity(0.05);
+                      }
+                      if (states.contains(MaterialState.focused)) {
+                        return theme.primaryColor.withOpacity(0.08);
+                      }
+                      return null;
+                    }),
                     selectedMenuItemBuilder: (context, child) {
                       return Container(
-                        color: theme.primaryColor,
+                        color: theme.primaryColor.withOpacity(0.1),
                         child: DefaultTextStyle(
                           style: theme.textTheme.bodyMedium!.copyWith(
-                            fontWeight: FontWeight.bold,
+                            fontWeight: FontWeight.w600,
                             fontSize: AppTypography.fontSizeBase.sp,
-                            color: theme.colorScheme.onPrimary,
+                            color: theme.primaryColor,
                           ),
                           child: child,
                         ),
@@ -298,23 +316,52 @@ class _SingleSelectBoxState<T> extends State<SingleSelectBox<T>>
                   dropdownSearchData: widget.searchable
                       ? DropdownSearchData<T>(
                           searchController: _searchController,
-                          searchInnerWidgetHeight: 50,
+                          searchInnerWidgetHeight: 60,
                           searchInnerWidget: Container(
                             padding: EdgeInsets.all(AppSpacing.md.w),
                             child: TextField(
                               controller: _searchController,
+                              style: theme.textTheme.bodyMedium?.copyWith(
+                                fontSize: AppTypography.fontSizeBase.sp,
+                              ),
                               decoration: InputDecoration(
                                 hintText: 'Tìm kiếm...',
                                 hintStyle: theme.textTheme.bodyMedium?.copyWith(
                                   fontSize: AppTypography.fontSizeBase.sp,
                                   color: theme.hintColor,
                                 ),
+                                prefixIcon: Icon(
+                                  Icons.search,
+                                  color: theme.hintColor,
+                                  size: 20,
+                                ),
+                                filled: true,
+                                fillColor: theme.scaffoldBackgroundColor,
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(
-                                    AppRadius.sm.r,
+                                    AppRadius.md.r,
                                   ),
                                   borderSide: BorderSide(
                                     color: theme.dividerColor,
+                                    width: 1.5,
+                                  ),
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(
+                                    AppRadius.md.r,
+                                  ),
+                                  borderSide: BorderSide(
+                                    color: theme.dividerColor,
+                                    width: 1.5,
+                                  ),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(
+                                    AppRadius.md.r,
+                                  ),
+                                  borderSide: BorderSide(
+                                    color: theme.primaryColor,
+                                    width: 2.0,
                                   ),
                                 ),
                                 contentPadding: EdgeInsets.symmetric(

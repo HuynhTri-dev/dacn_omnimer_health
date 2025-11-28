@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:omnihealthmobileflutter/core/theme/app_colors.dart';
+import 'package:omnihealthmobileflutter/core/theme/app_radius.dart';
 import 'package:omnihealthmobileflutter/core/theme/app_spacing.dart';
 import 'package:omnihealthmobileflutter/core/theme/app_typography.dart';
 import 'package:omnihealthmobileflutter/core/validation/field_validator.dart';
@@ -42,7 +42,11 @@ class _LoginFormState extends State<LoginForm> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: const Text('Vui lòng điền đầy đủ thông tin'),
-          backgroundColor: AppColors.error,
+          backgroundColor: Theme.of(context).colorScheme.error,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12.r),
+          ),
         ),
       );
       return;
@@ -57,14 +61,60 @@ class _LoginFormState extends State<LoginForm> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Container(
-      padding: EdgeInsets.symmetric(
-        horizontal: AppSpacing.lg.w,
-        vertical: AppSpacing.xl.h,
+      margin: EdgeInsets.symmetric(horizontal: AppSpacing.lg.w),
+      padding: EdgeInsets.all(AppSpacing.xl.w),
+      decoration: BoxDecoration(
+        color: theme.cardColor,
+        borderRadius: BorderRadius.circular(AppRadius.xl.r),
+        boxShadow: [
+          BoxShadow(
+            color: theme.shadowColor.withOpacity(0.08),
+            blurRadius: 20,
+            spreadRadius: 2,
+            offset: const Offset(0, 8),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          // Welcome text
+          Row(
+            children: [
+              Container(
+                width: 4.w,
+                height: 24.h,
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.primary,
+                  borderRadius: BorderRadius.circular(2.r),
+                ),
+              ),
+              SizedBox(width: AppSpacing.sm.w),
+              Text(
+                'Welcome Back!',
+                style: theme.textTheme.titleLarge?.copyWith(
+                  fontSize: AppTypography.fontSizeLg.sp,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: AppSpacing.xs.h),
+          Padding(
+            padding: EdgeInsets.only(left: (4.w + AppSpacing.sm.w)),
+            child: Text(
+              'Sign in to continue your wellness journey',
+              style: theme.textTheme.bodySmall?.copyWith(
+                fontSize: AppTypography.fontSizeXs.sp,
+                color: theme.textTheme.bodyMedium?.color?.withOpacity(0.6),
+              ),
+            ),
+          ),
+          SizedBox(height: AppSpacing.md.h),
+          // Email field
           CustomTextField(
             controller: _emailController,
             focusNode: _emailFocusNode,
@@ -74,7 +124,7 @@ class _LoginFormState extends State<LoginForm> {
             textInputAction: TextInputAction.next,
             leftIcon: Icon(
               Icons.email_outlined,
-              color: AppColors.primary,
+              color: theme.colorScheme.primary,
               size: 20.sp,
             ),
             validators: [
@@ -84,17 +134,18 @@ class _LoginFormState extends State<LoginForm> {
             enabled: !widget.isLoading,
             onSubmitted: (_) => _passwordFocusNode.requestFocus(),
           ),
-          SizedBox(height: AppSpacing.md.h),
+          SizedBox(height: AppSpacing.lg.h),
+          // Password field
           CustomTextField(
             controller: _passwordController,
             focusNode: _passwordFocusNode,
             label: 'Password',
-            placeholder: 'Password',
+            placeholder: 'Enter your password',
             obscureText: _obscurePassword,
             textInputAction: TextInputAction.done,
             leftIcon: Icon(
               Icons.lock_outline,
-              color: AppColors.primary,
+              color: theme.colorScheme.primary,
               size: 20.sp,
             ),
             rightIcon: GestureDetector(
@@ -103,7 +154,7 @@ class _LoginFormState extends State<LoginForm> {
                 _obscurePassword
                     ? Icons.visibility_outlined
                     : Icons.visibility_off_outlined,
-                color: AppColors.gray600,
+                color: theme.hintColor,
                 size: 20.sp,
               ),
             ),
@@ -111,9 +162,10 @@ class _LoginFormState extends State<LoginForm> {
             enabled: !widget.isLoading,
             onSubmitted: (_) => _handleLogin(context),
           ),
-          SizedBox(height: AppSpacing.sm.h),
+          SizedBox(height: AppSpacing.md.h),
           _buildRememberAndForgot(),
           SizedBox(height: AppSpacing.xl.h),
+          // Sign in button
           ButtonPrimary(
             title: 'Sign In',
             variant: ButtonVariant.primarySolid,
@@ -123,7 +175,26 @@ class _LoginFormState extends State<LoginForm> {
             disabled: widget.isLoading,
             onPressed: () => _handleLogin(context),
           ),
-          SizedBox(height: AppSpacing.xxl.h),
+          SizedBox(height: AppSpacing.xl.h),
+          // Divider with text
+          Row(
+            children: [
+              Expanded(child: Divider(color: theme.dividerColor, thickness: 1)),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: AppSpacing.md.w),
+                child: Text(
+                  'OR',
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    fontSize: AppTypography.fontSizeXs.sp,
+                    color: theme.textTheme.bodyMedium?.color?.withOpacity(0.5),
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+              Expanded(child: Divider(color: theme.dividerColor, thickness: 1)),
+            ],
+          ),
+          SizedBox(height: AppSpacing.xl.h),
           _buildRegisterLink(),
         ],
       ),
@@ -131,36 +202,59 @@ class _LoginFormState extends State<LoginForm> {
   }
 
   Widget _buildRememberAndForgot() {
+    final theme = Theme.of(context);
+
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Row(
-          children: [
-            SizedBox(
-              width: 20.w,
-              height: 20.w,
-              child: Checkbox(
-                value: _rememberPassword,
-                onChanged: widget.isLoading
-                    ? null
-                    : (value) {
-                        setState(() => _rememberPassword = value ?? false);
-                      },
-                activeColor: AppColors.primary,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(4.r),
+        InkWell(
+          onTap: widget.isLoading
+              ? null
+              : () {
+                  setState(() => _rememberPassword = !_rememberPassword);
+                },
+          borderRadius: BorderRadius.circular(AppRadius.sm.r),
+          child: Padding(
+            padding: EdgeInsets.symmetric(
+              vertical: AppSpacing.xs.h,
+              horizontal: AppSpacing.xs.w,
+            ),
+            child: Row(
+              children: [
+                Container(
+                  width: 20.w,
+                  height: 20.w,
+                  decoration: BoxDecoration(
+                    color: _rememberPassword
+                        ? theme.colorScheme.primary
+                        : Colors.transparent,
+                    border: Border.all(
+                      color: _rememberPassword
+                          ? theme.colorScheme.primary
+                          : theme.dividerColor,
+                      width: 2,
+                    ),
+                    borderRadius: BorderRadius.circular(4.r),
+                  ),
+                  child: _rememberPassword
+                      ? Icon(
+                          Icons.check,
+                          size: 14.sp,
+                          color: theme.colorScheme.onPrimary,
+                        )
+                      : null,
                 ),
-              ),
+                SizedBox(width: AppSpacing.sm.w),
+                Text(
+                  'Remember me',
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    fontSize: AppTypography.fontSizeXs.sp,
+                    color: theme.textTheme.bodyMedium?.color,
+                  ),
+                ),
+              ],
             ),
-            SizedBox(width: AppSpacing.xs.w),
-            Text(
-              'Nhớ Password',
-              style: AppTypography.bodyRegularStyle(
-                fontSize: AppTypography.fontSizeSm.sp,
-                color: AppColors.textSecondary,
-              ),
-            ),
-          ],
+          ),
         ),
         TextButton(
           onPressed: widget.isLoading
@@ -168,15 +262,19 @@ class _LoginFormState extends State<LoginForm> {
               : () =>
                     Navigator.pushReplacementNamed(context, '/forgot-password'),
           style: TextButton.styleFrom(
-            padding: EdgeInsets.zero,
+            padding: EdgeInsets.symmetric(
+              horizontal: AppSpacing.sm.w,
+              vertical: AppSpacing.xs.h,
+            ),
             minimumSize: Size.zero,
             tapTargetSize: MaterialTapTargetSize.shrinkWrap,
           ),
           child: Text(
-            'Forget password',
-            style: AppTypography.bodyRegularStyle(
-              fontSize: AppTypography.fontSizeSm,
-              color: AppColors.primary,
+            'Forgot password?',
+            style: theme.textTheme.bodySmall?.copyWith(
+              fontSize: AppTypography.fontSizeXs.sp,
+              color: theme.colorScheme.primary,
+              fontWeight: FontWeight.w600,
             ),
           ),
         ),
@@ -185,35 +283,55 @@ class _LoginFormState extends State<LoginForm> {
   }
 
   Widget _buildRegisterLink() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Text(
-          "Don't have account",
-          style: AppTypography.bodyRegularStyle(
-            fontSize: AppTypography.fontSizeSm,
-            color: AppColors.textSecondary,
-          ),
+    final theme = Theme.of(context);
+
+    return Container(
+      padding: EdgeInsets.all(AppSpacing.md.w),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.primary.withOpacity(0.05),
+        borderRadius: BorderRadius.circular(AppRadius.md.r),
+        border: Border.all(
+          color: theme.colorScheme.primary.withOpacity(0.1),
+          width: 1,
         ),
-        SizedBox(width: AppSpacing.xs.w),
-        TextButton(
-          onPressed: widget.isLoading
-              ? null
-              : () => Navigator.pushReplacementNamed(context, '/register'),
-          style: TextButton.styleFrom(
-            padding: EdgeInsets.zero,
-            minimumSize: Size.zero,
-            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.person_add_outlined,
+            size: 18.sp,
+            color: theme.textTheme.bodyMedium?.color?.withOpacity(0.7),
           ),
-          child: Text(
-            'Register Now!',
-            style: AppTypography.bodyBoldStyle(
-              fontSize: AppTypography.fontSizeSm,
-              color: AppColors.primary,
+          SizedBox(width: AppSpacing.sm.w),
+          Text(
+            "Don't have an account?",
+            style: theme.textTheme.bodySmall?.copyWith(
+              fontSize: AppTypography.fontSizeXs.sp,
+              color: theme.textTheme.bodyMedium?.color,
             ),
           ),
-        ),
-      ],
+          SizedBox(width: AppSpacing.xs.w),
+          TextButton(
+            onPressed: widget.isLoading
+                ? null
+                : () => Navigator.pushReplacementNamed(context, '/register'),
+            style: TextButton.styleFrom(
+              padding: EdgeInsets.zero,
+              minimumSize: Size.zero,
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            ),
+            child: Text(
+              'Register Now!',
+              style: theme.textTheme.bodySmall?.copyWith(
+                fontSize: AppTypography.fontSizeXs.sp,
+                fontWeight: FontWeight.bold,
+                color: theme.colorScheme.primary,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
