@@ -86,8 +86,10 @@ import 'package:omnihealthmobileflutter/domain/abstracts/health_connect_reposito
 import 'package:omnihealthmobileflutter/data/repositories/health_connect_repository_impl.dart';
 import 'package:omnihealthmobileflutter/domain/abstracts/workout_template_repository_abs.dart';
 import 'package:omnihealthmobileflutter/domain/abstracts/workout_stats_repository_abs.dart';
+import 'package:omnihealthmobileflutter/domain/abstracts/workout_log_repository_abs.dart';
 import 'package:omnihealthmobileflutter/data/repositories/workout_template_repository_impl.dart';
 import 'package:omnihealthmobileflutter/data/repositories/workout_stats_repository_impl.dart';
+import 'package:omnihealthmobileflutter/data/repositories/workout_log_repository_impl.dart';
 import 'package:omnihealthmobileflutter/domain/usecases/health_connect/check_health_connect_availability.dart';
 import 'package:omnihealthmobileflutter/domain/usecases/health_connect/request_health_permissions.dart';
 import 'package:omnihealthmobileflutter/domain/usecases/health_connect/get_today_health_data.dart';
@@ -239,6 +241,13 @@ Future<void> init() async {
   sl.registerLazySingleton<WorkoutStatsRepositoryAbs>(
     () => WorkoutStatsRepositoryImpl(workoutDataSource: sl()),
   );
+  sl.registerLazySingleton<WorkoutLogRepositoryAbs>(
+    () => WorkoutLogRepositoryImpl(workoutDataSource: sl()),
+  );
+
+  sl.registerLazySingleton<AIRepositoryAbs>(
+    () => AIRepositoryImpl(remoteDataSource: sl()),
+  );
 
   sl.registerLazySingleton<AIRepositoryAbs>(
     () => AIRepositoryImpl(remoteDataSource: sl()),
@@ -362,6 +371,16 @@ Future<void> init() async {
   sl.registerLazySingleton<UpdateWorkoutTemplateUseCase>(
     () => UpdateWorkoutTemplateUseCase(sl()),
   );
+  sl.registerLazySingleton<SaveWorkoutLogUseCase>(
+    () => SaveWorkoutLogUseCase(repository: sl()),
+  );
+  sl.registerLazySingleton<GetWorkoutLogsUseCase>(
+    () => GetWorkoutLogsUseCase(sl()),
+  );
+
+  sl.registerLazySingleton<RecommendWorkoutUseCase>(
+    () => RecommendWorkoutUseCase(sl()),
+  );
 
   sl.registerLazySingleton<RecommendWorkoutUseCase>(
     () => RecommendWorkoutUseCase(sl()),
@@ -473,6 +492,9 @@ Future<void> init() async {
     ),
   );
 
+  // Report BLoC
+  sl.registerFactory(
+    () => ReportBloc(getWorkoutLogsUseCase: sl(), workoutLogRepository: sl()),
   sl.registerFactory(
     () => WorkoutTemplateAICubit(
       getAllBodyPartsUseCase: sl(),

@@ -3,6 +3,7 @@ import 'package:omnihealthmobileflutter/core/api/api_client.dart';
 import 'package:omnihealthmobileflutter/core/api/endpoints.dart';
 import 'package:omnihealthmobileflutter/data/models/workout/workout_template_model.dart';
 import 'package:omnihealthmobileflutter/data/models/workout/workout_stats_model.dart';
+import 'package:omnihealthmobileflutter/data/models/workout/workout_log_model.dart';
 import 'package:omnihealthmobileflutter/utils/logger.dart';
 import 'package:omnihealthmobileflutter/utils/query_util/default_query_entity.dart';
 
@@ -50,18 +51,24 @@ class WorkoutDataSource {
     try {
       // Add query params to get all templates (high limit)
       final queryParams = {'limit': '100', 'page': '1'};
-      
-      logger.i('[getUserWorkoutTemplates] Calling API with query: $queryParams');
-      
+
+      logger.i(
+        '[getUserWorkoutTemplates] Calling API with query: $queryParams',
+      );
+
       final response = await apiClient.get<List<WorkoutTemplateModel>>(
         Endpoints.getUserWorkoutTemplates,
         query: queryParams,
         parser: (data) {
-          logger.i('[getUserWorkoutTemplates] Raw data type: ${data.runtimeType}');
+          logger.i(
+            '[getUserWorkoutTemplates] Raw data type: ${data.runtimeType}',
+          );
           logger.i('[getUserWorkoutTemplates] Raw data: $data');
-          
+
           if (data is List) {
-            logger.i('[getUserWorkoutTemplates] Parsed ${data.length} templates from server');
+            logger.i(
+              '[getUserWorkoutTemplates] Parsed ${data.length} templates from server',
+            );
             return data
                 .map(
                   (json) => WorkoutTemplateModel.fromJson(
@@ -70,13 +77,17 @@ class WorkoutDataSource {
                 )
                 .toList();
           }
-          logger.w('[getUserWorkoutTemplates] Data is not a List, returning empty');
+          logger.w(
+            '[getUserWorkoutTemplates] Data is not a List, returning empty',
+          );
           return <WorkoutTemplateModel>[];
         },
       );
 
-      logger.i('[getUserWorkoutTemplates] Response success: ${response.success}, data count: ${response.data?.length ?? 0}');
-      
+      logger.i(
+        '[getUserWorkoutTemplates] Response success: ${response.success}, data count: ${response.data?.length ?? 0}',
+      );
+
       return response;
     } catch (e) {
       logger.e('[getUserWorkoutTemplates] Error: $e');
@@ -196,6 +207,97 @@ class WorkoutDataSource {
       return ApiResponse<WorkoutStatsModel>.error(
         'Failed to get weekly stats: $e',
         error: e,
+      );
+    }
+  }
+
+  // ================== WORKOUT LOG METHODS ==================
+
+  /// Create a new workout log
+  Future<ApiResponse<WorkoutLogModel>> createWorkoutLog(
+    Map<String, dynamic> data,
+  ) async {
+    try {
+      logger.i('[createWorkoutLog] Creating workout log with data: $data');
+
+      final response = await apiClient.post<WorkoutLogModel>(
+        Endpoints.createWorkout,
+        data: data,
+        parser: (data) =>
+            WorkoutLogModel.fromJson(data as Map<String, dynamic>),
+      );
+
+      logger.i('[createWorkoutLog] Response: ${response.success}');
+      return response;
+    } catch (e) {
+      logger.e('[createWorkoutLog] Error: $e');
+      return ApiResponse<WorkoutLogModel>.error(
+        "Failed to create workout log: ${e.toString()}",
+      );
+    }
+  }
+
+  /// Get user workout logs
+  Future<ApiResponse<List<WorkoutLogModel>>> getUserWorkoutLogs() async {
+    try {
+      final queryParams = {'limit': '100', 'page': '1'};
+
+      final response = await apiClient.get<List<WorkoutLogModel>>(
+        Endpoints.getUserWorkouts,
+        query: queryParams,
+        parser: (data) {
+          if (data is List) {
+            return data
+                .map(
+                  (json) =>
+                      WorkoutLogModel.fromJson(json as Map<String, dynamic>),
+                )
+                .toList();
+          }
+          return <WorkoutLogModel>[];
+        },
+      );
+
+      return response;
+    } catch (e) {
+      logger.e('[getUserWorkoutLogs] Error: $e');
+      return ApiResponse<List<WorkoutLogModel>>.error(
+        "Failed to get user workout logs: ${e.toString()}",
+      );
+    }
+  }
+
+  /// Get workout log by ID
+  Future<ApiResponse<WorkoutLogModel>> getWorkoutLogById(String id) async {
+    try {
+      final response = await apiClient.get<WorkoutLogModel>(
+        Endpoints.getWorkoutById(id),
+        parser: (data) =>
+            WorkoutLogModel.fromJson(data as Map<String, dynamic>),
+      );
+
+      return response;
+    } catch (e) {
+      logger.e('[getWorkoutLogById] Error: $e');
+      return ApiResponse<WorkoutLogModel>.error(
+        "Failed to get workout log: ${e.toString()}",
+      );
+    }
+  }
+
+  /// Delete workout log
+  Future<ApiResponse<bool>> deleteWorkoutLog(String id) async {
+    try {
+      final response = await apiClient.delete<bool>(
+        Endpoints.deleteWorkout(id),
+        parser: (data) => true,
+      );
+
+      return response;
+    } catch (e) {
+      logger.e('[deleteWorkoutLog] Error: $e');
+      return ApiResponse<bool>.error(
+        "Failed to delete workout log: ${e.toString()}",
       );
     }
   }

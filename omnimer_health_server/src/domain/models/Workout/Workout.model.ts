@@ -75,7 +75,7 @@ const WorkoutSchema: Schema<IWorkout> = new Schema(
     healthProfileId: {
       type: Schema.Types.ObjectId,
       ref: "HealthProfile",
-      required: true,
+      required: false, // Optional - user may not have a health profile yet
       index: true,
     },
     workoutTemplateId: {

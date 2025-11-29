@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:omnihealthmobileflutter/core/routing/route_config.dart';
 import 'package:omnihealthmobileflutter/core/theme/app_spacing.dart';
 import 'package:omnihealthmobileflutter/domain/entities/workout/workout_template_entity.dart';
 import 'package:omnihealthmobileflutter/presentation/screen/workout/workout_template_detail/cubits/workout_template_detail_cubit.dart';
@@ -238,11 +239,9 @@ class _WorkoutTemplateDetailScreenState
           
           return FloatingActionButton.extended(
             onPressed: () {
-              // TODO: Start workout session
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Start workout feature is under development'),
-                ),
+              RouteConfig.navigateToWorkoutSession(
+                context,
+                template: state.template!,
               );
             },
             backgroundColor: Theme.of(context).primaryColor,
