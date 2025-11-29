@@ -8,6 +8,7 @@ class Endpoints {
   static const String login = "/v1/auth/login";
   static const String register = "/v1/auth/register";
   static const String createNewAccessToken = "/v1/auth/new-access-token";
+  static const String changePassword = "/v1/auth/change-password";
 
   // ================== VERIFICATION ==================
   static const String verificationStatus = "/v1/verification/status";

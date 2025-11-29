@@ -51,6 +51,7 @@ import 'package:omnihealthmobileflutter/domain/usecases/auth/logout_usecase.dart
 import 'package:omnihealthmobileflutter/domain/usecases/auth/refresh_token_usecase.dart';
 import 'package:omnihealthmobileflutter/domain/usecases/auth/register_usecase.dart';
 import 'package:omnihealthmobileflutter/domain/usecases/auth/update_user_usecase.dart';
+import 'package:omnihealthmobileflutter/domain/usecases/auth/change_password_usecase.dart';
 import 'package:omnihealthmobileflutter/domain/usecases/exercise/get_all_body_parts_usecase.dart';
 import 'package:omnihealthmobileflutter/domain/usecases/exercise/get_all_equipments_usecase.dart';
 import 'package:omnihealthmobileflutter/domain/usecases/exercise/get_all_exercise_categories_usecase.dart';
@@ -118,6 +119,7 @@ import 'package:logger/logger.dart';
 import 'package:omnihealthmobileflutter/domain/abstracts/healthkit_connect_abs.dart';
 import 'package:omnihealthmobileflutter/data/repositories/healthkit_connect_impl.dart';
 import 'package:omnihealthmobileflutter/presentation/screen/healthkit_connect/bloc/healthkit_connect_bloc.dart';
+import 'package:omnihealthmobileflutter/presentation/screen/auth/change_password/cubits/change_password_cubit.dart';
 
 final sl = GetIt.instance;
 
@@ -268,6 +270,9 @@ Future<void> init() async {
   );
   sl.registerLazySingleton<RegisterUseCase>(() => RegisterUseCase(sl()));
   sl.registerLazySingleton<UpdateUserUseCase>(() => UpdateUserUseCase(sl()));
+  sl.registerLazySingleton<ChangePasswordUseCase>(
+    () => ChangePasswordUseCase(sl()),
+  );
 
   // Verification Use Cases
   sl.registerLazySingleton<GetVerificationStatusUseCase>(
@@ -513,4 +518,7 @@ Future<void> init() async {
   sl.registerFactory(
     () => ReportBloc(getWorkoutLogsUseCase: sl(), workoutLogRepository: sl()),
   );
+
+  // Change Password Cubit
+  sl.registerFactory(() => ChangePasswordCubit(changePasswordUseCase: sl()));
 }

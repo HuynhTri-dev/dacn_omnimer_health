@@ -13,6 +13,9 @@ import 'package:omnihealthmobileflutter/presentation/screen/home_screen.dart';
 import 'package:receive_intent/receive_intent.dart' as ri;
 import 'package:url_launcher/url_launcher.dart';
 
+/// Global navigator key để có thể điều khiển navigation từ bất kỳ đâu
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
 class AppView extends StatefulWidget {
   const AppView({super.key});
 
@@ -50,35 +53,73 @@ class _AppViewState extends State<AppView> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<ThemeCubit, ThemeMode>(
-      builder: (context, themeMode) {
-        return MaterialApp(
-          debugShowCheckedModeBanner: false,
-          title: 'OmniMer EDU',
-          theme: AppTheme.lightTheme,
-          darkTheme: AppTheme.darkTheme,
-          themeMode: themeMode,
-          home: const AuthWrapper(),
-          onGenerateRoute: (settings) {
-            final authState = context.read<AuthenticationBloc>().state;
-            if (authState is! AuthenticationAuthenticated) {
+    return BlocListener<AuthenticationBloc, AuthenticationState>(
+      listenWhen: (previous, current) {
+        // Chỉ listen khi chuyển sang Unauthenticated (logout)
+        return current is AuthenticationUnauthenticated &&
+            previous is! AuthenticationUnauthenticated;
+      },
+      listener: (context, state) {
+        debugPrint('AppView BlocListener: ${state.runtimeType}');
+        if (state is AuthenticationUnauthenticated) {
+          // Đợi frame tiếp theo để đảm bảo navigator đã sẵn sàng
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            _navigateToLogin();
+          });
+        }
+      },
+      child: BlocBuilder<ThemeCubit, ThemeMode>(
+        builder: (context, themeMode) {
+          return MaterialApp(
+            navigatorKey: navigatorKey,
+            debugShowCheckedModeBanner: false,
+            title: 'OmniMer EDU',
+            theme: AppTheme.lightTheme,
+            darkTheme: AppTheme.darkTheme,
+            themeMode: themeMode,
+            home: const AuthWrapper(),
+            onGenerateRoute: (settings) {
+              final authState = context.read<AuthenticationBloc>().state;
+              if (authState is! AuthenticationAuthenticated) {
+                return MaterialPageRoute(
+                  builder: (_) => RouteConfig.buildAuthPage(settings.name),
+                  settings: settings,
+                );
+              }
               return MaterialPageRoute(
-                builder: (_) => RouteConfig.buildAuthPage(settings.name),
+                builder: (_) => RouteConfig.buildPage(
+                  routeName: settings.name ?? RouteConfig.main,
+                  role: authState.user.roleName,
+                  arguments: settings.arguments as Map<String, dynamic>?,
+                ),
                 settings: settings,
               );
-            }
-            return MaterialPageRoute(
-              builder: (_) => RouteConfig.buildPage(
-                routeName: settings.name ?? RouteConfig.main,
-                role: authState.user.roleName,
-                arguments: settings.arguments as Map<String, dynamic>?,
-              ),
-              settings: settings,
-            );
-          },
-        );
-      },
+            },
+          );
+        },
+      ),
     );
+  }
+
+  void _navigateToLogin() {
+    final navigator = navigatorKey.currentState;
+    if (navigator != null) {
+      debugPrint('Navigating to LoginScreen...');
+      navigator.pushAndRemoveUntil(
+        MaterialPageRoute(
+          builder: (_) => BlocProvider(
+            create: (_) => LoginCubit(
+              loginUseCase: sl(),
+              authenticationBloc: sl<AuthenticationBloc>(),
+            ),
+            child: const LoginScreen(),
+          ),
+        ),
+        (route) => false,
+      );
+    } else {
+      debugPrint('Navigator is null!');
+    }
   }
 }
 
@@ -93,7 +134,7 @@ class AuthWrapper extends StatelessWidget {
           previous.runtimeType != current.runtimeType,
       listener: (context, state) {
         // Log state changes for debugging
-        debugPrint('AuthenticationState changed: ${state.runtimeType}');
+        debugPrint('AuthWrapper state changed: ${state.runtimeType}');
 
         if (state is AuthenticationError) {
           // Show error message
@@ -109,20 +150,14 @@ class AuthWrapper extends StatelessWidget {
       buildWhen: (previous, current) =>
           previous.runtimeType != current.runtimeType,
       builder: (context, state) {
+        debugPrint('AuthWrapper builder: ${state.runtimeType}');
+
         if (state is AuthenticationAuthenticated) {
           // User đã đăng nhập -> vào HomeScreen
           return const HomeScreen();
-        } else if (state is AuthenticationUnauthenticated) {
-          // User chưa đăng nhập -> LoginScreen
-          return BlocProvider(
-            create: (_) => LoginCubit(
-              loginUseCase: sl(),
-              authenticationBloc: sl<AuthenticationBloc>(),
-            ),
-            child: const LoginScreen(),
-          );
-        } else if (state is AuthenticationError) {
-          // Có lỗi -> quay về LoginScreen
+        } else if (state is AuthenticationUnauthenticated ||
+            state is AuthenticationError) {
+          // User chưa đăng nhập hoặc có lỗi -> LoginScreen
           return BlocProvider(
             create: (_) => LoginCubit(
               loginUseCase: sl(),
@@ -131,7 +166,7 @@ class AuthWrapper extends StatelessWidget {
             child: const LoginScreen(),
           );
         } else {
-          // Loading state
+          // Loading state (AuthenticationInitial, AuthenticationLoading)
           return Scaffold(
             body: Center(
               child: Column(

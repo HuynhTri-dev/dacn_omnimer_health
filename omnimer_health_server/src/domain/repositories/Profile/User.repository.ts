@@ -134,4 +134,37 @@ export class UserRepository extends BaseRepository<IUser> {
       throw e;
     }
   }
+
+  /**
+   * Lấy password hash của user theo ID
+   * @param id - ID của user
+   * @returns Promise<string | null> - Password hash hoặc null nếu không tìm thấy
+   */
+  async getPasswordHashById(id: string): Promise<string | null> {
+    try {
+      const user = await this.model.findById(id).select("passwordHashed").lean();
+      return user?.passwordHashed ?? null;
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  /**
+   * Cập nhật password của user
+   * @param id - ID của user
+   * @param newPasswordHash - Password hash mới
+   * @returns Promise<boolean> - true nếu cập nhật thành công
+   */
+  async updatePassword(id: string, newPasswordHash: string): Promise<boolean> {
+    try {
+      const result = await this.model.findByIdAndUpdate(
+        id,
+        { passwordHashed: newPasswordHash },
+        { new: true }
+      );
+      return !!result;
+    } catch (e) {
+      throw e;
+    }
+  }
 }

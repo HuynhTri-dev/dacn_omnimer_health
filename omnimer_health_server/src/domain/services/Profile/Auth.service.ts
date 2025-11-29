@@ -238,4 +238,78 @@ export class AuthService {
       throw new HttpError(401, "Invalid or expired refresh token");
     }
   }
+
+  /**
+   * Thay đổi mật khẩu người dùng.
+   * - Kiểm tra mật khẩu hiện tại có đúng không.
+   * - Mã hóa mật khẩu mới và cập nhật vào database.
+   *
+   * @param {string} userId - ID của người dùng.
+   * @param {string} currentPassword - Mật khẩu hiện tại.
+   * @param {string} newPassword - Mật khẩu mới.
+   * @returns {Promise<boolean>} true nếu thay đổi thành công.
+   * @throws {HttpError} Nếu mật khẩu hiện tại không đúng hoặc có lỗi.
+   */
+  async changePassword(
+    userId: string,
+    currentPassword: string,
+    newPassword: string
+  ): Promise<boolean> {
+    try {
+      // Lấy password hash hiện tại của user
+      const currentPasswordHash = await this.userRepo.getPasswordHashById(userId);
+
+      if (!currentPasswordHash) {
+        throw new HttpError(404, "Người dùng không tồn tại");
+      }
+
+      // Kiểm tra mật khẩu hiện tại có đúng không
+      const isPasswordValid = await comparePassword(
+        currentPassword,
+        currentPasswordHash
+      );
+
+      if (!isPasswordValid) {
+        throw new HttpError(401, "Mật khẩu hiện tại không đúng");
+      }
+
+      // Kiểm tra mật khẩu mới không được giống mật khẩu cũ
+      const isSamePassword = await comparePassword(
+        newPassword,
+        currentPasswordHash
+      );
+
+      if (isSamePassword) {
+        throw new HttpError(400, "Mật khẩu mới không được trùng với mật khẩu cũ");
+      }
+
+      // Mã hóa mật khẩu mới
+      const newPasswordHash = await hashPassword(newPassword);
+
+      // Cập nhật mật khẩu mới
+      const updated = await this.userRepo.updatePassword(userId, newPasswordHash);
+
+      if (!updated) {
+        throw new HttpError(500, "Không thể cập nhật mật khẩu");
+      }
+
+      await logAudit({
+        userId: userId,
+        action: "changePassword",
+        message: `User đã thay đổi mật khẩu thành công`,
+        status: StatusLogEnum.Success,
+        targetId: userId,
+      });
+
+      return true;
+    } catch (err: any) {
+      await logError({
+        action: "changePassword",
+        message: err.message || err,
+        errorMessage: err.stack || err,
+      });
+
+      throw err;
+    }
+  }
 }

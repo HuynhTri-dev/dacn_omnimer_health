@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:omnihealthmobileflutter/core/api/api_client.dart';
+import 'package:omnihealthmobileflutter/core/api/api_exception.dart';
 import 'package:omnihealthmobileflutter/core/api/endpoints.dart';
 import 'package:omnihealthmobileflutter/core/constants/storage_constant.dart';
 import 'package:omnihealthmobileflutter/data/models/auth/auth_model.dart';
@@ -34,6 +35,13 @@ abstract class AuthDataSource {
 
   /// Update user profile
   Future<ApiResponse<UserModel>> updateUser(String id, UserModel user);
+
+  /// Change password
+  /// Returns ApiResponse<void> on success or error message on failure.
+  Future<ApiResponse<void>> changePassword(
+    String currentPassword,
+    String newPassword,
+  );
 }
 
 class AuthDataSourceImpl implements AuthDataSource {
@@ -219,6 +227,27 @@ class AuthDataSourceImpl implements AuthDataSource {
       return ApiResponse<UserModel>.error(
         "Update user failed: ${e.toString()}",
       );
+    }
+  }
+
+  @override
+  Future<ApiResponse<void>> changePassword(
+    String currentPassword,
+    String newPassword,
+  ) async {
+    try {
+      final response = await apiClient.post<void>(
+        Endpoints.changePassword,
+        data: {'currentPassword': currentPassword, 'newPassword': newPassword},
+        parser: (_) => null,
+      );
+      return response;
+    } on ApiException catch (e) {
+      logger.e(e);
+      return ApiResponse<void>.error(e.message);
+    } catch (e) {
+      logger.e(e);
+      return ApiResponse<void>.error("Thay đổi mật khẩu thất bại");
     }
   }
 }
