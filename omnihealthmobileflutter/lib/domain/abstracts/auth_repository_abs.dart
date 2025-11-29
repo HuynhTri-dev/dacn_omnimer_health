@@ -1,5 +1,6 @@
 import 'package:omnihealthmobileflutter/core/api/api_response.dart';
 import 'package:omnihealthmobileflutter/domain/entities/auth/auth_entity.dart';
+import 'package:omnihealthmobileflutter/domain/entities/auth/user_entity.dart';
 
 /// Repository interface for authentication domain logic.
 /// Bridges between Domain Entities and Data Source Models.
@@ -22,4 +23,7 @@ abstract class AuthRepositoryAbs {
   /// Get AuthEntity
   /// Returns ApiResponse<AuthEntity>
   Future<ApiResponse<UserAuth>> getAuth();
+
+  /// Update user profile
+  Future<ApiResponse<UserEntity>> updateUser(String id, UserEntity user);
 }

@@ -49,7 +49,21 @@ export class WorkoutService {
    */
   async createWorkout(userId: string, data: Partial<IWorkout>) {
     try {
-      const workout = await this.workoutRepo.create(data);
+      // Auto-fill userId and healthProfileId if not provided
+      const healthProfileId =
+        await this.healthProfileRepo.findEarliestIdByUserId(userId);
+
+      const workoutData: Partial<IWorkout> = {
+        ...data,
+        userId: new Types.ObjectId(userId),
+      };
+
+      // Only add healthProfileId if found (it's optional)
+      if (healthProfileId) {
+        workoutData.healthProfileId = healthProfileId;
+      }
+
+      const workout = await this.workoutRepo.create(workoutData);
       await logAudit({
         userId,
         action: "createWorkout",
@@ -65,6 +79,7 @@ export class WorkoutService {
         message: err.message || err,
         errorMessage: err.stack || err,
       });
+      if (err instanceof HttpError) throw err;
       throw new HttpError(500, "Không thể tạo buổi tập");
     }
   }

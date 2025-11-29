@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
-import 'package:omnihealthmobileflutter/core/theme/app_colors.dart';
 import 'package:omnihealthmobileflutter/core/theme/app_radius.dart';
 import 'package:omnihealthmobileflutter/core/theme/app_spacing.dart';
 import 'package:omnihealthmobileflutter/core/theme/app_typography.dart';
@@ -83,10 +82,12 @@ class _DatePickerFieldState extends State<DatePickerField>
   }
 
   Color _getBorderColor() {
-    if (widget.disabled) return AppColors.gray300;
-    if (_internalError != null || widget.error != null) return AppColors.error;
-    if (_isFocused) return AppColors.primary;
-    return AppColors.gray200;
+    final theme = Theme.of(context);
+    if (widget.disabled) return theme.disabledColor;
+    if (_internalError != null || widget.error != null)
+      return theme.colorScheme.error;
+    if (_isFocused) return theme.primaryColor;
+    return theme.dividerColor;
   }
 
   String _formatDate(DateTime date) {
@@ -119,6 +120,7 @@ class _DatePickerFieldState extends State<DatePickerField>
     if (widget.disabled) return;
 
     DateTime? selectedDate;
+    final theme = Theme.of(context);
 
     if (widget.mode == DatePickerMode.time) {
       final TimeOfDay? picked = await showTimePicker(
@@ -128,11 +130,11 @@ class _DatePickerFieldState extends State<DatePickerField>
             : TimeOfDay.now(),
         builder: (context, child) {
           return Theme(
-            data: Theme.of(context).copyWith(
+            data: theme.copyWith(
               colorScheme: ColorScheme.light(
                 primary: widget.variant == DatePickerVariant.secondary
-                    ? AppColors.gray600
-                    : AppColors.secondary,
+                    ? theme.colorScheme.onSurface
+                    : theme.colorScheme.secondary,
               ),
             ),
             child: child!,
@@ -158,11 +160,11 @@ class _DatePickerFieldState extends State<DatePickerField>
         lastDate: widget.maxDate ?? DateTime(2100),
         builder: (context, child) {
           return Theme(
-            data: Theme.of(context).copyWith(
+            data: theme.copyWith(
               colorScheme: ColorScheme.light(
                 primary: widget.variant == DatePickerVariant.secondary
-                    ? AppColors.gray600
-                    : AppColors.secondary,
+                    ? theme.colorScheme.onSurface
+                    : theme.colorScheme.secondary,
               ),
             ),
             child: child!,
@@ -200,6 +202,7 @@ class _DatePickerFieldState extends State<DatePickerField>
   @override
   Widget build(BuildContext context) {
     final displayError = widget.error ?? _internalError;
+    final theme = Theme.of(context);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -211,11 +214,12 @@ class _DatePickerFieldState extends State<DatePickerField>
               children: [
                 Text(
                   widget.label!,
-                  style: AppTypography.bodyBoldStyle(
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
                     fontSize: AppTypography.fontSizeSm.sp,
                     color: displayError != null
-                        ? AppColors.error
-                        : AppColors.textPrimary,
+                        ? theme.colorScheme.error
+                        : theme.textTheme.bodyMedium?.color,
                   ),
                 ),
                 if (widget.required)
@@ -239,20 +243,20 @@ class _DatePickerFieldState extends State<DatePickerField>
             focusNode: _focusNode,
             child: Container(
               decoration: BoxDecoration(
-                color: AppColors.surface,
+                color: theme.inputDecorationTheme.fillColor ?? theme.cardColor,
                 borderRadius: BorderRadius.circular(AppRadius.md.r),
                 border: Border.all(color: _getBorderColor(), width: 1.5),
                 boxShadow: _isFocused
                     ? [
                         BoxShadow(
-                          color: AppColors.primary.withOpacity(0.1),
+                          color: theme.primaryColor.withOpacity(0.1),
                           blurRadius: 6,
                           offset: const Offset(0, 3),
                         ),
                       ]
                     : [
                         BoxShadow(
-                          color: AppColors.black.withOpacity(0.02),
+                          color: theme.shadowColor.withOpacity(0.05),
                           blurRadius: 2,
                           offset: const Offset(0, 1),
                         ),
@@ -271,7 +275,7 @@ class _DatePickerFieldState extends State<DatePickerField>
                       height: 40.h,
                       margin: EdgeInsets.only(right: AppSpacing.sm.w),
                       decoration: BoxDecoration(
-                        color: AppColors.background,
+                        color: theme.scaffoldBackgroundColor,
                         borderRadius: BorderRadius.circular(AppRadius.sm.r),
                       ),
                       child: Center(child: widget.leftIcon),
@@ -281,11 +285,11 @@ class _DatePickerFieldState extends State<DatePickerField>
                       widget.value != null
                           ? _formatDate(widget.value!)
                           : widget.placeholder!,
-                      style: AppTypography.bodyRegularStyle(
+                      style: theme.textTheme.bodyMedium?.copyWith(
                         fontSize: AppTypography.fontSizeBase.sp,
                         color: widget.value != null
-                            ? AppColors.textPrimary
-                            : AppColors.textMuted,
+                            ? theme.textTheme.bodyMedium?.color
+                            : theme.hintColor,
                       ),
                     ),
                   ),
@@ -306,18 +310,18 @@ class _DatePickerFieldState extends State<DatePickerField>
             ),
             child: Row(
               children: [
-                const Icon(
+                Icon(
                   Icons.error_outline,
                   size: 14,
-                  color: AppColors.error,
+                  color: theme.colorScheme.error,
                 ),
                 SizedBox(width: 4.w),
                 Expanded(
                   child: Text(
                     displayError,
-                    style: AppTypography.bodyRegularStyle(
+                    style: theme.textTheme.bodySmall?.copyWith(
                       fontSize: AppTypography.fontSizeXs.sp,
-                      color: AppColors.error,
+                      color: theme.colorScheme.error,
                     ),
                   ),
                 ),
@@ -332,9 +336,9 @@ class _DatePickerFieldState extends State<DatePickerField>
             ),
             child: Text(
               widget.helperText!,
-              style: AppTypography.bodyRegularStyle(
+              style: theme.textTheme.bodySmall?.copyWith(
                 fontSize: AppTypography.fontSizeXs.sp,
-                color: AppColors.textSecondary,
+                color: theme.textTheme.bodySmall?.color,
               ),
             ),
           ),
@@ -346,6 +350,8 @@ class _DatePickerFieldState extends State<DatePickerField>
 class _CalendarIcon extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final color = theme.textTheme.bodySmall?.color ?? Colors.grey;
     return SizedBox(
       width: 18,
       height: 18,
@@ -353,23 +359,25 @@ class _CalendarIcon extends StatelessWidget {
         children: [
           Container(
             height: 3,
-            decoration: const BoxDecoration(
-              color: AppColors.textSecondary,
-              borderRadius: BorderRadius.vertical(top: Radius.circular(2)),
+            decoration: BoxDecoration(
+              color: color,
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(2),
+              ),
             ),
           ),
           const SizedBox(height: 2),
           Expanded(
             child: Container(
               decoration: BoxDecoration(
-                border: Border.all(color: AppColors.textSecondary, width: 1.5),
+                border: Border.all(color: color, width: 1.5),
                 borderRadius: BorderRadius.circular(2),
               ),
               child: Padding(
                 padding: const EdgeInsets.all(2),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [_buildDot(), _buildDot()],
+                  children: [_buildDot(color), _buildDot(color)],
                 ),
               ),
             ),
@@ -379,14 +387,11 @@ class _CalendarIcon extends StatelessWidget {
     );
   }
 
-  Widget _buildDot() {
+  Widget _buildDot(Color color) {
     return Container(
       width: 2,
       height: 2,
-      decoration: const BoxDecoration(
-        color: AppColors.textSecondary,
-        shape: BoxShape.circle,
-      ),
+      decoration: BoxDecoration(color: color, shape: BoxShape.circle),
     );
   }
 }

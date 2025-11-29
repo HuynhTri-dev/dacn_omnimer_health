@@ -110,6 +110,7 @@ export enum NameDeviceEnum {
   Xiaomi = "Xiaomi Watch",
   OuraRing = "Oura Ring",
   Whoop = "Whoop Strap",
+  HealthConnect = "Health Connect",
   Unknown = "",
 }
 

@@ -18,6 +18,7 @@ class AuthenticationBloc
     on<AuthenticationStarted>(_onAuthenticationStarted);
     on<AuthenticationLoggedIn>(_onAuthenticationLoggedIn);
     on<AuthenticationLoggedOut>(_onAuthenticationLoggedOut);
+    on<AuthenticationUserUpdated>(_onAuthenticationUserUpdated);
   }
 
   Future<void> _onAuthenticationStarted(
@@ -61,5 +62,12 @@ class AuthenticationBloc
       // Thông báo lỗi nếu việc logout trên server/data source thất bại
       emit(AuthenticationError('Đăng xuất thất bại: ${e.toString()}'));
     }
+  }
+
+  Future<void> _onAuthenticationUserUpdated(
+    AuthenticationUserUpdated event,
+    Emitter<AuthenticationState> emit,
+  ) async {
+    emit(AuthenticationAuthenticated(event.user));
   }
 }

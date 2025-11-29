@@ -24,7 +24,7 @@ class _ExerciseList extends StatelessWidget {
           padding: EdgeInsets.symmetric(vertical: 40.h),
           child: Text(
             'Không tìm thấy bài tập',
-            style: AppTypography.bodyMedium,
+            style: Theme.of(context).textTheme.bodyMedium,
           ),
         ),
       );
@@ -72,20 +72,24 @@ class _ExerciseCard extends StatelessWidget {
   const _ExerciseCard({required this.exercise, required this.muscleNames});
 
   /// Placeholder when no image available
-  Widget _buildPlaceholder() {
+  Widget _buildPlaceholder(BuildContext context) {
     return Container(
       width: 85.w,
       height: 85.w,
       decoration: BoxDecoration(
-        color: AppColors.primary.withOpacity(0.08),
+        color: Theme.of(context).primaryColor.withOpacity(0.08),
         borderRadius: AppRadius.radiusMd,
       ),
-      child: Icon(Icons.fitness_center, size: 32.sp, color: AppColors.primary),
+      child: Icon(
+        Icons.fitness_center,
+        size: 32.sp,
+        color: Theme.of(context).primaryColor,
+      ),
     );
   }
 
   /// Thumbnail: use exercise image
-  Widget _buildThumbnail() {
+  Widget _buildThumbnail(BuildContext context) {
     if (exercise.imageUrl.isNotEmpty) {
       return ClipRRect(
         borderRadius: AppRadius.radiusMd,
@@ -99,7 +103,7 @@ class _ExerciseCard extends StatelessWidget {
               'Error loading image for ${exercise.name}: ${exercise.imageUrl}',
             );
             debugPrint('Error details: $error');
-            return _buildPlaceholder();
+            return _buildPlaceholder(context);
           },
           loadingBuilder: (context, child, loadingProgress) {
             if (loadingProgress == null) return child;
@@ -107,7 +111,7 @@ class _ExerciseCard extends StatelessWidget {
               width: 85.w,
               height: 85.w,
               decoration: BoxDecoration(
-                color: AppColors.primary.withOpacity(0.08),
+                color: Theme.of(context).primaryColor.withOpacity(0.08),
                 borderRadius: AppRadius.radiusMd,
               ),
               child: const Center(
@@ -119,7 +123,7 @@ class _ExerciseCard extends StatelessWidget {
       );
     }
 
-    return _buildPlaceholder();
+    return _buildPlaceholder(context);
   }
 
   @override
@@ -133,7 +137,7 @@ class _ExerciseCard extends StatelessWidget {
       },
       child: Container(
         decoration: BoxDecoration(
-          color: AppColors.surface,
+          color: Theme.of(context).cardColor,
           borderRadius: AppRadius.radiusLg,
           boxShadow: [
             BoxShadow(
@@ -148,7 +152,7 @@ class _ExerciseCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Thumbnail on the left
-            _buildThumbnail(),
+            _buildThumbnail(context),
             SizedBox(width: 12.w),
 
             // Content on the right
@@ -164,9 +168,8 @@ class _ExerciseCard extends StatelessWidget {
                           exercise.name,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: AppTypography.bodyMedium.copyWith(
-                            fontWeight: FontWeight.w600,
-                          ),
+                          style: Theme.of(context).textTheme.bodyMedium
+                              ?.copyWith(fontWeight: FontWeight.w600),
                         ),
                       ),
                       SizedBox(width: 4.w),
@@ -187,8 +190,8 @@ class _ExerciseCard extends StatelessWidget {
                     muscleNames.isEmpty ? '-' : muscleNames.join(', '),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: AppTypography.caption.copyWith(
-                      color: AppColors.textMuted,
+                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                      color: Theme.of(context).textTheme.bodySmall?.color,
                     ),
                   ),
                   SizedBox(height: 8.h),
@@ -247,7 +250,9 @@ class _InfoRow extends StatelessWidget {
         Text(
           label,
           textAlign: textAlign,
-          style: AppTypography.caption.copyWith(color: AppColors.textMuted),
+          style: Theme.of(context).textTheme.labelSmall?.copyWith(
+            color: Theme.of(context).textTheme.bodySmall?.color,
+          ),
         ),
         SizedBox(height: 2.h),
         Text(
@@ -255,7 +260,7 @@ class _InfoRow extends StatelessWidget {
           textAlign: textAlign,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
-          style: AppTypography.bodySmall,
+          style: Theme.of(context).textTheme.bodySmall,
         ),
       ],
     );

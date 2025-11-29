@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:omnihealthmobileflutter/core/theme/app_colors.dart';
 import 'package:omnihealthmobileflutter/core/theme/app_spacing.dart';
-import 'package:omnihealthmobileflutter/core/theme/app_typography.dart';
 
 /// Widget cho section header trong More screen
 class MoreSectionHeader extends StatelessWidget {
@@ -20,10 +17,9 @@ class MoreSectionHeader extends StatelessWidget {
       ),
       child: Text(
         title,
-        style: AppTypography.bodyBoldStyle(
-          fontSize: AppTypography.fontSizeSm.sp,
-          color: AppColors.textSecondary,
-        ),
+        style: Theme.of(
+          context,
+        ).textTheme.labelLarge?.copyWith(fontWeight: FontWeight.bold),
       ),
     );
   }

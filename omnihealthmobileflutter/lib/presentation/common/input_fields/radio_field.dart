@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:omnihealthmobileflutter/core/theme/app_colors.dart';
 import 'package:omnihealthmobileflutter/core/theme/app_radius.dart';
 import 'package:omnihealthmobileflutter/core/theme/app_spacing.dart';
 import 'package:omnihealthmobileflutter/core/theme/app_typography.dart';
@@ -74,19 +73,22 @@ class _RadioFieldState<T> extends State<RadioField<T>>
   }
 
   Color _getBorderColor(bool isSelected) {
-    if (widget.disabled) return AppColors.gray300;
-    if (_internalError != null || widget.error != null) return AppColors.error;
-    if (isSelected || _isFocused) return AppColors.primary;
-    return AppColors.gray200;
+    final theme = Theme.of(context);
+    if (widget.disabled) return theme.disabledColor;
+    if (_internalError != null || widget.error != null)
+      return theme.colorScheme.error;
+    if (isSelected || _isFocused) return theme.primaryColor;
+    return theme.dividerColor;
   }
 
   Color _getCircleBorderColor(bool isSelected) {
-    if (widget.disabled) return AppColors.gray400;
-    return isSelected ? AppColors.primary : AppColors.gray200;
+    final theme = Theme.of(context);
+    if (widget.disabled) return theme.disabledColor;
+    return isSelected ? theme.primaryColor : theme.dividerColor;
   }
 
   Color _getCircleInnerColor() {
-    return AppColors.primary;
+    return Theme.of(context).primaryColor;
   }
 
   void _validate(T? value) {
@@ -105,6 +107,7 @@ class _RadioFieldState<T> extends State<RadioField<T>>
   @override
   Widget build(BuildContext context) {
     final displayError = widget.error ?? _internalError;
+    final theme = Theme.of(context);
 
     return Focus(
       focusNode: _focusNode,
@@ -116,11 +119,12 @@ class _RadioFieldState<T> extends State<RadioField<T>>
               padding: EdgeInsets.only(bottom: AppSpacing.xs.h),
               child: Text(
                 widget.label!,
-                style: AppTypography.bodyBoldStyle(
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
                   fontSize: AppTypography.fontSizeSm.sp,
                   color: displayError != null
-                      ? AppColors.error
-                      : AppColors.textPrimary,
+                      ? theme.colorScheme.error
+                      : theme.textTheme.bodyMedium?.color,
                 ),
               ),
             ),
@@ -159,18 +163,18 @@ class _RadioFieldState<T> extends State<RadioField<T>>
               ),
               child: Row(
                 children: [
-                  const Icon(
+                  Icon(
                     Icons.error_outline,
                     size: 14,
-                    color: AppColors.error,
+                    color: theme.colorScheme.error,
                   ),
                   SizedBox(width: 4.w),
                   Expanded(
                     child: Text(
                       displayError,
-                      style: AppTypography.bodyRegularStyle(
+                      style: theme.textTheme.bodySmall?.copyWith(
                         fontSize: AppTypography.fontSizeXs.sp,
-                        color: AppColors.error,
+                        color: theme.colorScheme.error,
                       ),
                     ),
                   ),
@@ -185,9 +189,9 @@ class _RadioFieldState<T> extends State<RadioField<T>>
               ),
               child: Text(
                 widget.helperText!,
-                style: AppTypography.bodyRegularStyle(
+                style: theme.textTheme.bodySmall?.copyWith(
                   fontSize: AppTypography.fontSizeXs.sp,
-                  color: AppColors.textSecondary,
+                  color: theme.textTheme.bodySmall?.color,
                 ),
               ),
             ),
@@ -198,6 +202,7 @@ class _RadioFieldState<T> extends State<RadioField<T>>
 
   Widget _buildRadioOption(RadioOption<T> option) {
     final isSelected = option.value == widget.value;
+    final theme = Theme.of(context);
 
     return GestureDetector(
       onTap: widget.disabled ? null : () => _handleSelect(option.value),
@@ -207,20 +212,20 @@ class _RadioFieldState<T> extends State<RadioField<T>>
           vertical: AppSpacing.sm.h,
         ),
         decoration: BoxDecoration(
-          color: AppColors.surface,
+          color: theme.inputDecorationTheme.fillColor ?? theme.cardColor,
           border: Border.all(color: _getBorderColor(isSelected), width: 1.5),
           borderRadius: BorderRadius.circular(AppRadius.md.r),
           boxShadow: isSelected || _isFocused
               ? [
                   BoxShadow(
-                    color: AppColors.primary.withOpacity(0.1),
+                    color: theme.primaryColor.withOpacity(0.1),
                     blurRadius: 6,
                     offset: const Offset(0, 3),
                   ),
                 ]
               : [
                   BoxShadow(
-                    color: AppColors.black.withOpacity(0.02),
+                    color: theme.shadowColor.withOpacity(0.05),
                     blurRadius: 2,
                     offset: const Offset(0, 1),
                   ),
@@ -255,11 +260,11 @@ class _RadioFieldState<T> extends State<RadioField<T>>
             Expanded(
               child: Text(
                 option.label,
-                style: AppTypography.bodyRegularStyle(
+                style: theme.textTheme.bodyMedium?.copyWith(
                   fontSize: AppTypography.fontSizeBase.sp,
                   color: widget.disabled
-                      ? AppColors.textMuted
-                      : AppColors.textPrimary,
+                      ? theme.disabledColor
+                      : theme.textTheme.bodyMedium?.color,
                 ),
               ),
             ),

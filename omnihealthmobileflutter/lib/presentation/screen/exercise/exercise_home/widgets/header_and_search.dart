@@ -19,7 +19,7 @@ class _BodyAndMuscleHeader extends StatelessWidget {
           child: Container(
             height: 220.h,
             decoration: BoxDecoration(
-              color: AppColors.surface,
+              color: Theme.of(context).cardColor,
               borderRadius: AppRadius.radiusXl,
               boxShadow: [
                 BoxShadow(
@@ -57,7 +57,7 @@ class _BodyAndMuscleHeader extends StatelessWidget {
             height: 220.h,
             padding: EdgeInsets.all(12.w),
             decoration: BoxDecoration(
-              color: AppColors.surface,
+              color: Theme.of(context).cardColor,
               borderRadius: AppRadius.radiusXl,
               boxShadow: [
                 BoxShadow(
@@ -74,17 +74,17 @@ class _BodyAndMuscleHeader extends StatelessWidget {
                   muscle?.name ?? 'Muscle Name',
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: AppTypography.bodyMedium.copyWith(
-                    fontWeight: FontWeight.w700,
-                  ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w700),
                 ),
                 SizedBox(height: 4.h),
                 Text(
                   muscle?.description ?? 'Description...',
                   maxLines: 3,
                   overflow: TextOverflow.ellipsis,
-                  style: AppTypography.caption.copyWith(
-                    color: AppColors.textMuted,
+                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                    color: Theme.of(context).textTheme.bodySmall?.color,
                   ),
                 ),
                 const Spacer(),
@@ -100,7 +100,7 @@ class _BodyAndMuscleHeader extends StatelessWidget {
                       : Container(
                           height: 90.h,
                           width: double.infinity,
-                          color: AppColors.background,
+                          color: Theme.of(context).scaffoldBackgroundColor,
                           alignment: Alignment.center,
                           child: const Icon(Icons.image),
                         ),
@@ -127,7 +127,7 @@ class _FilterButton extends StatelessWidget {
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 8.h),
         decoration: BoxDecoration(
-          color: AppColors.surface,
+          color: Theme.of(context).cardColor,
           borderRadius: AppRadius.radiusLg,
           boxShadow: [
             BoxShadow(
@@ -144,9 +144,9 @@ class _FilterButton extends StatelessWidget {
             SizedBox(height: 4.h),
             Text(
               '$resultCount',
-              style: AppTypography.caption.copyWith(
-                fontWeight: FontWeight.w600,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.labelSmall?.copyWith(fontWeight: FontWeight.w600),
             ),
           ],
         ),
@@ -169,22 +169,32 @@ class _SearchField extends StatelessWidget {
         ..selection = TextSelection.collapsed(offset: value.length),
       decoration: InputDecoration(
         hintText: 'Tìm kiếm bài tập...',
-        hintStyle: AppTypography.bodySmall.copyWith(color: AppColors.textMuted),
+        hintStyle: Theme.of(context).inputDecorationTheme.hintStyle,
         prefixIcon: const Icon(Icons.search),
         filled: true,
-        fillColor: AppColors.surface,
+        fillColor: Theme.of(context).inputDecorationTheme.fillColor,
         contentPadding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
         border: OutlineInputBorder(
           borderRadius: AppRadius.radiusLg,
-          borderSide: const BorderSide(color: AppColors.border),
+          borderSide:
+              Theme.of(context).inputDecorationTheme.border?.borderSide ??
+              BorderSide.none,
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: AppRadius.radiusLg,
-          borderSide: const BorderSide(color: AppColors.border),
+          borderSide:
+              Theme.of(
+                context,
+              ).inputDecorationTheme.enabledBorder?.borderSide ??
+              BorderSide.none,
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: AppRadius.radiusLg,
-          borderSide: const BorderSide(color: AppColors.primary),
+          borderSide:
+              Theme.of(
+                context,
+              ).inputDecorationTheme.focusedBorder?.borderSide ??
+              BorderSide(color: Theme.of(context).primaryColor),
         ),
       ),
     );

@@ -2,8 +2,10 @@ import 'package:omnihealthmobileflutter/core/api/api_response.dart';
 import 'package:omnihealthmobileflutter/data/datasources/auth_datasource.dart';
 import 'package:omnihealthmobileflutter/data/models/auth/login_model.dart';
 import 'package:omnihealthmobileflutter/data/models/auth/register_model.dart';
+import 'package:omnihealthmobileflutter/data/models/auth/user_model.dart';
 import 'package:omnihealthmobileflutter/domain/abstracts/auth_repository_abs.dart';
 import 'package:omnihealthmobileflutter/domain/entities/auth/auth_entity.dart';
+import 'package:omnihealthmobileflutter/domain/entities/auth/user_entity.dart';
 
 /// Implementation of [AuthRepository].
 /// Converts between domain entities and data models.
@@ -119,6 +121,26 @@ class AuthRepositoryImpl implements AuthRepositoryAbs {
       // Đã sửa lỗi kiểu trả về ở đây
       return ApiResponse<UserAuth>.error(
         "Get Auth thất bại: ${e.toString()}",
+        error: e,
+      );
+    }
+  }
+
+  @override
+  Future<ApiResponse<UserEntity>> updateUser(String id, UserEntity user) async {
+    try {
+      final userModel = UserModel.fromEntity(user);
+      final response = await authDataSource.updateUser(id, userModel);
+
+      return ApiResponse<UserEntity>(
+        success: response.success,
+        message: response.message,
+        data: response.data?.toEntity(),
+        error: response.error,
+      );
+    } catch (e) {
+      return ApiResponse<UserEntity>.error(
+        "Cập nhật thông tin thất bại: ${e.toString()}",
         error: e,
       );
     }

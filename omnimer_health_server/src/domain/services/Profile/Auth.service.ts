@@ -26,6 +26,7 @@ export class AuthService {
    */
   private buildUserResponse(user: IUserResponse): IUserResponse {
     return {
+      _id: user._id,
       fullname: user.fullname,
       email: user.email,
       imageUrl: user.imageUrl,

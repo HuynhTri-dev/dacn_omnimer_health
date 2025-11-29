@@ -33,7 +33,25 @@ export class UserController {
         req.body
       );
 
-      return sendSuccess(res, updated, "Cập nhật thông tin cá nhân thành công");
+      // Filter out unnecessary fields
+      let responseData: any = updated;
+      if (updated && typeof (updated as any).toObject === "function") {
+        responseData = (updated as any).toObject();
+      } else if (updated) {
+        responseData = { ...updated };
+      }
+
+      if (responseData) {
+        delete (responseData as any).passwordHashed;
+        delete (responseData as any).email;
+        delete (responseData as any).roleIds;
+      }
+
+      return sendSuccess(
+        res,
+        responseData,
+        "Cập nhật thông tin cá nhân thành công"
+      );
     } catch (err) {
       next(err);
     }

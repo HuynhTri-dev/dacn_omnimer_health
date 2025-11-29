@@ -2,7 +2,6 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:omnihealthmobileflutter/core/theme/app_colors.dart';
 import 'package:omnihealthmobileflutter/core/theme/app_radius.dart';
 import 'package:omnihealthmobileflutter/core/theme/app_spacing.dart';
 import 'package:omnihealthmobileflutter/core/theme/app_typography.dart';
@@ -74,10 +73,12 @@ class _ImagePickerFieldState extends State<ImagePickerField>
   }
 
   Color _getBorderColor() {
-    if (widget.disabled) return AppColors.gray300;
-    if (_internalError != null || widget.error != null) return AppColors.error;
-    if (_isFocused) return AppColors.primary;
-    return AppColors.gray200;
+    final theme = Theme.of(context);
+    if (widget.disabled) return theme.disabledColor;
+    if (_internalError != null || widget.error != null)
+      return theme.colorScheme.error;
+    if (_isFocused) return theme.primaryColor;
+    return theme.dividerColor;
   }
 
   void _validate(File? value) {
@@ -90,13 +91,14 @@ class _ImagePickerFieldState extends State<ImagePickerField>
   /// Hiển thị bottom sheet để chọn nguồn ảnh (Camera hoặc Thư viện)
   Future<void> _showImageSourceOptions() async {
     if (widget.disabled) return;
+    final theme = Theme.of(context);
 
     await showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
       builder: (context) => Container(
         decoration: BoxDecoration(
-          color: AppColors.white,
+          color: theme.scaffoldBackgroundColor,
           borderRadius: BorderRadius.vertical(
             top: Radius.circular(AppRadius.lg.r),
           ),
@@ -113,16 +115,16 @@ class _ImagePickerFieldState extends State<ImagePickerField>
                   height: 4.h,
                   margin: EdgeInsets.only(bottom: AppSpacing.md.h),
                   decoration: BoxDecoration(
-                    color: AppColors.gray300,
+                    color: theme.dividerColor,
                     borderRadius: BorderRadius.circular(2.r),
                   ),
                 ),
                 // Title
                 Text(
                   'Chọn nguồn ảnh',
-                  style: AppTypography.headingBoldStyle(
+                  style: theme.textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.bold,
                     fontSize: AppTypography.fontSizeLg.sp,
-                    color: AppColors.textPrimary,
                   ),
                 ),
                 SizedBox(height: AppSpacing.lg.h),
@@ -160,13 +162,14 @@ class _ImagePickerFieldState extends State<ImagePickerField>
     required String label,
     required VoidCallback onTap,
   }) {
+    final theme = Theme.of(context);
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(AppRadius.md.r),
       child: Container(
         padding: AppSpacing.paddingMd,
         decoration: BoxDecoration(
-          color: AppColors.gray100,
+          color: theme.cardColor,
           borderRadius: BorderRadius.circular(AppRadius.md.r),
         ),
         child: Row(
@@ -175,17 +178,16 @@ class _ImagePickerFieldState extends State<ImagePickerField>
               width: 48.w,
               height: 48.h,
               decoration: BoxDecoration(
-                color: AppColors.primary.withOpacity(0.1),
+                color: theme.primaryColor.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(AppRadius.sm.r),
               ),
-              child: Icon(icon, color: AppColors.primary, size: 24.sp),
+              child: Icon(icon, color: theme.primaryColor, size: 24.sp),
             ),
             SizedBox(width: AppSpacing.md.w),
             Text(
               label,
-              style: AppTypography.bodyRegularStyle(
+              style: theme.textTheme.bodyMedium?.copyWith(
                 fontSize: AppTypography.fontSizeBase.sp,
-                color: AppColors.textPrimary,
               ),
             ),
           ],
@@ -226,6 +228,7 @@ class _ImagePickerFieldState extends State<ImagePickerField>
   @override
   Widget build(BuildContext context) {
     final displayError = widget.error ?? _internalError;
+    final theme = Theme.of(context);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -235,9 +238,10 @@ class _ImagePickerFieldState extends State<ImagePickerField>
             children: [
               Text(
                 widget.label!,
-                style: AppTypography.bodyBoldStyle(
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
                   fontSize: AppTypography.fontSizeSm.sp,
-                  color: AppColors.textPrimary,
+                  color: theme.textTheme.bodyMedium?.color,
                 ),
               ),
               if (widget.required)
@@ -268,14 +272,18 @@ class _ImagePickerFieldState extends State<ImagePickerField>
           SizedBox(height: AppSpacing.xs.h),
           Row(
             children: [
-              const Icon(Icons.error_outline, size: 14, color: AppColors.error),
+              Icon(
+                Icons.error_outline,
+                size: 14,
+                color: theme.colorScheme.error,
+              ),
               SizedBox(width: 4.w),
               Expanded(
                 child: Text(
                   displayError,
-                  style: AppTypography.bodyRegularStyle(
+                  style: theme.textTheme.bodySmall?.copyWith(
                     fontSize: AppTypography.fontSizeXs.sp,
-                    color: AppColors.error,
+                    color: theme.colorScheme.error,
                   ),
                 ),
               ),
@@ -286,9 +294,9 @@ class _ImagePickerFieldState extends State<ImagePickerField>
           Center(
             child: Text(
               widget.helperText!,
-              style: AppTypography.bodyRegularStyle(
+              style: theme.textTheme.bodySmall?.copyWith(
                 fontSize: AppTypography.fontSizeXs.sp,
-                color: AppColors.textSecondary,
+                color: theme.textTheme.bodySmall?.color,
               ),
             ),
           ),
@@ -299,6 +307,7 @@ class _ImagePickerFieldState extends State<ImagePickerField>
 
   /// Widget hiển thị nút upload khi chưa có ảnh
   Widget _buildUploadButton() {
+    final theme = Theme.of(context);
     return GestureDetector(
       onTap: widget.disabled ? null : _showImageSourceOptions,
       child: Focus(
@@ -307,20 +316,20 @@ class _ImagePickerFieldState extends State<ImagePickerField>
           height: widget.imageHeight ?? 120.h,
           width: widget.imageWidth ?? 120.w,
           decoration: BoxDecoration(
-            color: AppColors.surface,
+            color: theme.inputDecorationTheme.fillColor ?? theme.cardColor,
             shape: BoxShape.circle,
             border: Border.all(color: _getBorderColor(), width: 1.5),
             boxShadow: _isFocused
                 ? [
                     BoxShadow(
-                      color: AppColors.primary.withOpacity(0.1),
+                      color: theme.primaryColor.withOpacity(0.1),
                       blurRadius: 6,
                       offset: const Offset(0, 3),
                     ),
                   ]
                 : [
                     BoxShadow(
-                      color: AppColors.black.withOpacity(0.02),
+                      color: theme.shadowColor.withOpacity(0.05),
                       blurRadius: 2,
                       offset: const Offset(0, 1),
                     ),
@@ -333,12 +342,12 @@ class _ImagePickerFieldState extends State<ImagePickerField>
                 width: 48.w,
                 height: 48.h,
                 decoration: BoxDecoration(
-                  color: AppColors.background,
+                  color: theme.scaffoldBackgroundColor,
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
                   Icons.add_photo_alternate_outlined,
-                  color: AppColors.primary,
+                  color: theme.primaryColor,
                   size: 24.sp,
                 ),
               ),
@@ -352,6 +361,7 @@ class _ImagePickerFieldState extends State<ImagePickerField>
 
   /// Widget hiển thị ảnh đã chọn với nút xóa và thay đổi
   Widget _buildImagePreview() {
+    final theme = Theme.of(context);
     return Focus(
       focusNode: _focusNode,
       child: Container(
@@ -363,14 +373,14 @@ class _ImagePickerFieldState extends State<ImagePickerField>
           boxShadow: _isFocused
               ? [
                   BoxShadow(
-                    color: AppColors.primary.withOpacity(0.1),
+                    color: theme.primaryColor.withOpacity(0.1),
                     blurRadius: 6,
                     offset: const Offset(0, 3),
                   ),
                 ]
               : [
                   BoxShadow(
-                    color: AppColors.black.withOpacity(0.02),
+                    color: theme.shadowColor.withOpacity(0.05),
                     blurRadius: 2,
                     offset: const Offset(0, 1),
                   ),
@@ -398,14 +408,14 @@ class _ImagePickerFieldState extends State<ImagePickerField>
                     // Change button
                     _buildActionButton(
                       icon: Icons.edit,
-                      color: AppColors.primary,
+                      color: theme.primaryColor,
                       onTap: _showImageSourceOptions,
                     ),
                     SizedBox(width: AppSpacing.xs.w),
                     // Remove button
                     _buildActionButton(
                       icon: Icons.close,
-                      color: AppColors.danger,
+                      color: theme.colorScheme.error,
                       onTap: _removeImage,
                     ),
                   ],
@@ -423,6 +433,7 @@ class _ImagePickerFieldState extends State<ImagePickerField>
     required Color color,
     required VoidCallback onTap,
   }) {
+    final theme = Theme.of(context);
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(AppRadius.sm.r),
@@ -434,13 +445,13 @@ class _ImagePickerFieldState extends State<ImagePickerField>
           borderRadius: BorderRadius.circular(AppRadius.sm.r),
           boxShadow: [
             BoxShadow(
-              color: AppColors.black.withOpacity(0.2),
+              color: theme.shadowColor.withOpacity(0.2),
               blurRadius: 4,
               offset: const Offset(0, 2),
             ),
           ],
         ),
-        child: Icon(icon, color: AppColors.white, size: 18.sp),
+        child: Icon(icon, color: theme.colorScheme.onPrimary, size: 18.sp),
       ),
     );
   }

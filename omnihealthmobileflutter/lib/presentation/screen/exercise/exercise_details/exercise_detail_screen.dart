@@ -2,9 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import 'package:omnihealthmobileflutter/core/theme/app_colors.dart';
 import 'package:omnihealthmobileflutter/core/theme/app_radius.dart';
-import 'package:omnihealthmobileflutter/core/theme/app_typography.dart';
 import 'package:omnihealthmobileflutter/presentation/screen/exercise/exercise_details/cubits/exercise_detail_cubit.dart';
 import 'package:omnihealthmobileflutter/presentation/screen/exercise/exercise_details/cubits/exercise_detail_state.dart';
 
@@ -33,7 +31,7 @@ class _ExerciseDetailScreenState extends State<ExerciseDetailScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
         child: BlocBuilder<ExerciseDetailCubit, ExerciseDetailState>(
           builder: (context, state) {
@@ -50,12 +48,14 @@ class _ExerciseDetailScreenState extends State<ExerciseDetailScreen> {
                   children: [
                     Text(
                       'Error loading exercise',
-                      style: AppTypography.h3.copyWith(color: AppColors.error),
+                      style: Theme.of(context).textTheme.displaySmall?.copyWith(
+                        color: Theme.of(context).colorScheme.error,
+                      ),
                     ),
                     SizedBox(height: 8.h),
                     Text(
                       state.errorMessage ?? 'Unknown error',
-                      style: AppTypography.bodyMedium,
+                      style: Theme.of(context).textTheme.bodyMedium,
                       textAlign: TextAlign.center,
                     ),
                     SizedBox(height: 16.h),
@@ -117,7 +117,7 @@ class _ExerciseDetailScreenState extends State<ExerciseDetailScreen> {
                   color: Colors.transparent,
                   child: OutlinedButton(
                     style: OutlinedButton.styleFrom(
-                      side: const BorderSide(color: AppColors.primary),
+                      side: BorderSide(color: Theme.of(context).primaryColor),
                       shape: RoundedRectangleBorder(
                         borderRadius: AppRadius.radiusLg,
                       ),
@@ -125,7 +125,7 @@ class _ExerciseDetailScreenState extends State<ExerciseDetailScreen> {
                         horizontal: 20.w,
                         vertical: 8.h,
                       ),
-                      backgroundColor: Colors.white,
+                      backgroundColor: Theme.of(context).cardColor,
                     ),
                     onPressed: () => showExerciseRatingSheet(
                       parentContext: context,
@@ -135,8 +135,8 @@ class _ExerciseDetailScreenState extends State<ExerciseDetailScreen> {
                     ),
                     child: Text(
                       'Rating',
-                      style: AppTypography.bodyMedium.copyWith(
-                        color: AppColors.primary,
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: Theme.of(context).primaryColor,
                         fontWeight: FontWeight.w600,
                       ),
                     ),

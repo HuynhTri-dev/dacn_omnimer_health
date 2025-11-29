@@ -1,0 +1,221 @@
+{
+  "model_version": "v3_enhanced",
+  "training_date": "2025-11-25",
+  "dataset_info": {
+    "data_directory": "./data",
+    "total_samples": 10200,
+    "train_samples": 7140,
+    "val_samples": 1020,
+    "test_samples": 2040,
+    "feature_columns": [
+      "age",
+      "weight_kg",
+      "height_m",
+      "bmi",
+      "experience_level",
+      "workout_frequency",
+      "resting_heartrate",
+      "gender",
+      "mood_numeric",
+      "fatigue_numeric",
+      "effort_numeric"
+    ],
+    "numeric_features": [
+      "age",
+      "weight_kg",
+      "height_m",
+      "bmi",
+      "experience_level",
+      "workout_frequency",
+      "resting_heartrate",
+      "mood_numeric",
+      "fatigue_numeric",
+      "effort_numeric"
+    ],
+    "categorical_features": [
+      "gender"
+    ],
+    "data_sources": {
+      "primary": 10000,
+      "test": 200
+    }
+  },
+  "target_statistics": {
+    "train": {
+      "1rm_mean": 70.809418767507,
+      "1rm_std": 38.17973739971857,
+      "1rm_min": 0.0,
+      "1rm_max": 180.1,
+      "suitability_mean": 0.5002198879551821,
+      "readiness_mean": 0.9567787114845939
+    },
+    "test": {
+      "1rm_mean": 69.78516666666667,
+      "1rm_std": 40.37693597703757,
+      "1rm_min": 0.0,
+      "1rm_max": 224.0,
+      "suitability_mean": 0.5306176470588235,
+      "readiness_mean": 0.9586274509803923
+    }
+  },
+  "test_results": {
+    "test_loss": 2033.4039459228516,
+    "test_1rm_rmse": 31.907020910740595,
+    "test_1rm_r2": 0.37553834915161133,
+    "test_1rm_mae": 22.665157318115234,
+    "test_suitability_rmse": 0.10878294117688814,
+    "test_suitability_corr": -0.05595958045831813,
+    "test_readiness_rmse": 0.0836521859115191,
+    "test_readiness_corr": 0.3422992527013563
+  },
+  "sepa_mapping": {
+    "mood": {
+      "Very Bad": 1,
+      "Bad": 2,
+      "Neutral": 3,
+      "Good": 4,
+      "Very Good": 5,
+      "Excellent": 5
+    },
+    "fatigue": {
+      "Very Low": 1,
+      "Low": 2,
+      "Medium": 3,
+      "High": 4,
+      "Very High": 5
+    },
+    "effort": {
+      "Very Low": 1,
+      "Low": 2,
+      "Medium": 3,
+      "High": 4,
+      "Very High": 5
+    }
+  },
+  "workout_goals": {
+    "strength": {
+      "intensity_percent": [
+        0.85,
+        0.95
+      ],
+      "rep_range": [
+        5,
+        15
+      ],
+      "sets_range": [
+        1,
+        5
+      ],
+      "rest_minutes": [
+        3,
+        5
+      ],
+      "description": "Strength Training - Heavy loads, low reps"
+    },
+    "hypertrophy": {
+      "intensity_percent": [
+        0.7,
+        0.8
+      ],
+      "rep_range": [
+        8,
+        20
+      ],
+      "sets_range": [
+        1,
+        5
+      ],
+      "rest_minutes": [
+        1,
+        2
+      ],
+      "description": "Hypertrophy - Moderate loads, medium reps"
+    },
+    "endurance": {
+      "intensity_percent": [
+        0.5,
+        0.6
+      ],
+      "rep_range": [
+        10,
+        30
+      ],
+      "sets_range": [
+        1,
+        5
+      ],
+      "rest_minutes": [
+        0.5,
+        1
+      ],
+      "description": "Endurance - Light loads, high reps"
+    },
+    "general_fitness": {
+      "intensity_percent": [
+        0.6,
+        0.75
+      ],
+      "rep_range": [
+        10,
+        30
+      ],
+      "sets_range": [
+        1,
+        5
+      ],
+      "rest_minutes": [
+        1,
+        2
+      ],
+      "description": "General Fitness - Balanced approach"
+    }
+  },
+  "model_architecture": {
+    "input_dim": 12,
+    "hidden_dim": 256,
+    "num_layers": 2,
+    "dropout": 0.2,
+    "use_transformer": false,
+    "multi_task_heads": [
+      "1rm_prediction",
+      "suitability_scoring",
+      "readiness_factor"
+    ]
+  },
+  "best_validation_metrics": {
+    "1rm_mae": 19.706819534301758,
+    "1rm_mse": 780.8350219726562,
+    "1rm_rmse": 27.94342538008997,
+    "1rm_r2": 0.4901077151298523,
+    "1rm_mape": 71344160768.0,
+    "suitability_mae": 0.011923559010028839,
+    "suitability_mse": 0.0001970253506442532,
+    "suitability_rmse": 0.014036571897876389,
+    "suitability_r2": 1.1146068572998047e-05,
+    "suitability_mape": 2.3840291500091553,
+    "suitability_corr": 0.03392421909403372,
+    "readiness_mae": 0.06573648005723953,
+    "readiness_mse": 0.006334231235086918,
+    "readiness_rmse": 0.07958788372036862,
+    "readiness_r2": 0.24528276920318604,
+    "readiness_mape": 7.2080841064453125,
+    "readiness_corr": 0.5206180211080181
+  },
+  "training_config": {
+    "epochs": 100,
+    "batch_size": 64,
+    "learning_rate": 0.001,
+    "loss_weights": {
+      "1rm": 2.0,
+      "suitability": 1.0,
+      "readiness": 0.5
+    }
+  },
+  "strategy_analysis_implementation": {
+    "feature_engineering": "1RM estimation using Epley formula",
+    "sepa_integration": "Mood, Fatigue, Effort standardized to 1-5 scale",
+    "readiness_calculation": "Auto-regulation based on SePA scores",
+    "multi_task_learning": "Simultaneous 1RM, suitability, and readiness prediction",
+    "rule_based_decoding": "Goal-based workout parameter generation"
+  }
+}

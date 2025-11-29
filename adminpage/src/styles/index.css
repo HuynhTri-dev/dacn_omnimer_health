@@ -1,12 +1,80 @@
 @import "tailwindcss";
 
 :root {
+  /* Main Colors from Flutter App */
+  --primary: #5EAFD8;
+  --secondary: #338BAB;
+  --white: #FFFFFF;
+  --black: #000000;
+
+  /* UI Colors */
+  --background: #F8F9FA;
+  --surface: #FFFFFF;
+  --error: #FF3B30;
+  --success: #34C759;
+  --warning: #FFCC00;
+  --info: #5856D6;
+  --danger: #E15858;
+  --danger-hover: #B84343;
+
+  /* Gray Scale */
+  --gray-100: #F8F9FA;
+  --gray-200: #E9ECEF;
+  --gray-300: #DEE2E6;
+  --gray-400: #CED4DA;
+  --gray-500: #ADB5BD;
+  --gray-600: #6C757D;
+  --gray-700: #495057;
+  --gray-800: #343A40;
+  --gray-900: #212529;
+
+  /* Text Colors */
+  --text-primary: #212529;
+  --text-secondary: #6C757D;
+  --text-light: #FFFFFF;
+  --text-muted: #ADB5BD;
+
+  /* Difficulty Level Colors */
+  --easy: #A8D8EF;
+  --medium: #2A96C8;
+  --hard: #F9D05B;
+  --very-hard: #EF6F6C;
+
+  /* Additional UI */
+  --border: #DEE2E6;
+  --divider: #E9ECEF;
+  --overlay: rgba(0, 0, 0, 0.5);
+  --shadow: rgba(0, 0, 0, 0.1);
+}
+
+body {
+  margin: 0;
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
-
+  color-scheme: light;
+  background-color: var(--background);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--gray-100);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--gray-400);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--gray-500);
 }

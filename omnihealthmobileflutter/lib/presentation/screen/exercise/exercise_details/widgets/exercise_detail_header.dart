@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:omnihealthmobileflutter/core/theme/app_colors.dart';
-import 'package:omnihealthmobileflutter/core/theme/app_typography.dart';
 
 class ExerciseDetailHeader extends StatelessWidget {
   final String exerciseName;
@@ -37,7 +36,7 @@ class ExerciseDetailHeader extends StatelessWidget {
                         exerciseName,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: AppTypography.h2,
+                        style: Theme.of(context).textTheme.displayMedium,
                       ),
                     ),
                     SizedBox(width: 6.w),
@@ -52,7 +51,10 @@ class ExerciseDetailHeader extends StatelessWidget {
                   ],
                 ),
                 SizedBox(height: 6.h),
-                Text('Rating: $ratingText | 5', style: AppTypography.caption),
+                Text(
+                  'Rating: $ratingText | 5',
+                  style: Theme.of(context).textTheme.labelSmall,
+                ),
               ],
             ),
           ),

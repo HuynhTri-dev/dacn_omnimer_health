@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python:*)",
+      "Bash(cat:*)",
+      "Bash(del:*)",
+      "Bash(nul:*)",
+      "Bash(flutter analyze:*)",
+      "Bash(npm install:*)",
+      "Bash(npm run dev)",
+      "Bash(npm run build:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

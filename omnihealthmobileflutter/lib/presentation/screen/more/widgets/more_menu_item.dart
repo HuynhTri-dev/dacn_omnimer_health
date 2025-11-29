@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:omnihealthmobileflutter/core/theme/app_colors.dart';
 import 'package:omnihealthmobileflutter/core/theme/app_radius.dart';
 import 'package:omnihealthmobileflutter/core/theme/app_spacing.dart';
-import 'package:omnihealthmobileflutter/core/theme/app_typography.dart';
 
 /// Widget cho mỗi menu item trong More screen
 class MoreMenuItem extends StatelessWidget {
@@ -30,6 +28,10 @@ class MoreMenuItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final textTheme = theme.textTheme;
+
     return InkWell(
       onTap: onTap,
       borderRadius: AppRadius.radiusMd,
@@ -39,10 +41,10 @@ class MoreMenuItem extends StatelessWidget {
           vertical: AppSpacing.sm,
         ),
         decoration: BoxDecoration(
-          color: AppColors.surface,
+          color: colorScheme.surface,
           borderRadius: AppRadius.radiusMd,
           border: Border.all(
-            color: AppColors.border.withOpacity(0.5),
+            color: theme.dividerColor.withOpacity(0.5),
             width: 1,
           ),
         ),
@@ -53,12 +55,12 @@ class MoreMenuItem extends StatelessWidget {
               width: 40.w,
               height: 40.h,
               decoration: BoxDecoration(
-                color: backgroundColor ?? AppColors.primary.withOpacity(0.1),
+                color: backgroundColor ?? colorScheme.primary.withOpacity(0.1),
                 borderRadius: AppRadius.radiusSm,
               ),
               child: Icon(
                 icon,
-                color: iconColor ?? AppColors.primary,
+                color: iconColor ?? colorScheme.primary,
                 size: 20.sp,
               ),
             ),
@@ -72,20 +74,13 @@ class MoreMenuItem extends StatelessWidget {
                 children: [
                   Text(
                     title,
-                    style: AppTypography.bodyBoldStyle(
-                      fontSize: AppTypography.fontSizeBase.sp,
-                      color: AppColors.textPrimary,
+                    style: textTheme.bodyMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                   if (subtitle != null) ...[
                     SizedBox(height: 2.h),
-                    Text(
-                      subtitle!,
-                      style: AppTypography.bodyRegularStyle(
-                        fontSize: AppTypography.fontSizeXs.sp,
-                        color: AppColors.textSecondary,
-                      ),
-                    ),
+                    Text(subtitle!, style: textTheme.bodySmall),
                   ],
                 ],
               ),
@@ -97,7 +92,7 @@ class MoreMenuItem extends StatelessWidget {
             else if (showArrow)
               Icon(
                 Icons.chevron_right,
-                color: AppColors.textSecondary,
+                color: textTheme.bodySmall?.color,
                 size: 20.sp,
               ),
           ],

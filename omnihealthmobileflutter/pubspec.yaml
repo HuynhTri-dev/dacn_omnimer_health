@@ -58,6 +58,10 @@ dependencies:
   font_awesome_flutter: ^10.12.0
   curved_labeled_navigation_bar: ^2.0.6
   flutter_cube: ^0.1.1
+  health: ^13.2.1
+  flutter_svg: ^2.2.3
+  url_launcher: ^6.3.2
+  receive_intent: ^0.2.7
 
 dev_dependencies:
   flutter_test:
@@ -89,6 +93,9 @@ flutter:
     - assets/models/mesh.obj
     - assets/models/mesh.mtl
     - assets/models/
+    - assets/Health_Connect.svg
+    - assets/healthkit_api.png
+    - assets/samsung_health.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

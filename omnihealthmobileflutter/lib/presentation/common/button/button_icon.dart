@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:omnihealthmobileflutter/core/theme/app_colors.dart';
 import 'package:omnihealthmobileflutter/core/theme/app_radius.dart';
-import 'package:omnihealthmobileflutter/core/theme/app_typography.dart';
 
 enum ButtonIconVariant {
   primarySolid,
@@ -84,92 +82,98 @@ class _ButtonIconState extends State<ButtonIcon> {
   }
 
   Color _getBackgroundColor() {
-    if (widget.disabled || widget.loading) return AppColors.gray400;
+    final colorScheme = Theme.of(context).colorScheme;
+    if (widget.disabled || widget.loading)
+      return Theme.of(context).disabledColor;
     if (!_isSolid) return Colors.transparent;
     if (_isPressed) {
       switch (widget.variant) {
         case ButtonIconVariant.primarySolid:
-          return AppColors.secondary;
+          return colorScheme.secondary;
         case ButtonIconVariant.secondarySolid:
-          return AppColors.gray800;
+          return colorScheme.onSurface;
         case ButtonIconVariant.dangerSolid:
-          return AppColors.dangerHover;
+          return colorScheme.error.withOpacity(0.8);
         default:
-          return AppColors.primary;
+          return colorScheme.primary;
       }
     }
     switch (widget.variant) {
       case ButtonIconVariant.primarySolid:
-        return AppColors.primary;
+        return colorScheme.primary;
       case ButtonIconVariant.secondarySolid:
-        return AppColors.gray600;
+        return colorScheme.secondary;
       case ButtonIconVariant.dangerSolid:
-        return AppColors.danger;
+        return colorScheme.error;
       default:
-        return AppColors.primary;
+        return colorScheme.primary;
     }
   }
 
   Color _getBorderColor() {
-    if (widget.disabled || widget.loading) return AppColors.gray400;
+    final colorScheme = Theme.of(context).colorScheme;
+    if (widget.disabled || widget.loading)
+      return Theme.of(context).disabledColor;
     if (!_isOutline) return Colors.transparent;
     if (_isPressed) {
       switch (widget.variant) {
         case ButtonIconVariant.primaryOutline:
-          return AppColors.secondary;
+          return colorScheme.secondary;
         case ButtonIconVariant.secondaryOutline:
-          return AppColors.gray800;
+          return colorScheme.onSurface;
         case ButtonIconVariant.dangerOutline:
-          return AppColors.dangerHover;
+          return colorScheme.error.withOpacity(0.8);
         default:
-          return AppColors.primary;
+          return colorScheme.primary;
       }
     }
     switch (widget.variant) {
       case ButtonIconVariant.primaryOutline:
-        return AppColors.primary;
+        return colorScheme.primary;
       case ButtonIconVariant.secondaryOutline:
-        return AppColors.gray600;
+        return colorScheme.secondary;
       case ButtonIconVariant.dangerOutline:
-        return AppColors.danger;
+        return colorScheme.error;
       default:
-        return AppColors.primary;
+        return colorScheme.primary;
     }
   }
 
   Color _getTextColor() {
-    if (widget.disabled || widget.loading) return AppColors.textMuted;
+    final colorScheme = Theme.of(context).colorScheme;
+    if (widget.disabled || widget.loading)
+      return Theme.of(context).disabledColor;
     if (_isOutline) {
       if (_isPressed) {
         switch (widget.variant) {
           case ButtonIconVariant.primaryOutline:
-            return AppColors.secondary;
+            return colorScheme.secondary;
           case ButtonIconVariant.secondaryOutline:
-            return AppColors.gray800;
+            return colorScheme.onSurface;
           case ButtonIconVariant.dangerOutline:
-            return AppColors.dangerHover;
+            return colorScheme.error.withOpacity(0.8);
           default:
-            return AppColors.primary;
+            return colorScheme.primary;
         }
       }
       switch (widget.variant) {
         case ButtonIconVariant.primaryOutline:
-          return AppColors.primary;
+          return colorScheme.primary;
         case ButtonIconVariant.secondaryOutline:
-          return AppColors.gray600;
+          return colorScheme.secondary;
         case ButtonIconVariant.dangerOutline:
-          return AppColors.danger;
+          return colorScheme.error;
         default:
-          return AppColors.primary;
+          return colorScheme.primary;
       }
     }
-    return AppColors.white;
+    return colorScheme.onPrimary;
   }
 
-  String _getFontFamily() {
+  String? _getFontFamily() {
     return widget.fontWeight == FontWeight.w700
-        ? AppTypography.bodyBold
-        : AppTypography.bodyRegular;
+        ? Theme.of(context).textTheme.labelLarge?.fontFamily
+        : Theme.of(context).textTheme.bodyMedium?.fontFamily;
   }
 
   @override

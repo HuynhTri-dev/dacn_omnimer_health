@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:omnihealthmobileflutter/core/theme/app_colors.dart';
 import 'package:omnihealthmobileflutter/core/theme/app_spacing.dart';
 import 'package:omnihealthmobileflutter/core/theme/app_typography.dart';
 import 'package:omnihealthmobileflutter/core/theme/app_radius.dart';
@@ -17,6 +16,7 @@ class UserHeaderWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return BlocBuilder<AuthenticationBloc, AuthenticationState>(
       builder: (context, state) {
         if (state is AuthenticationAuthenticated) {
@@ -33,11 +33,11 @@ class UserHeaderWidget extends StatelessWidget {
                 vertical: AppSpacing.sm,
               ),
               decoration: BoxDecoration(
-                color: AppColors.white,
+                color: theme.cardColor,
                 borderRadius: AppRadius.radiusLg,
                 boxShadow: [
                   BoxShadow(
-                    color: AppColors.shadow.withOpacity(0.08),
+                    color: theme.shadowColor.withOpacity(0.08),
                     blurRadius: 12,
                     offset: const Offset(0, 4),
                     spreadRadius: 0,
@@ -65,9 +65,10 @@ class UserHeaderWidget extends StatelessWidget {
                         // Tên
                         Text(
                           state.user.fullname,
-                          style: AppTypography.bodyBoldStyle(
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
                             fontSize: AppTypography.fontSizeBase.sp,
-                            color: AppColors.textPrimary,
+                            color: theme.textTheme.bodyMedium?.color,
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -80,9 +81,9 @@ class UserHeaderWidget extends StatelessWidget {
                           state.user.roleName.isNotEmpty
                               ? state.user.roleName.join(', ')
                               : 'No Role',
-                          style: AppTypography.bodyRegularStyle(
+                          style: theme.textTheme.bodySmall?.copyWith(
                             fontSize: AppTypography.fontSizeSm.sp,
-                            color: AppColors.textSecondary,
+                            color: theme.textTheme.bodySmall?.color,
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -115,15 +116,18 @@ class UserHeaderWidget extends StatelessWidget {
   }
 
   void _handleThemeTap(BuildContext context) {
+    final theme = Theme.of(context);
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
+        backgroundColor: theme.cardColor,
         shape: RoundedRectangleBorder(borderRadius: AppRadius.radiusLg),
         title: Text(
           'Change Theme',
-          style: AppTypography.headingBoldStyle(
+          style: theme.textTheme.headlineSmall?.copyWith(
             fontSize: AppTypography.fontSizeLg.sp,
-            color: AppColors.textPrimary,
+            fontWeight: FontWeight.bold,
+            color: theme.textTheme.headlineSmall?.color,
           ),
         ),
         content: Column(
@@ -173,22 +177,25 @@ class UserHeaderWidget extends StatelessWidget {
   }
 
   void _handleLogoutTap(BuildContext context) {
+    final theme = Theme.of(context);
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
+        backgroundColor: theme.cardColor,
         shape: RoundedRectangleBorder(borderRadius: AppRadius.radiusLg),
         title: Text(
           'Logout',
-          style: AppTypography.headingBoldStyle(
+          style: theme.textTheme.headlineSmall?.copyWith(
             fontSize: AppTypography.fontSizeLg.sp,
-            color: AppColors.textPrimary,
+            fontWeight: FontWeight.bold,
+            color: theme.textTheme.headlineSmall?.color,
           ),
         ),
         content: Text(
           'Are you sure you want to logout?',
-          style: AppTypography.bodyRegularStyle(
+          style: theme.textTheme.bodyMedium?.copyWith(
             fontSize: AppTypography.fontSizeBase.sp,
-            color: AppColors.textSecondary,
+            color: theme.textTheme.bodySmall?.color,
           ),
         ),
         actions: [
@@ -202,9 +209,10 @@ class UserHeaderWidget extends StatelessWidget {
             ),
             child: Text(
               'Cancel',
-              style: AppTypography.bodyBoldStyle(
+              style: theme.textTheme.bodyMedium?.copyWith(
+                fontWeight: FontWeight.bold,
                 fontSize: AppTypography.fontSizeBase.sp,
-                color: AppColors.textSecondary,
+                color: theme.textTheme.bodySmall?.color,
               ),
             ),
           ),
@@ -214,7 +222,7 @@ class UserHeaderWidget extends StatelessWidget {
               context.read<AuthenticationBloc>().add(AuthenticationLoggedOut());
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.danger,
+              backgroundColor: theme.colorScheme.error,
               padding: EdgeInsets.symmetric(
                 horizontal: AppSpacing.lg,
                 vertical: AppSpacing.sm,
@@ -223,9 +231,10 @@ class UserHeaderWidget extends StatelessWidget {
             ),
             child: Text(
               'Logout',
-              style: AppTypography.bodyBoldStyle(
+              style: theme.textTheme.bodyMedium?.copyWith(
+                fontWeight: FontWeight.bold,
                 fontSize: AppTypography.fontSizeBase.sp,
-                color: AppColors.white,
+                color: theme.colorScheme.onError,
               ),
             ),
           ),
@@ -250,6 +259,7 @@ class _ThemeOption extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return InkWell(
       onTap: onTap,
       borderRadius: AppRadius.radiusMd,
@@ -257,20 +267,20 @@ class _ThemeOption extends StatelessWidget {
         padding: AppSpacing.paddingSm,
         decoration: BoxDecoration(
           border: Border.all(
-            color: AppColors.primary.withOpacity(0.2),
+            color: theme.primaryColor.withOpacity(0.2),
             width: 1,
           ),
           borderRadius: AppRadius.radiusMd,
         ),
         child: Row(
           children: [
-            Icon(icon, color: AppColors.primary, size: 24.sp),
+            Icon(icon, color: theme.primaryColor, size: 24.sp),
             SizedBox(width: AppSpacing.sm),
             Text(
               title,
-              style: AppTypography.bodyRegularStyle(
+              style: theme.textTheme.bodyMedium?.copyWith(
                 fontSize: AppTypography.fontSizeBase.sp,
-                color: AppColors.textPrimary,
+                color: theme.textTheme.bodyMedium?.color,
               ),
             ),
           ],
@@ -297,10 +307,12 @@ class _AvatarWithMenu extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return PopupMenuButton<String>(
       offset: Offset(0, 56.h),
       shape: RoundedRectangleBorder(borderRadius: AppRadius.radiusLg),
       elevation: 8,
+      color: theme.cardColor,
       onSelected: (value) {
         switch (value) {
           case 'profile':
@@ -326,21 +338,21 @@ class _AvatarWithMenu extends StatelessWidget {
               Container(
                 padding: EdgeInsets.all(AppSpacing.xs),
                 decoration: BoxDecoration(
-                  color: AppColors.primary.withOpacity(0.1),
+                  color: theme.primaryColor.withOpacity(0.1),
                   borderRadius: AppRadius.radiusSm,
                 ),
                 child: Icon(
                   Icons.person_outline,
-                  color: AppColors.primary,
+                  color: theme.primaryColor,
                   size: 20.sp,
                 ),
               ),
               SizedBox(width: AppSpacing.md),
               Text(
                 'Profile',
-                style: AppTypography.bodyRegularStyle(
+                style: theme.textTheme.bodyMedium?.copyWith(
                   fontSize: AppTypography.fontSizeBase.sp,
-                  color: AppColors.textPrimary,
+                  color: theme.textTheme.bodyMedium?.color,
                 ),
               ),
             ],
@@ -357,21 +369,21 @@ class _AvatarWithMenu extends StatelessWidget {
               Container(
                 padding: EdgeInsets.all(AppSpacing.xs),
                 decoration: BoxDecoration(
-                  color: AppColors.primary.withOpacity(0.1),
+                  color: theme.primaryColor.withOpacity(0.1),
                   borderRadius: AppRadius.radiusSm,
                 ),
                 child: Icon(
                   Icons.palette_outlined,
-                  color: AppColors.primary,
+                  color: theme.primaryColor,
                   size: 20.sp,
                 ),
               ),
               SizedBox(width: AppSpacing.md),
               Text(
                 'Theme',
-                style: AppTypography.bodyRegularStyle(
+                style: theme.textTheme.bodyMedium?.copyWith(
                   fontSize: AppTypography.fontSizeBase.sp,
-                  color: AppColors.textPrimary,
+                  color: theme.textTheme.bodyMedium?.color,
                 ),
               ),
             ],
@@ -383,7 +395,7 @@ class _AvatarWithMenu extends StatelessWidget {
           child: Divider(
             height: 1,
             thickness: 1,
-            color: AppColors.textSecondary.withOpacity(0.1),
+            color: theme.dividerColor.withOpacity(0.1),
           ),
         ),
         PopupMenuItem(
@@ -397,21 +409,21 @@ class _AvatarWithMenu extends StatelessWidget {
               Container(
                 padding: EdgeInsets.all(AppSpacing.xs),
                 decoration: BoxDecoration(
-                  color: AppColors.danger.withOpacity(0.1),
+                  color: theme.colorScheme.error.withOpacity(0.1),
                   borderRadius: AppRadius.radiusSm,
                 ),
                 child: Icon(
                   Icons.logout_outlined,
-                  color: AppColors.danger,
+                  color: theme.colorScheme.error,
                   size: 20.sp,
                 ),
               ),
               SizedBox(width: AppSpacing.md),
               Text(
                 'Logout',
-                style: AppTypography.bodyRegularStyle(
+                style: theme.textTheme.bodyMedium?.copyWith(
                   fontSize: AppTypography.fontSizeBase.sp,
-                  color: AppColors.danger,
+                  color: theme.colorScheme.error,
                 ),
               ),
             ],
@@ -423,10 +435,10 @@ class _AvatarWithMenu extends StatelessWidget {
         height: 48.h,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          border: Border.all(color: AppColors.primary, width: 2.5),
+          border: Border.all(color: theme.primaryColor, width: 2.5),
           boxShadow: [
             BoxShadow(
-              color: AppColors.primary.withOpacity(0.15),
+              color: theme.primaryColor.withOpacity(0.15),
               blurRadius: 8,
               offset: const Offset(0, 2),
             ),
@@ -456,9 +468,10 @@ class _AvatarWithMenu extends StatelessWidget {
 class _DefaultAvatar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Container(
-      color: AppColors.primary.withOpacity(0.1),
-      child: Icon(Icons.person, size: 28.sp, color: AppColors.primary),
+      color: theme.primaryColor.withOpacity(0.1),
+      child: Icon(Icons.person, size: 28.sp, color: theme.primaryColor),
     );
   }
 }

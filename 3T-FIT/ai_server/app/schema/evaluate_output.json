@@ -1,0 +1,17 @@
+[
+  {
+    "exerciseName": "Barbell Bench Press",
+    "intensityScore": 4, // Thang điểm giả định 1-5
+    "suitability": 0.5 // Thang điểm giả định 0-1
+  },
+  {
+    "exerciseName": "Treadmill",
+    "intensityScore": 3,
+    "suitability": 0.8
+  },
+  {
+    "exerciseName": "High Knee Skips",
+    "intensityScore": 5,
+    "suitability": 0.9
+  }
+]

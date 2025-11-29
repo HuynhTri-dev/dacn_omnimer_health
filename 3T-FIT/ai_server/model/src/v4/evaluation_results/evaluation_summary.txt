@@ -1,0 +1,48 @@
+================================================================================
+3T-FIT AI RECOMMENDATION ENGINE - MODEL EVALUATION REPORT
+================================================================================
+
+Evaluation Date: 2025-11-28T20:53:09.828767
+Model Version: TwoBranchRecommendationModel
+Dataset Size: 2,040
+Feature Count: 28
+
+OVERALL PERFORMANCE
+----------------------------------------
+Performance Score: 0.995/1.0
+Performance Grade: Excellent (A)
+Intensity Score: 0.994/1.0
+Suitability Score: 0.996/1.0
+
+KEY METRICS
+----------------------------------------
+Intensity Prediction (RPE):
+  RMSE: 0.210
+  MAE: 0.129
+  R² Score: 0.993
+  Accuracy (±1 RPE): 99.5%
+
+Suitability Prediction:
+  Accuracy: 0.987
+  Precision: 0.988
+  Recall: 0.998
+  F1-Score: 0.993
+  AUC-ROC: 0.999
+
+BUSINESS METRICS
+----------------------------------------
+Recommendation Coverage (Actual): 92.5%
+Recommendation Coverage (Predicted): 93.5%
+High-Quality Recommendations (Actual): 28.0%
+High-Quality Recommendations (Predicted): 25.5%
+
+KEY INSIGHTS
+----------------------------------------
+✅ Strong RPE prediction with high R² score
+✅ 99.5% of RPE predictions within ±1 point
+✅ Excellent suitability classification
+✅ Recommendation coverage well-predicted
+
+================================================================================
+END OF REPORT
+================================================================================

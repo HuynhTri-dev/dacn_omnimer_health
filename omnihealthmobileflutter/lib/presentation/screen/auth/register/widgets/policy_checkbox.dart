@@ -1,12 +1,12 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:omnihealthmobileflutter/core/theme/app_colors.dart';
+import 'package:omnihealthmobileflutter/core/theme/app_radius.dart';
 import 'package:omnihealthmobileflutter/core/theme/app_spacing.dart';
 import 'package:omnihealthmobileflutter/core/theme/app_typography.dart';
+import 'package:url_launcher/url_launcher.dart';
 
-/// Widget checkbox for confirming privacy policy and terms of service
-/// Tapping on text will open corresponding PDF
+/// Beautiful checkbox widget for privacy policy and terms of service
 class PolicyCheckbox extends StatelessWidget {
   final bool isChecked;
   final ValueChanged<bool> onChanged;
@@ -25,92 +25,131 @@ class PolicyCheckbox extends StatelessWidget {
     this.disabled = false,
   }) : super(key: key);
 
+  Future<void> _launchUrl(String urlString) async {
+    final Uri url = Uri.parse(urlString);
+    if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
+      debugPrint('Could not launch $url');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Checkbox
-            SizedBox(
-              width: 24.w,
-              height: 24.h,
-              child: Checkbox(
-                value: isChecked,
-                onChanged: disabled
-                    ? null
-                    : (value) => onChanged(value ?? false),
-                activeColor: AppColors.primary,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(4.r),
-                ),
-                side: BorderSide(
-                  color: errorMessage != null
-                      ? AppColors.error
-                      : AppColors.border,
-                  width: 1.5,
-                ),
-              ),
+        InkWell(
+          onTap: disabled ? null : () => onChanged(!isChecked),
+          borderRadius: BorderRadius.circular(AppRadius.sm.r),
+          child: Padding(
+            padding: EdgeInsets.symmetric(
+              vertical: AppSpacing.xs.h,
+              horizontal: AppSpacing.xs.w,
             ),
-            SizedBox(width: AppSpacing.sm.w),
-
-            // Text with links
-            Expanded(
-              child: RichText(
-                text: TextSpan(
-                  style: AppTypography.bodyRegularStyle(
-                    fontSize: AppTypography.fontSizeSm.sp,
-                    color: AppColors.textSecondary,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Custom checkbox
+                Container(
+                  width: 22.w,
+                  height: 22.w,
+                  decoration: BoxDecoration(
+                    color: isChecked
+                        ? theme.colorScheme.primary
+                        : Colors.transparent,
+                    border: Border.all(
+                      color: errorMessage != null
+                          ? theme.colorScheme.error
+                          : isChecked
+                          ? theme.colorScheme.primary
+                          : theme.dividerColor,
+                      width: 2,
+                    ),
+                    borderRadius: BorderRadius.circular(6.r),
                   ),
-                  children: [
-                    const TextSpan(text: 'I agree to the '),
-                    TextSpan(
-                      text: 'Privacy Policy',
-                      style: AppTypography.bodyBoldStyle(
-                        fontSize: AppTypography.fontSizeSm.sp,
-                        color: AppColors.primary,
-                      ),
-                      recognizer: TapGestureRecognizer()
-                        ..onTap = disabled ? null : onPrivacyPolicyTap,
-                    ),
-                    const TextSpan(text: ' and '),
-                    TextSpan(
-                      text: 'Terms of Service',
-                      style: AppTypography.bodyBoldStyle(
-                        fontSize: AppTypography.fontSizeSm.sp,
-                        color: AppColors.primary,
-                      ),
-                      recognizer: TapGestureRecognizer()
-                        ..onTap = disabled ? null : onTermsOfServiceTap,
-                    ),
-                  ],
+                  child: isChecked
+                      ? Icon(
+                          Icons.check,
+                          size: 16.sp,
+                          color: theme.colorScheme.onPrimary,
+                        )
+                      : null,
                 ),
-              ),
+                SizedBox(width: AppSpacing.sm.w),
+
+                // Text with links
+                Expanded(
+                  child: RichText(
+                    text: TextSpan(
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        fontSize: AppTypography.fontSizeXs.sp,
+                        color: theme.textTheme.bodyMedium?.color,
+                        height: 1.5,
+                      ),
+                      children: [
+                        const TextSpan(text: 'I agree to the '),
+                        TextSpan(
+                          text: 'Privacy Policy',
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            fontSize: AppTypography.fontSizeXs.sp,
+                            color: theme.colorScheme.primary,
+                            fontWeight: FontWeight.w600,
+                            decoration: TextDecoration.underline,
+                          ),
+                          recognizer: TapGestureRecognizer()
+                            ..onTap = disabled
+                                ? null
+                                : () => _launchUrl(
+                                    'https://doc-hosting.flycricket.io/omnimer-health-privacy-policy/37b589ac-7f6f-4ee9-9b0f-fb1ffabc4f04/privacy',
+                                  ),
+                        ),
+                        const TextSpan(text: ' and '),
+                        TextSpan(
+                          text: 'Terms of Service',
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            fontSize: AppTypography.fontSizeXs.sp,
+                            color: theme.colorScheme.primary,
+                            fontWeight: FontWeight.w600,
+                            decoration: TextDecoration.underline,
+                          ),
+                          recognizer: TapGestureRecognizer()
+                            ..onTap = disabled
+                                ? null
+                                : () => _launchUrl(
+                                    'https://doc-hosting.flycricket.io/omnimer-health-terms-of-use/ce114c8b-104b-4030-bc6f-a5242c146070/terms',
+                                  ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
 
-        // Error message
+        // Error message with icon
         if (errorMessage != null) ...[
           SizedBox(height: AppSpacing.xs.h),
           Padding(
-            padding: EdgeInsets.only(left: (24 + AppSpacing.sm).w),
+            padding: EdgeInsets.only(
+              left: (22.w + AppSpacing.sm.w + AppSpacing.xs.w),
+            ),
             child: Row(
               children: [
-                const Icon(
+                Icon(
                   Icons.error_outline,
-                  size: 14,
-                  color: AppColors.error,
+                  size: 14.sp,
+                  color: theme.colorScheme.error,
                 ),
                 SizedBox(width: 4.w),
                 Expanded(
                   child: Text(
                     errorMessage!,
-                    style: AppTypography.bodyRegularStyle(
+                    style: theme.textTheme.bodySmall?.copyWith(
                       fontSize: AppTypography.fontSizeXs.sp,
-                      color: AppColors.error,
+                      color: theme.colorScheme.error,
                     ),
                   ),
                 ),

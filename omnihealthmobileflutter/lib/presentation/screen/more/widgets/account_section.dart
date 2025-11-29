@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:omnihealthmobileflutter/core/theme/app_colors.dart';
 import 'package:omnihealthmobileflutter/core/theme/app_radius.dart';
 import 'package:omnihealthmobileflutter/core/theme/app_spacing.dart';
-import 'package:omnihealthmobileflutter/core/theme/app_typography.dart';
 import 'package:omnihealthmobileflutter/presentation/screen/more/widgets/more_menu_item.dart';
-import 'package:omnihealthmobileflutter/presentation/screen/more/profile/verify_account_screen.dart';
-import 'package:omnihealthmobileflutter/presentation/screen/more/profile/info_account_screen.dart';
-import 'package:omnihealthmobileflutter/presentation/screen/more/profile/change_password_screen.dart';
+import 'package:omnihealthmobileflutter/core/routing/route_config.dart';
+import 'package:omnihealthmobileflutter/presentation/screen/auth/verify_account/verify_account_screen.dart';
+import 'package:omnihealthmobileflutter/presentation/screen/auth/change_password/change_password_screen.dart';
 
 /// Account section widget for More screen
 class AccountSection extends StatefulWidget {
@@ -66,12 +64,16 @@ class _AccountSectionState extends State<AccountSection>
           title: 'Profile',
           subtitle: 'Manage personal info',
           onTap: _toggleExpanded,
-          trailing: RotationTransition(
-            turns: Tween(begin: 0.0, end: 0.5).animate(_expandAnimation),
-            child: Icon(
-              Icons.keyboard_arrow_down,
-              color: AppColors.textMuted,
-              size: 24.sp,
+          trailing: Builder(
+            builder: (context) => RotationTransition(
+              turns: Tween(begin: 0.0, end: 0.5).animate(_expandAnimation),
+              child: Icon(
+                Icons.keyboard_arrow_down,
+                color: Theme.of(
+                  context,
+                ).textTheme.bodySmall?.color?.withOpacity(0.6),
+                size: 24.sp,
+              ),
             ),
           ),
         ),
@@ -88,7 +90,7 @@ class _AccountSectionState extends State<AccountSection>
             decoration: BoxDecoration(
               border: Border(
                 left: BorderSide(
-                  color: AppColors.primary.withOpacity(0.3),
+                  color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
                   width: 2,
                 ),
               ),
@@ -106,8 +108,7 @@ class _AccountSectionState extends State<AccountSection>
                   icon: Icons.info_outline,
                   title: 'Info Account',
                   subtitle: 'Update basic information',
-                  onTap: () =>
-                      _navigateToScreen(context, const InfoAccountScreen()),
+                  onTap: () => RouteConfig.navigateToInfoAccount(context),
                 ),
                 _buildDropdownItem(
                   icon: Icons.lock_outline,
@@ -124,30 +125,37 @@ class _AccountSectionState extends State<AccountSection>
         SizedBox(height: AppSpacing.sm),
 
         // Premium Menu Item
-        MoreMenuItem(
-          icon: Icons.workspace_premium_outlined,
-          title: 'Upgrade to Premium',
-          subtitle: 'Unlock advanced features',
-          iconColor: AppColors.warning,
-          backgroundColor: AppColors.warning.withOpacity(0.1),
-          onTap: widget.onPremiumTap,
-          trailing: Container(
-            padding: EdgeInsets.symmetric(
-              horizontal: AppSpacing.sm,
-              vertical: AppSpacing.xs,
-            ),
-            decoration: BoxDecoration(
-              color: AppColors.warning,
-              borderRadius: AppRadius.radiusSm,
-            ),
-            child: Text(
-              'PRO',
-              style: AppTypography.bodyBoldStyle(
-                fontSize: AppTypography.fontSizeXs.sp,
-                color: AppColors.white,
+        Builder(
+          builder: (context) {
+            final textTheme = Theme.of(context).textTheme;
+            final warningColor = Colors.orange; // Semantic warning color
+
+            return MoreMenuItem(
+              icon: Icons.workspace_premium_outlined,
+              title: 'Upgrade to Premium',
+              subtitle: 'Unlock advanced features',
+              iconColor: warningColor,
+              backgroundColor: warningColor.withOpacity(0.1),
+              onTap: widget.onPremiumTap,
+              trailing: Container(
+                padding: EdgeInsets.symmetric(
+                  horizontal: AppSpacing.sm,
+                  vertical: AppSpacing.xs,
+                ),
+                decoration: BoxDecoration(
+                  color: warningColor,
+                  borderRadius: AppRadius.radiusSm,
+                ),
+                child: Text(
+                  'PRO',
+                  style: textTheme.labelSmall?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
               ),
-            ),
-          ),
+            );
+          },
         ),
       ],
     );
@@ -159,54 +167,55 @@ class _AccountSectionState extends State<AccountSection>
     required String subtitle,
     required VoidCallback onTap,
   }) {
-    return InkWell(
-      onTap: onTap,
-      child: Container(
-        padding: EdgeInsets.symmetric(
-          horizontal: AppSpacing.md,
-          vertical: AppSpacing.sm,
-        ),
-        child: Row(
-          children: [
-            Container(
-              padding: EdgeInsets.all(AppSpacing.xs),
-              decoration: BoxDecoration(
-                color: AppColors.primary.withOpacity(0.1),
-                borderRadius: AppRadius.radiusSm,
-              ),
-              child: Icon(icon, color: AppColors.primary, size: 20.sp),
+    return Builder(
+      builder: (context) {
+        final theme = Theme.of(context);
+        final colorScheme = theme.colorScheme;
+        final textTheme = theme.textTheme;
+
+        return InkWell(
+          onTap: onTap,
+          child: Container(
+            padding: EdgeInsets.symmetric(
+              horizontal: AppSpacing.md,
+              vertical: AppSpacing.sm,
             ),
-            SizedBox(width: AppSpacing.sm),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: AppTypography.bodyBoldStyle(
-                      fontSize: AppTypography.fontSizeBase.sp,
-                      color: AppColors.textPrimary,
-                    ),
+            child: Row(
+              children: [
+                Container(
+                  padding: EdgeInsets.all(AppSpacing.xs),
+                  decoration: BoxDecoration(
+                    color: colorScheme.primary.withOpacity(0.1),
+                    borderRadius: AppRadius.radiusSm,
                   ),
-                  SizedBox(height: 2.h),
-                  Text(
-                    subtitle,
-                    style: AppTypography.bodyRegularStyle(
-                      fontSize: AppTypography.fontSizeSm.sp,
-                      color: AppColors.textSecondary,
-                    ),
+                  child: Icon(icon, color: colorScheme.primary, size: 20.sp),
+                ),
+                SizedBox(width: AppSpacing.sm),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        title,
+                        style: textTheme.bodyMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      SizedBox(height: 2.h),
+                      Text(subtitle, style: textTheme.bodySmall),
+                    ],
                   ),
-                ],
-              ),
+                ),
+                Icon(
+                  Icons.arrow_forward_ios,
+                  color: textTheme.bodySmall?.color?.withOpacity(0.6),
+                  size: 14.sp,
+                ),
+              ],
             ),
-            Icon(
-              Icons.arrow_forward_ios,
-              color: AppColors.textMuted,
-              size: 14.sp,
-            ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 

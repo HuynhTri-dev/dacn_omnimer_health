@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
 
-import 'package:omnihealthmobileflutter/core/theme/app_colors.dart';
-import 'package:omnihealthmobileflutter/core/theme/app_typography.dart';
-
 class DetailRow extends StatelessWidget {
   final String label;
   final String value;
@@ -14,7 +11,7 @@ class DetailRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return RichText(
       text: TextSpan(
-        style: AppTypography.bodyMedium.copyWith(color: AppColors.textPrimary),
+        style: Theme.of(context).textTheme.bodyMedium,
         children: [
           TextSpan(
             text: label,

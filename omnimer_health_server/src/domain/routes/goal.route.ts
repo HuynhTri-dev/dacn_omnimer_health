@@ -11,6 +11,7 @@ const goalController = new GoalController(goalService);
 const router = Router();
 
 router.get("/", goalController.getAll);
+router.get("/user/:userId", verifyAccessToken, goalController.getAllByUserId);
 router.post("/", verifyAccessToken, goalController.create);
 router.delete("/:id", verifyAccessToken, goalController.delete);
 router.get("/:id", goalController.getById);

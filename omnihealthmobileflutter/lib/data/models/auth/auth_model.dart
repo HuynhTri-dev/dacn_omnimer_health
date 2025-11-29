@@ -1,7 +1,9 @@
 import 'package:omnihealthmobileflutter/domain/entities/auth/auth_entity.dart';
 import 'package:omnihealthmobileflutter/core/constants/enum_constant.dart';
+import 'package:omnihealthmobileflutter/domain/entities/auth/user_entity.dart';
 
 class UserAuthModel {
+  final String id;
   final String fullname;
   final String? email;
   final String? imageUrl;
@@ -10,6 +12,7 @@ class UserAuthModel {
   final List<String> roleName;
 
   const UserAuthModel({
+    required this.id,
     required this.fullname,
     this.email,
     this.imageUrl,
@@ -20,12 +23,18 @@ class UserAuthModel {
 
   /// JSON → Model
   factory UserAuthModel.fromJson(Map<String, dynamic> json) {
+    final id = json['_id'] ?? json['id'];
+    if (id == null || id.toString().isEmpty) {
+      throw Exception('UserAuthModel: id is required but was null or empty');
+    }
+
     return UserAuthModel(
+      id: id.toString(),
       fullname: json['fullname'] ?? '',
       email: json['email'],
-      imageUrl: json['imageUrl'] ?? '',
+      imageUrl: json['imageUrl'],
       gender: GenderEnum.fromString(json['gender']),
-      birthday: json['birthday'] ?? '',
+      birthday: json['birthday'],
       roleName:
           (json['roleName'] as List?)?.map((e) => e.toString()).toList() ?? [],
     );
@@ -34,10 +43,11 @@ class UserAuthModel {
   /// Model → JSON
   Map<String, dynamic> toJson() {
     return {
+      'id': id,
       'fullname': fullname,
       'email': email,
       'imageUrl': imageUrl,
-      'gender': gender,
+      'gender': gender?.name,
       'birthday': birthday,
       'roleName': roleName,
     };
@@ -46,6 +56,7 @@ class UserAuthModel {
   /// Model → Entity
   UserAuth toEntity() {
     return UserAuth(
+      id: id,
       fullname: fullname,
       email: email,
       imageUrl: imageUrl,
@@ -55,9 +66,22 @@ class UserAuthModel {
     );
   }
 
+  UserEntity toUserEntity() {
+    return UserEntity(
+      birthday: birthday,
+      email: email,
+      fullname: fullname,
+      gender: gender,
+      id: id,
+      imageUrl: imageUrl,
+      roleNames: roleName,
+    );
+  }
+
   /// Entity → Model
   factory UserAuthModel.fromEntity(UserAuth entity) {
     return UserAuthModel(
+      id: entity.id,
       fullname: entity.fullname,
       email: entity.email,
       imageUrl: entity.imageUrl,

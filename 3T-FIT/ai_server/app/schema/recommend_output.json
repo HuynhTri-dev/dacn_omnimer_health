@@ -1,0 +1,46 @@
+{
+  "exercises": [
+    {
+      "name": "Barbell Bench Press",
+      "sets": [
+        {
+          "reps": 8,
+          "kg": 60,
+          "minRest": 90
+        },
+        {
+          "reps": 8,
+          "kg": 60,
+          "minRest": 90
+        },
+        {
+          "reps": 8,
+          "kg": 60,
+          "minRest": 90
+        },
+        {
+          "reps": 8,
+          "kg": 60,
+          "minRest": 90
+        }
+      ]
+    },
+    {
+      "name": "Treadmill",
+      "sets": [
+        {
+          "distance": 0.78
+        }
+      ]
+    },
+    {
+      "name": "High Knee Skips",
+      "sets": [
+        {
+          "duration": 60,
+          "restAfterSetSeconds": 60
+        }
+      ]
+    }
+  ]
+}

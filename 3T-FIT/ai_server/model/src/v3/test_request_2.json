@@ -1,0 +1,34 @@
+{
+  "healthProfile": {
+    "age": 57,
+    "weight": 117,
+    "height": 195,
+    "bmi": 30.77,
+    "gender": "male",
+    "experienceLevel": "Intermediate",
+    "workoutFrequency": 5,
+    "restingHeartRate": 77,
+    "healthStatus": "Good"
+  },
+  "goals": [
+    {
+      "goalType": "WeightLoss",
+      "targetValue": 10,
+      "deadline": "2025-12-31"
+    }
+  ],
+  "exercises": [
+    {
+      "exerciseName": "Dumbbell Curl"
+    },
+    {
+      "exerciseName": "Deadlift"
+    },
+    {
+      "exerciseName": "Bench Press"
+    },
+    {
+      "exerciseName": "Barbell Squat"
+    }
+  ]
+}

@@ -4,6 +4,7 @@ import {
   sendSuccess,
   sendCreated,
   sendUnauthorized,
+  sendForbidden,
 } from "../../../utils/ResponseHelper";
 import { DecodePayload } from "../../entities/DecodePayload.entity";
 import { buildQueryOptions } from "../../../utils/BuildQueryOptions";
@@ -38,6 +39,22 @@ export class GoalController {
       const options = buildQueryOptions(req.params as any);
       const exerciseCategories = await this.goalService.getGoals(options);
       return sendSuccess(res, exerciseCategories, "Danh sách mục tiêu");
+    } catch (err) {
+      next(err);
+    }
+  };
+
+  getAllByUserId = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const options = buildQueryOptions(req.query as any);
+      const userId = req.params.userId;
+      const actorId = (req.user as DecodePayload)?.id?.toString();
+      if (!actorId && !userId) return sendUnauthorized(res);
+      if (actorId !== userId) return sendForbidden(res);
+
+      const list = await this.goalService.getGoalsByUserId(userId, options);
+
+      return sendSuccess(res, list, "Get goals for user success");
     } catch (err) {
       next(err);
     }

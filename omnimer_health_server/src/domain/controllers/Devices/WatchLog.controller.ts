@@ -4,6 +4,7 @@ import {
   sendSuccess,
   sendCreated,
   sendUnauthorized,
+  sendNoContent,
 } from "../../../utils/ResponseHelper";
 import { DecodePayload } from "../../entities/DecodePayload.entity";
 import { buildQueryOptions } from "../../../utils/BuildQueryOptions";
@@ -56,11 +57,15 @@ export class WatchLogController {
         return;
       }
 
-      const logs = await this.watchLogService.createManyWatchLog(
-        userId,
-        req.body
-      );
-      return sendCreated(res, logs, "Tạo nhiều WatchLog thành công");
+      const logsData = Array.isArray(req.body) ? req.body : req.body.logs;
+
+      if (!logsData || !Array.isArray(logsData)) {
+        return sendNoContent(res);
+      }
+
+      await this.watchLogService.createManyWatchLog(userId, logsData);
+
+      return sendNoContent(res);
     } catch (err) {
       next(err);
     }

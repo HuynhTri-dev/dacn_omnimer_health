@@ -1,0 +1,78 @@
+{
+  "strength": {
+    "intensity_percent": [
+      0.85,
+      0.95
+    ],
+    "rep_range": [
+      5,
+      15
+    ],
+    "sets_range": [
+      1,
+      5
+    ],
+    "rest_minutes": [
+      3,
+      5
+    ],
+    "description": "Strength Training - Heavy loads, low reps"
+  },
+  "hypertrophy": {
+    "intensity_percent": [
+      0.7,
+      0.8
+    ],
+    "rep_range": [
+      8,
+      20
+    ],
+    "sets_range": [
+      1,
+      5
+    ],
+    "rest_minutes": [
+      1,
+      2
+    ],
+    "description": "Hypertrophy - Moderate loads, medium reps"
+  },
+  "endurance": {
+    "intensity_percent": [
+      0.5,
+      0.6
+    ],
+    "rep_range": [
+      10,
+      30
+    ],
+    "sets_range": [
+      1,
+      5
+    ],
+    "rest_minutes": [
+      0.5,
+      1
+    ],
+    "description": "Endurance - Light loads, high reps"
+  },
+  "general_fitness": {
+    "intensity_percent": [
+      0.6,
+      0.75
+    ],
+    "rep_range": [
+      10,
+      30
+    ],
+    "sets_range": [
+      1,
+      5
+    ],
+    "rest_minutes": [
+      1,
+      2
+    ],
+    "description": "General Fitness - Balanced approach"
+  }
+}

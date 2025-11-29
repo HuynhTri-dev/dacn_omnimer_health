@@ -13,7 +13,27 @@ import 'package:omnihealthmobileflutter/presentation/screen/exercise/exercise_de
 import 'package:omnihealthmobileflutter/presentation/screen/exercise/exercise_home/blocs/exercise_home_bloc.dart';
 import 'package:omnihealthmobileflutter/presentation/screen/exercise/exercise_home/blocs/exercise_home_event.dart';
 import 'package:omnihealthmobileflutter/presentation/screen/exercise/exercise_home/exercise_home_screen.dart';
+import 'package:omnihealthmobileflutter/presentation/screen/goal/bloc/goal_bloc.dart';
+import 'package:omnihealthmobileflutter/presentation/screen/auth/info_account/cubits/info_account_cubit.dart';
+
+import 'package:omnihealthmobileflutter/presentation/screen/health_profile/health_profile_home/bloc/health_profile_bloc.dart';
+import 'package:omnihealthmobileflutter/presentation/screen/health_profile/health_profile_home/bloc/health_profile_event.dart';
+
 import 'package:omnihealthmobileflutter/presentation/screen/home_screen.dart';
+import 'package:omnihealthmobileflutter/presentation/screen/health_profile/health_profile_home/health_profile_page.dart';
+import 'package:omnihealthmobileflutter/presentation/screen/health_profile/health_profile_form/personal_profile_form_page.dart';
+import 'package:omnihealthmobileflutter/presentation/screen/goal/goal_form_screen.dart';
+import 'package:omnihealthmobileflutter/presentation/screen/auth/info_account/info_account_screen.dart';
+import 'package:omnihealthmobileflutter/presentation/screen/more/more_screen.dart';
+import 'package:omnihealthmobileflutter/presentation/screen/auth/change_password/change_password_screen.dart';
+import 'package:omnihealthmobileflutter/presentation/screen/auth/verify_account/verify_account_screen.dart';
+import 'package:omnihealthmobileflutter/presentation/screen/workout/workout_template_form/workout_template_form_screen.dart';
+import 'package:omnihealthmobileflutter/presentation/screen/workout/workout_template_detail/workout_template_detail_screen.dart';
+import 'package:omnihealthmobileflutter/presentation/screen/workout/workout_template_detail/cubits/workout_template_detail_cubit.dart';
+import 'package:omnihealthmobileflutter/presentation/screen/workout/workout_session/workout_session_screen.dart';
+import 'package:omnihealthmobileflutter/presentation/screen/workout/workout_session/cubits/workout_session_cubit.dart';
+import 'package:omnihealthmobileflutter/domain/entities/workout/workout_template_entity.dart';
+import 'package:omnihealthmobileflutter/domain/usecases/workout/save_workout_log_usecase.dart';
 
 class RouteConfig {
   // ==================== ROUTE NAMES ====================
@@ -28,7 +48,18 @@ class RouteConfig {
   static const String profile = '/profile';
   static const String settings = '/settings';
   static const String exerciseHome = '/exercise-home';
+
   static const String exerciseDetail = '/exercise-detail';
+  static const String healthProfile = '/health-profile';
+  static const String healthProfileForm = '/health-profile-form';
+  static const String goalForm = '/goal-form';
+
+  static const String infoAccount = '/info-account';
+  static const String changePassword = '/change-password';
+  static const String verifyAccount = '/verify-account';
+  static const String workoutTemplateForm = '/workout-template-form';
+  static const String workoutTemplateDetail = '/workout-template-detail';
+  static const String workoutSession = '/workout-session';
 
   // ==================== BUILD AUTH PAGES ====================
   static Widget buildAuthPage(String? routeName) {
@@ -78,10 +109,10 @@ class RouteConfig {
         return _buildMainScreenByRole(role)!;
 
       case profile:
-        return _buildProfileScreen(role, arguments);
+        return const MoreScreen();
 
       case settings:
-        return _buildSettingsScreen(role, arguments);
+        return const MoreScreen();
 
       case exerciseHome:
         return BlocProvider(
@@ -99,6 +130,72 @@ class RouteConfig {
           child: ExerciseDetailScreen(exerciseId: exerciseId),
         );
 
+      case healthProfile:
+        return MultiBlocProvider(
+          providers: [
+            BlocProvider(
+              create: (_) =>
+                  sl<HealthProfileBloc>()
+                    ..add(const GetLatestHealthProfileEvent()),
+            ),
+            BlocProvider(create: (_) => sl<GoalBloc>()),
+          ],
+          child: const HealthProfilePage(),
+        );
+
+      case healthProfileForm:
+        final profileId = arguments?['profileId'] as String?;
+        return PersonalProfileFormPage(profileId: profileId);
+
+      case goalForm:
+        final goalId = arguments?['goalId'] as String?;
+        final goal = arguments?['goal'] as dynamic; // Or GoalEntity if imported
+        return BlocProvider(
+          create: (_) => sl<GoalBloc>(),
+          child: GoalFormScreen(goalId: goalId, existingGoal: goal),
+        );
+
+      case infoAccount:
+        return BlocProvider(
+          create: (_) => sl<InfoAccountCubit>()..loadUserInfo(),
+          child: const InfoAccountScreen(),
+        );
+
+      case changePassword:
+        return const ChangePasswordScreen();
+
+      case verifyAccount:
+        return const VerifyAccountScreen();
+
+      case workoutTemplateForm:
+        final templateId = arguments?['templateId'] as String?;
+        return WorkoutTemplateFormScreen(templateId: templateId);
+
+      case workoutTemplateDetail:
+        final templateId = arguments?['templateId'] as String?;
+        if (templateId == null) {
+          return _ErrorPage(message: 'Template ID is required');
+        }
+        return BlocProvider(
+          create: (_) => WorkoutTemplateDetailCubit(
+            getWorkoutTemplateByIdUseCase: sl(),
+            deleteWorkoutTemplateUseCase: sl(),
+          ),
+          child: WorkoutTemplateDetailScreen(templateId: templateId),
+        );
+
+      case workoutSession:
+        final template = arguments?['template'] as WorkoutTemplateEntity?;
+        if (template == null) {
+          return _ErrorPage(message: 'Workout template is required');
+        }
+        return BlocProvider(
+          create: (_) => WorkoutSessionCubit(
+            saveWorkoutLogUseCase: sl<SaveWorkoutLogUseCase>(),
+          ),
+          child: WorkoutSessionScreen(template: template),
+        );
+
       default:
         return _ErrorPage(message: 'Không tìm thấy trang: $routeName');
     }
@@ -111,7 +208,6 @@ class RouteConfig {
 
     // switch (normalizedRole) {
     //   case 'admin':
-
     // return const MainScreen(); // Placeholder
 
     //   case 'coach':
@@ -123,30 +219,6 @@ class RouteConfig {
     // }
 
     return const HomeScreen();
-  }
-
-  // ==================== COMMON SCREENS ====================
-  // static Widget _buildMuscleHomeScreen(
-  //   List<String>? role,
-  //   Map<String, dynamic>? arguments,
-  // ) {
-  //   Navigator.of(context).pushNamedAndRemoveUntil(login, (route) => false);
-  // }
-
-  static Widget _buildProfileScreen(
-    List<String>? role,
-    Map<String, dynamic>? arguments,
-  ) {
-    // TODO: Implement profile screen với custom layout theo role
-    return const Scaffold(body: Center(child: Text('Profile Screen')));
-  }
-
-  static Widget _buildSettingsScreen(
-    List<String>? role,
-    Map<String, dynamic>? arguments,
-  ) {
-    // TODO: Implement settings screen
-    return const Scaffold(body: Center(child: Text('Settings Screen')));
   }
 
   // ==================== NAVIGATION HELPERS ====================
@@ -183,6 +255,57 @@ class RouteConfig {
 
   static void navigateToExerciseHome(BuildContext context) {
     Navigator.of(context).pushNamed(exerciseHome);
+  }
+
+  static Future<dynamic> navigateToGoalForm(
+    BuildContext context, {
+    required String userId,
+    String? goalId,
+    dynamic goal,
+  }) {
+    return Navigator.of(context).pushNamed(
+      goalForm,
+      arguments: {'userId': userId, 'goalId': goalId, 'goal': goal},
+    );
+  }
+
+  static void navigateToInfoAccount(BuildContext context) {
+    Navigator.of(context).pushNamed(infoAccount);
+  }
+
+  static void navigateToChangePassword(BuildContext context) {
+    Navigator.of(context).pushNamed(changePassword);
+  }
+
+  static void navigateToVerifyAccount(BuildContext context) {
+    Navigator.of(context).pushNamed(verifyAccount);
+  }
+
+  static Future<dynamic> navigateToWorkoutTemplateDetail(
+    BuildContext context, {
+    required String templateId,
+  }) {
+    return Navigator.of(
+      context,
+    ).pushNamed(workoutTemplateDetail, arguments: {'templateId': templateId});
+  }
+
+  static Future<dynamic> navigateToWorkoutTemplateForm(
+    BuildContext context, {
+    String? templateId,
+  }) {
+    return Navigator.of(
+      context,
+    ).pushNamed(workoutTemplateForm, arguments: {'templateId': templateId});
+  }
+
+  static Future<dynamic> navigateToWorkoutSession(
+    BuildContext context, {
+    required WorkoutTemplateEntity template,
+  }) {
+    return Navigator.of(
+      context,
+    ).pushNamed(workoutSession, arguments: {'template': template});
   }
 }
 

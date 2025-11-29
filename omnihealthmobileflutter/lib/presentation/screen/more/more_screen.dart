@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:omnihealthmobileflutter/core/theme/app_colors.dart';
 import 'package:omnihealthmobileflutter/core/theme/app_spacing.dart';
-import 'package:omnihealthmobileflutter/core/theme/app_typography.dart';
 import 'package:omnihealthmobileflutter/core/theme/app_radius.dart';
 import 'package:omnihealthmobileflutter/presentation/common/auth/user_header_widget.dart';
 import 'package:omnihealthmobileflutter/presentation/common/blocs/auth/authentication_bloc.dart';
@@ -17,6 +15,7 @@ import 'package:omnihealthmobileflutter/presentation/screen/more/widgets/account
 import 'package:omnihealthmobileflutter/presentation/screen/more/widgets/health_data_section.dart';
 import 'package:omnihealthmobileflutter/presentation/screen/more/widgets/settings_section.dart';
 import 'package:omnihealthmobileflutter/presentation/screen/more/widgets/support_section.dart';
+import 'package:omnihealthmobileflutter/presentation/common/cubits/theme_cubit.dart';
 
 /// More Screen - Settings & Utilities
 /// Includes: Profile, Privacy, Device Connectivity, Theme, Premium, Support
@@ -28,7 +27,6 @@ class MoreScreen extends StatelessWidget {
     return BlocProvider(
       create: (context) => MoreBloc()..add(const LoadMoreSettings()),
       child: Scaffold(
-        backgroundColor: AppColors.background,
         body: Column(
           children: [
             // User Header
@@ -46,8 +44,8 @@ class MoreScreen extends StatelessWidget {
                     return Center(
                       child: Text(
                         'Error: ${state.message}',
-                        style: AppTypography.bodyRegularStyle(
-                          color: AppColors.error,
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: Theme.of(context).colorScheme.error,
                         ),
                       ),
                     );
@@ -123,24 +121,28 @@ class MoreScreen extends StatelessWidget {
   }
 
   Widget _buildLogoutButton(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return MoreMenuItem(
       icon: Icons.logout_outlined,
       title: 'Logout',
       subtitle: 'Sign out from current account',
-      iconColor: AppColors.danger,
-      backgroundColor: AppColors.danger.withOpacity(0.1),
+      iconColor: colorScheme.error,
+      backgroundColor: colorScheme.error.withOpacity(0.1),
       showArrow: false,
       onTap: () => _handleLogoutTap(context),
     );
   }
 
   Widget _buildVersionInfo() {
-    return Center(
-      child: Text(
-        'OmniMer Health v1.0.0',
-        style: AppTypography.bodyRegularStyle(
-          fontSize: AppTypography.fontSizeXs.sp,
-          color: AppColors.textMuted,
+    return Builder(
+      builder: (context) => Center(
+        child: Text(
+          'OmniMer Health v1.0.0',
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+            color: Theme.of(
+              context,
+            ).textTheme.bodySmall?.color?.withOpacity(0.6),
+          ),
         ),
       ),
     );
@@ -164,16 +166,16 @@ class MoreScreen extends StatelessWidget {
   }
 
   void _handleThemeTap(BuildContext context) {
+    final theme = Theme.of(context);
+    final textTheme = theme.textTheme;
+
     showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: AppRadius.radiusLg),
         title: Text(
           'Select Theme',
-          style: AppTypography.headingBoldStyle(
-            fontSize: AppTypography.fontSizeLg.sp,
-            color: AppColors.textPrimary,
-          ),
+          style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
         ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
@@ -210,9 +212,28 @@ class MoreScreen extends StatelessWidget {
     required String title,
     required String themeMode,
   }) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final textTheme = theme.textTheme;
+
     return InkWell(
       onTap: () {
         context.read<MoreBloc>().add(ToggleThemeMode(themeMode));
+
+        // Update ThemeCubit
+        ThemeMode mode;
+        switch (themeMode) {
+          case 'light':
+            mode = ThemeMode.light;
+            break;
+          case 'dark':
+            mode = ThemeMode.dark;
+            break;
+          default:
+            mode = ThemeMode.system;
+        }
+        context.read<ThemeCubit>().setTheme(mode);
+
         Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -228,22 +249,16 @@ class MoreScreen extends StatelessWidget {
         padding: AppSpacing.paddingSm,
         decoration: BoxDecoration(
           border: Border.all(
-            color: AppColors.primary.withOpacity(0.2),
+            color: colorScheme.primary.withOpacity(0.2),
             width: 1,
           ),
           borderRadius: AppRadius.radiusMd,
         ),
         child: Row(
           children: [
-            Icon(icon, color: AppColors.primary, size: 24.sp),
+            Icon(icon, color: colorScheme.primary, size: 24.sp),
             SizedBox(width: AppSpacing.sm),
-            Text(
-              title,
-              style: AppTypography.bodyRegularStyle(
-                fontSize: AppTypography.fontSizeBase.sp,
-                color: AppColors.textPrimary,
-              ),
-            ),
+            Text(title, style: textTheme.bodyMedium),
           ],
         ),
       ),
@@ -251,16 +266,16 @@ class MoreScreen extends StatelessWidget {
   }
 
   void _handleLanguageTap(BuildContext context) {
+    final theme = Theme.of(context);
+    final textTheme = theme.textTheme;
+
     showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: AppRadius.radiusLg),
         title: Text(
           'Select Language',
-          style: AppTypography.headingBoldStyle(
-            fontSize: AppTypography.fontSizeLg.sp,
-            color: AppColors.textPrimary,
-          ),
+          style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
         ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
@@ -279,6 +294,10 @@ class MoreScreen extends StatelessWidget {
     String title,
     String languageCode,
   ) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final textTheme = theme.textTheme;
+
     return InkWell(
       onTap: () {
         context.read<MoreBloc>().add(ChangeLanguage(languageCode));
@@ -297,22 +316,16 @@ class MoreScreen extends StatelessWidget {
         padding: AppSpacing.paddingSm,
         decoration: BoxDecoration(
           border: Border.all(
-            color: AppColors.primary.withOpacity(0.2),
+            color: colorScheme.primary.withOpacity(0.2),
             width: 1,
           ),
           borderRadius: AppRadius.radiusMd,
         ),
         child: Row(
           children: [
-            Icon(Icons.language, color: AppColors.primary, size: 24.sp),
+            Icon(Icons.language, color: colorScheme.primary, size: 24.sp),
             SizedBox(width: AppSpacing.sm),
-            Text(
-              title,
-              style: AppTypography.bodyRegularStyle(
-                fontSize: AppTypography.fontSizeBase.sp,
-                color: AppColors.textPrimary,
-              ),
-            ),
+            Text(title, style: textTheme.bodyMedium),
           ],
         ),
       ),
@@ -336,23 +349,21 @@ class MoreScreen extends StatelessWidget {
   }
 
   void _handleLogoutTap(BuildContext context) {
+    final theme = Theme.of(context);
+    final textTheme = theme.textTheme;
+    final colorScheme = theme.colorScheme;
+
     showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: AppRadius.radiusLg),
         title: Text(
           'Logout',
-          style: AppTypography.headingBoldStyle(
-            fontSize: AppTypography.fontSizeLg.sp,
-            color: AppColors.textPrimary,
-          ),
+          style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
         ),
         content: Text(
           'Are you sure you want to logout?',
-          style: AppTypography.bodyRegularStyle(
-            fontSize: AppTypography.fontSizeBase.sp,
-            color: AppColors.textSecondary,
-          ),
+          style: textTheme.bodyMedium,
         ),
         actions: [
           TextButton(
@@ -365,9 +376,8 @@ class MoreScreen extends StatelessWidget {
             ),
             child: Text(
               'Cancel',
-              style: AppTypography.bodyBoldStyle(
-                fontSize: AppTypography.fontSizeBase.sp,
-                color: AppColors.textSecondary,
+              style: textTheme.bodyMedium?.copyWith(
+                fontWeight: FontWeight.bold,
               ),
             ),
           ),
@@ -377,7 +387,7 @@ class MoreScreen extends StatelessWidget {
               context.read<AuthenticationBloc>().add(AuthenticationLoggedOut());
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.danger,
+              backgroundColor: colorScheme.error,
               padding: EdgeInsets.symmetric(
                 horizontal: AppSpacing.lg,
                 vertical: AppSpacing.sm,
@@ -386,9 +396,9 @@ class MoreScreen extends StatelessWidget {
             ),
             child: Text(
               'Logout',
-              style: AppTypography.bodyBoldStyle(
-                fontSize: AppTypography.fontSizeBase.sp,
-                color: AppColors.white,
+              style: textTheme.bodyMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+                color: colorScheme.onError,
               ),
             ),
           ),

@@ -2,9 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import 'package:omnihealthmobileflutter/core/theme/app_colors.dart';
 import 'package:omnihealthmobileflutter/core/theme/app_radius.dart';
-import 'package:omnihealthmobileflutter/core/theme/app_typography.dart';
+import 'package:omnihealthmobileflutter/core/theme/app_colors.dart'; // Keep for shadow if needed, or replace
 import 'package:omnihealthmobileflutter/presentation/screen/exercise/exercise_details/cubits/exercise_detail_cubit.dart';
 
 Future<void> showExerciseRatingSheet({
@@ -34,7 +33,7 @@ Future<void> showExerciseRatingSheet({
               width: double.infinity,
               padding: EdgeInsets.all(16.w),
               decoration: BoxDecoration(
-                color: AppColors.surface,
+                color: Theme.of(ctx).cardColor,
                 borderRadius: AppRadius.radiusXl,
                 boxShadow: [
                   BoxShadow(
@@ -50,7 +49,7 @@ Future<void> showExerciseRatingSheet({
                 children: [
                   Text(
                     'How would you rate this exercise?',
-                    style: AppTypography.bodyMedium.copyWith(
+                    style: Theme.of(ctx).textTheme.bodyMedium?.copyWith(
                       fontWeight: FontWeight.w600,
                     ),
                   ),
@@ -59,7 +58,7 @@ Future<void> showExerciseRatingSheet({
                     exerciseName,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: AppTypography.caption,
+                    style: Theme.of(ctx).textTheme.labelSmall,
                   ),
                   SizedBox(height: 16.h),
 
@@ -81,8 +80,8 @@ Future<void> showExerciseRatingSheet({
                           filled ? Icons.star : Icons.star_border,
                           size: 32.r,
                           color: filled
-                              ? AppColors.primary
-                              : AppColors.textMuted,
+                              ? Theme.of(ctx).primaryColor
+                              : Theme.of(ctx).textTheme.labelSmall?.color,
                         ),
                       );
                     }),
@@ -115,7 +114,7 @@ Future<void> showExerciseRatingSheet({
                         height: 40.h,
                         child: OutlinedButton(
                           style: OutlinedButton.styleFrom(
-                            side: const BorderSide(color: AppColors.primary),
+                            side: BorderSide(color: Theme.of(ctx).primaryColor),
                             shape: RoundedRectangleBorder(
                               borderRadius: AppRadius.radiusLg,
                             ),
@@ -180,10 +179,11 @@ Future<void> showExerciseRatingSheet({
                                 )
                               : Text(
                                   'Confirm',
-                                  style: AppTypography.bodyMedium.copyWith(
-                                    color: AppColors.primary,
-                                    fontWeight: FontWeight.w600,
-                                  ),
+                                  style: Theme.of(ctx).textTheme.bodyMedium
+                                      ?.copyWith(
+                                        color: Theme.of(ctx).primaryColor,
+                                        fontWeight: FontWeight.w600,
+                                      ),
                                 ),
                         ),
                       ),

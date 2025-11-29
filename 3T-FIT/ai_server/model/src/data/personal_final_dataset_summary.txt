@@ -1,0 +1,59 @@
+3T-FIT DATASET PROCESSING SUMMARY
+==================================================
+
+Final Dataset Shape: (10200, 38)
+Total Records: 10200
+Total Features: 38
+
+FEATURES:
+--------------------
+ 1. exercise_name                  (object    ) - Null: 0
+ 2. duration_min                   (float64   ) - Null: 0
+ 3. avg_hr                         (float64   ) - Null: 0
+ 4. max_hr                         (float64   ) - Null: 0
+ 5. calories                       (float64   ) - Null: 0
+ 6. fatigue                        (float64   ) - Null: 0
+ 7. effort                         (float64   ) - Null: 0
+ 8. mood                           (float64   ) - Null: 0
+ 9. suitability_x                  (float64   ) - Null: 0
+10. age                            (float64   ) - Null: 0
+11. height_m                       (float64   ) - Null: 0
+12. weight_kg                      (float64   ) - Null: 0
+13. bmi                            (float64   ) - Null: 0
+14. fat_percentage                 (float64   ) - Null: 0
+15. resting_heartrate              (float64   ) - Null: 0
+16. experience_level               (float64   ) - Null: 0
+17. workout_frequency              (float64   ) - Null: 0
+18. workout_type                   (object    ) - Null: 0
+19. location                       (object    ) - Null: 0
+20. gender                         (int64     ) - Null: 0
+21. session_duration               (float64   ) - Null: 0
+22. estimated_1rm                  (float64   ) - Null: 0
+23. pace                           (float64   ) - Null: 0
+24. duration_capacity              (float64   ) - Null: 0
+25. rest_period                    (float64   ) - Null: 0
+26. intensity_score                (float64   ) - Null: 0
+27. data_source                    (object    ) - Null: 0
+28. resistance_intensity           (float64   ) - Null: 0
+29. cardio_intensity               (float64   ) - Null: 0
+30. volume_load                    (float64   ) - Null: 0
+31. rest_density                   (float64   ) - Null: 0
+32. hr_reserve                     (float64   ) - Null: 0
+33. calorie_efficiency             (float64   ) - Null: 0
+34. enhanced_suitability           (float64   ) - Null: 0
+35. is_suitable                    (int64     ) - Null: 0
+36. exercise_name_encoded          (int64     ) - Null: 0
+37. workout_type_encoded           (int64     ) - Null: 0
+38. location_encoded               (int64     ) - Null: 0
+
+DATASET SOURCES:
+--------------------
+kaggle    :  10000 records (98.0%)
+real      :    200 records (2.0%)
+
+SUITABILITY DISTRIBUTION:
+------------------------------
+Enhanced Suitability - Mean: 0.804
+Enhanced Suitability - Std:  0.078
+Suitable (>=0.7):        9305 records
+Not Suitable (<0.7):     895 records

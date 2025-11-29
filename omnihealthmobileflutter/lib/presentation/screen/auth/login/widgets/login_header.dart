@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:omnihealthmobileflutter/core/theme/app_colors.dart';
 
 class LoginHeader extends StatelessWidget {
   const LoginHeader({Key? key}) : super(key: key);
@@ -8,38 +7,129 @@ class LoginHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final primaryColor = Theme.of(context).colorScheme.primary;
 
     return SizedBox(
-      height: 240.h,
+      height: 280.h,
       child: Stack(
         alignment: Alignment.topCenter,
         children: [
-          // Nền cong
+          // Nền gradient với hiệu ứng đẹp hơn
           ClipPath(
             clipper: _CurveClipper(),
             child: Container(
-              height: 230.h,
+              height: 260.h,
               decoration: BoxDecoration(
                 gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [AppColors.primary, AppColors.primary],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    primaryColor,
+                    primaryColor.withOpacity(0.8),
+                    primaryColor.withOpacity(0.9),
+                  ],
+                  stops: const [0.0, 0.5, 1.0],
                 ),
+              ),
+              child: Stack(
+                children: [
+                  // Decorative circles - top right
+                  Positioned(
+                    top: -30.h,
+                    right: -30.w,
+                    child: Container(
+                      width: 120.w,
+                      height: 120.w,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Colors.white.withOpacity(0.1),
+                      ),
+                    ),
+                  ),
+                  // Decorative circles - top left
+                  Positioned(
+                    top: 40.h,
+                    left: -20.w,
+                    child: Container(
+                      width: 80.w,
+                      height: 80.w,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Colors.white.withOpacity(0.08),
+                      ),
+                    ),
+                  ),
+                  // Decorative circles - middle right
+                  Positioned(
+                    top: 100.h,
+                    right: 30.w,
+                    child: Container(
+                      width: 60.w,
+                      height: 60.w,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Colors.white.withOpacity(0.12),
+                      ),
+                    ),
+                  ),
+                  // Small decorative dots
+                  Positioned(
+                    top: 60.h,
+                    right: 80.w,
+                    child: Container(
+                      width: 8.w,
+                      height: 8.w,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Colors.white.withOpacity(0.3),
+                      ),
+                    ),
+                  ),
+                  Positioned(
+                    top: 120.h,
+                    left: 60.w,
+                    child: Container(
+                      width: 6.w,
+                      height: 6.w,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Colors.white.withOpacity(0.25),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
-          // Logo với border trực tiếp trên ảnh
+          // Logo với shadow và border đẹp hơn
           Positioned(
-            top: 250.h * 3 / 5 - 20.w, // đặt logo chính giữa đường cong
-            child: CircleAvatar(
-              radius: 54.w,
-              backgroundColor: AppColors.primary, // border màu
+            top: 260.h * 3 / 5 - 30.w,
+            child: Container(
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: primaryColor.withOpacity(0.3),
+                    blurRadius: 20,
+                    spreadRadius: 5,
+                    offset: const Offset(0, 8),
+                  ),
+                ],
+              ),
               child: CircleAvatar(
-                radius: 50.w,
-                backgroundImage: AssetImage(
-                  isDarkMode
-                      ? 'assets/images/logo/blackH.jpg'
-                      : 'assets/images/logo/whiteH.jpg',
+                radius: 60.w,
+                backgroundColor: Colors.white,
+                child: CircleAvatar(
+                  radius: 56.w,
+                  backgroundColor: primaryColor,
+                  child: CircleAvatar(
+                    radius: 52.w,
+                    backgroundImage: AssetImage(
+                      isDarkMode
+                          ? 'assets/images/logo/blackH.jpg'
+                          : 'assets/images/logo/whiteH.jpg',
+                    ),
+                  ),
                 ),
               ),
             ),
@@ -61,12 +151,12 @@ class _CurveClipper extends CustomClipper<Path> {
     // Đi xuống điểm bắt đầu cong
     path.lineTo(0, size.height * 2 / 5);
 
-    // Vẽ nửa hình tròn mượt
+    // Vẽ đường cong mượt mà hơn với nhiều control points
     path.cubicTo(
       size.width * 0.25,
-      size.height, // control point nửa trái
+      size.height * 0.95, // control point nửa trái
       size.width * 0.75,
-      size.height, // control point nửa phải
+      size.height * 0.95, // control point nửa phải
       size.width,
       size.height * 2 / 5, // điểm kết thúc
     );

@@ -4,6 +4,7 @@ import 'package:equatable/equatable.dart';
 import 'package:omnihealthmobileflutter/core/constants/enum_constant.dart';
 
 class UserAuth extends Equatable {
+  final String id;
   final String fullname;
   final String? email;
   final String? imageUrl;
@@ -12,6 +13,7 @@ class UserAuth extends Equatable {
   final List<String> roleName;
 
   const UserAuth({
+    required this.id,
     required this.fullname,
     this.email,
     this.imageUrl,
@@ -22,6 +24,7 @@ class UserAuth extends Equatable {
 
   @override
   List<Object?> get props => [
+    id,
     fullname,
     email,
     imageUrl,

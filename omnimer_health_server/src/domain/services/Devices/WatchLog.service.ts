@@ -4,6 +4,7 @@ import { IWatchLog } from "../../models";
 import { WatchLogRepository } from "../../repositories";
 import { HttpError } from "../../../utils/HttpError";
 import { PaginationQueryOptions } from "../../entities";
+import { Types } from "mongoose";
 
 export class WatchLogService {
   private readonly watchLogRepo: WatchLogRepository;
@@ -64,7 +65,13 @@ export class WatchLogService {
    */
   async createManyWatchLog(userId: string, logs: Partial<IWatchLog>[]) {
     try {
-      const createdLogs = await this.watchLogRepo.createMany(logs);
+      // Inject userId into each log entry
+      const logsWithUser = logs.map((log) => ({
+        ...log,
+        userId: new Types.ObjectId(userId),
+      }));
+
+      const createdLogs = await this.watchLogRepo.createMany(logsWithUser);
 
       await logAudit({
         userId,
@@ -73,7 +80,7 @@ export class WatchLogService {
         status: StatusLogEnum.Success,
       });
 
-      return createdLogs;
+      return;
     } catch (err: any) {
       await logError({
         userId,

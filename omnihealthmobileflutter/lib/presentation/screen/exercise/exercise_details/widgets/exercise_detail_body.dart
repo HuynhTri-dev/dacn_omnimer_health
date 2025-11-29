@@ -3,7 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:omnihealthmobileflutter/core/theme/app_colors.dart';
 import 'package:omnihealthmobileflutter/core/theme/app_radius.dart';
-import 'package:omnihealthmobileflutter/core/theme/app_typography.dart';
+
 import 'package:omnihealthmobileflutter/domain/entities/exercise/exercise_detail_entity.dart';
 
 import 'package:omnihealthmobileflutter/presentation/screen/exercise/exercise_details/widgets/detail_row.dart';
@@ -40,7 +40,7 @@ class ExerciseDetailBody extends StatelessWidget {
                   return Container(
                     margin: EdgeInsets.symmetric(horizontal: 4.w),
                     decoration: BoxDecoration(
-                      color: AppColors.surface,
+                      color: Theme.of(context).cardColor,
                       borderRadius: AppRadius.radiusXl,
                       boxShadow: [
                         BoxShadow(
@@ -60,7 +60,9 @@ class ExerciseDetailBody extends StatelessWidget {
                             child: Icon(
                               Icons.broken_image,
                               size: 48.sp,
-                              color: AppColors.textMuted,
+                              color: Theme.of(
+                                context,
+                              ).textTheme.labelSmall?.color,
                             ),
                           );
                         },
@@ -75,7 +77,7 @@ class ExerciseDetailBody extends StatelessWidget {
               height: 200.h,
               width: double.infinity,
               decoration: BoxDecoration(
-                color: AppColors.surface,
+                color: Theme.of(context).cardColor,
                 borderRadius: AppRadius.radiusXl,
                 boxShadow: [
                   BoxShadow(
@@ -88,8 +90,8 @@ class ExerciseDetailBody extends StatelessWidget {
               alignment: Alignment.center,
               child: Text(
                 'No Image',
-                style: AppTypography.bodyMedium.copyWith(
-                  color: AppColors.textMuted,
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: Theme.of(context).textTheme.labelSmall?.color,
                 ),
               ),
             ),
@@ -130,23 +132,38 @@ class ExerciseDetailBody extends StatelessWidget {
 
           // Description
           if (exercise.description.isNotEmpty) ...[
-            Text('Description', style: AppTypography.h3),
+            Text(
+              'Description',
+              style: Theme.of(context).textTheme.displaySmall,
+            ),
             SizedBox(height: 8.h),
-            Text(exercise.description, style: AppTypography.bodyMedium),
+            Text(
+              exercise.description,
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
             SizedBox(height: 16.h),
           ],
 
           // Instructions
           if (exercise.instructions.isNotEmpty) ...[
-            Text('Instructions', style: AppTypography.h3),
+            Text(
+              'Instructions',
+              style: Theme.of(context).textTheme.displaySmall,
+            ),
             SizedBox(height: 8.h),
-            Text(exercise.instructions, style: AppTypography.bodyMedium),
+            Text(
+              exercise.instructions,
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
             SizedBox(height: 16.h),
           ],
 
           // Exercise Types
           if (exercise.exerciseTypes.isNotEmpty) ...[
-            Text('Exercise Types', style: AppTypography.h3),
+            Text(
+              'Exercise Types',
+              style: Theme.of(context).textTheme.displaySmall,
+            ),
             SizedBox(height: 8.h),
             Wrap(
               spacing: 8.w,
@@ -154,9 +171,11 @@ class ExerciseDetailBody extends StatelessWidget {
               children: exercise.exerciseTypes.map((type) {
                 return Chip(
                   label: Text(type.name),
-                  backgroundColor: AppColors.primary.withOpacity(0.1),
-                  labelStyle: AppTypography.bodySmall.copyWith(
-                    color: AppColors.primary,
+                  backgroundColor: Theme.of(
+                    context,
+                  ).primaryColor.withOpacity(0.1),
+                  labelStyle: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Theme.of(context).primaryColor,
                   ),
                 );
               }).toList(),
@@ -166,7 +185,7 @@ class ExerciseDetailBody extends StatelessWidget {
 
           // Exercise Categories
           if (exercise.exerciseCategories.isNotEmpty) ...[
-            Text('Categories', style: AppTypography.h3),
+            Text('Categories', style: Theme.of(context).textTheme.displaySmall),
             SizedBox(height: 8.h),
             Wrap(
               spacing: 8.w,
@@ -174,9 +193,11 @@ class ExerciseDetailBody extends StatelessWidget {
               children: exercise.exerciseCategories.map((category) {
                 return Chip(
                   label: Text(category.name),
-                  backgroundColor: AppColors.secondary.withOpacity(0.1),
-                  labelStyle: AppTypography.bodySmall.copyWith(
-                    color: AppColors.secondary,
+                  backgroundColor: Theme.of(
+                    context,
+                  ).colorScheme.secondary.withOpacity(0.1),
+                  labelStyle: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Theme.of(context).colorScheme.secondary,
                   ),
                 );
               }).toList(),

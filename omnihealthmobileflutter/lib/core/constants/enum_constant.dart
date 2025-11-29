@@ -19,15 +19,15 @@ enum GenderEnum {
 
 // =================== GOAL TYPE ===================
 enum GoalTypeEnum {
-  WeightLoss("Giảm cân, giảm mỡ"),
-  MuscleGain("Tăng cơ, săn chắc cơ bắp"),
-  Endurance("Tăng sức bền, sức chịu đựng"),
-  Flexibility("Tăng linh hoạt, dẻo dai"),
-  StressRelief("Giảm căng thẳng, thư giãn"),
-  HeartHealth("Cải thiện tim mạch, sức khỏe tổng quát"),
-  Mobility("Cải thiện khả năng vận động khớp"),
-  AthleticPerformance("Cải thiện hiệu suất thể thao"),
-  Custom("Mục tiêu tùy chỉnh");
+  WeightLoss("Weight Loss"),
+  MuscleGain("Muscle Gain"),
+  Endurance("Endurance"),
+  Flexibility("Flexibility"),
+  StressRelief("Stress Relief"),
+  HeartHealth("Heart Health"),
+  Mobility("Mobility"),
+  AthleticPerformance("Athletic Performance"),
+  Custom("Custom");
 
   final String displayName;
   const GoalTypeEnum(this.displayName);
@@ -168,6 +168,32 @@ enum NameDeviceEnum {
     return NameDeviceEnum.values.firstWhere(
       (e) => e.name == value,
       orElse: () => NameDeviceEnum.Unknown,
+    );
+  }
+}
+
+// =================== ACTIVITY LEVEL ===================
+enum ActivityLevelEnum {
+  sedentary(1, "Sedentary (little or no exercise)"),
+  lightlyActive(2, "Lightly active (light exercise/sports 1-3 days/week)"),
+  moderatelyActive(
+    3,
+    "Moderately active (moderate exercise/sports 3-5 days/week)",
+  ),
+  veryActive(4, "Very active (hard exercise/sports 6-7 days/week)"),
+  extraActive(
+    5,
+    "Extra active (very hard exercise/sports & physical job or 2x training)",
+  );
+
+  final int value;
+  final String displayName;
+  const ActivityLevelEnum(this.value, this.displayName);
+
+  static ActivityLevelEnum fromValue(int? value) {
+    return ActivityLevelEnum.values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => ActivityLevelEnum.sedentary,
     );
   }
 }

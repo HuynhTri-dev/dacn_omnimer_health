@@ -1,8 +1,8 @@
 <div align="center">
 
-<img src="./assets/blackH.jpg" alt="OmniMer Health Logo" width="200"/>
+<img src="./docs/assets/blackH.jpg" alt="OmniMer Health Logo" width="200" style="border-radius: 50%;"/>
 
-# 🏥 OmniMer Health
+# OmniMer Health
 
 ### _AI-Powered Personal Health Management & Fitness Recommendation System_
 
@@ -19,11 +19,11 @@
 
 ---
 
-## 📋 Tổng Quan
+## Tổng Quan
 
 **OmniMer Health** là nền tảng quản lý sức khỏe cá nhân thông minh, kết hợp công nghệ AI tiên tiến để đưa ra các khuyến nghị tập luyện được cá nhân hóa. Hệ thống tích hợp dữ liệu từ thiết bị đeo, nhật ký hoạt động và mô hình học sâu để tối ưu hóa trải nghiệm sức khỏe của người dùng.
 
-### 🎯 Mục Tiêu Chính
+### Mục Tiêu Chính
 
 <table>
 <tr>
@@ -44,11 +44,11 @@
 
 ---
 
-## 🏗️ Kiến Trúc Hệ Thống
+## Kiến Trúc Hệ Thống
 
 <div align="center">
 
-![System Architecture](./assets/system_arch.png)
+![System Architecture](./docs/assets/system_arch.png)
 
 _Kiến trúc microservices với tích hợp AI và real-time data processing_
 
@@ -56,13 +56,13 @@ _Kiến trúc microservices với tích hợp AI và real-time data processing_
 
 ---
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 <table>
 <tr>
 <td width="25%">
 
-### 📱 Mobile App
+### Mobile App
 
 **`omnihealthmobileflutter`**
 
@@ -77,7 +77,7 @@ _Kiến trúc microservices với tích hợp AI và real-time data processing_
 </td>
 <td width="25%">
 
-### 🖥️ Backend Server
+### Backend Server
 
 **`omnimer_health_server`**
 
@@ -94,7 +94,7 @@ _Kiến trúc microservices với tích hợp AI và real-time data processing_
 </td>
 <td width="25%">
 
-### 🧠 AI Service
+### AI Service
 
 **`3T-FIT`**
 
@@ -110,7 +110,7 @@ _Kiến trúc microservices với tích hợp AI và real-time data processing_
 </td>
 <td width="25%">
 
-### 📊 Admin Dashboard
+### Admin Dashboard
 
 **`adminpage`**
 
@@ -128,7 +128,7 @@ _Kiến trúc microservices với tích hợp AI và real-time data processing_
 
 ---
 
-## 📁 Cấu Trúc Dự Án
+## Cấu Trúc Dự Án
 
 ```
 📦 dacn_omnimer_health/
@@ -172,13 +172,13 @@ _Kiến trúc microservices với tích hợp AI và real-time data processing_
 
 ---
 
-## 🚀 Getting Started
+## Getting Started
 
-### ⚡ Option 1: Docker Compose (Khuyến Nghị)
+### Option 1: Docker Compose (Khuyến Nghị)
 
 > **Yêu cầu:** Docker & Docker Compose đã được cài đặt
 
-#### 1️⃣ Cấu hình môi trường
+#### Cấu hình môi trường
 
 ```bash
 # Tạo file .env trong omnimer_health_server/
@@ -191,28 +191,28 @@ cp omnimer_health_server/.env.example omnimer_health_server/.env
 # - API Keys
 ```
 
-#### 2️⃣ Khởi chạy toàn bộ hệ thống
+#### Khởi chạy toàn bộ hệ thống
 
 ```bash
 # Tại thư mục gốc của dự án
 docker-compose up --build
 ```
 
-#### 🌐 Truy cập các services:
+#### Truy cập các services:
 
-| Service            | URL                            | Mô tả                    |
-| ------------------ | ------------------------------ | ------------------------ |
-| 🖥️ Backend API     | http://localhost:8000          | RESTful API Server       |
-| 🧠 AI Service      | http://localhost:8888          | FastAPI AI Server        |
-| 📚 API Docs        | http://localhost:8000/api-docs | Swagger UI Documentation |
-| 📊 Admin Dashboard | http://localhost:3000          | React Admin Panel        |
+| Service         | URL                            | Mô tả                    |
+| --------------- | ------------------------------ | ------------------------ |
+| Backend API     | http://localhost:8000          | RESTful API Server       |
+| AI Service      | http://localhost:8888          | FastAPI AI Server        |
+| API Docs        | http://localhost:8000/api-docs | Swagger UI Documentation |
+| Admin Dashboard | http://localhost:3000          | React Admin Panel        |
 
 ---
 
 ### 🔧 Option 2: Chạy Thủ Công
 
 <details>
-<summary><b>1️⃣ Backend Server (Node.js + TypeScript)</b></summary>
+<summary><b>Backend Server (Node.js + TypeScript)</b></summary>
 
 ```bash
 cd omnimer_health_server
@@ -231,7 +231,7 @@ npm start
 </details>
 
 <details>
-<summary><b>2️⃣ AI Server (Python + FastAPI)</b></summary>
+<summary><b>AI Server (Python + FastAPI)</b></summary>
 
 ```bash
 cd 3T-FIT
@@ -258,7 +258,7 @@ uvicorn ai_server.app.main:app --host 0.0.0.0 --port 8888 --reload
 </details>
 
 <details>
-<summary><b>3️⃣ Admin Dashboard (React + Vite)</b></summary>
+<summary><b>Admin Dashboard (React + Vite)</b></summary>
 
 ```bash
 cd adminpage
@@ -277,7 +277,7 @@ npm run preview
 </details>
 
 <details>
-<summary><b>4️⃣ Mobile App (Flutter)</b></summary>
+<summary><b>Mobile App (Flutter)</b></summary>
 
 ```bash
 cd omnihealthmobileflutter
@@ -299,27 +299,7 @@ flutter build ios --release
 
 ---
 
-## 📚 API Documentation
-
-Hệ thống cung cấp tài liệu API đầy đủ qua **Swagger UI**.
-
-Sau khi khởi chạy Backend Server, truy cập:
-
-```
-🔗 http://localhost:8000/api-docs
-```
-
-### 🔑 Các API Endpoints chính:
-
-- **Authentication:** `/api/auth/*`
-- **User Management:** `/api/users/*`
-- **Health Data:** `/api/health/*`
-- **Exercise Recommendations:** `/api/recommendations/*`
-- **Workout Tracking:** `/api/workouts/*`
-
----
-
-## 🤖 AI Model Features
+## AI Model Features
 
 Mô hình AI **3T-FIT** (Three-Task Fitness Intelligence Technology) cung cấp:
 
@@ -364,7 +344,7 @@ Phân vùng nhịp tim tối ưu:
 </tr>
 </table>
 
-### 🎯 Model Architecture
+### Model Architecture
 
 - **Type:** Deep Neural Network (DNN)
 - **Approach:** Multi-Task Learning
@@ -375,25 +355,35 @@ Phân vùng nhịp tim tối ưu:
 
 ---
 
-## 🎨 Screenshots
+# Project Documentation
 
-<div align="center">
+Tài liệu chi tiết về dự án được tổ chức trong thư mục `docs/`. Dưới đây là mục lục tra cứu nhanh:
 
-| Mobile App                                | Admin Dashboard                         | AI Insights                       |
-| ----------------------------------------- | --------------------------------------- | --------------------------------- |
-| ![Mobile](./assets/mobile_screenshot.png) | ![Admin](./assets/admin_screenshot.png) | ![AI](./assets/ai_screenshot.png) |
+### API Documentation
 
-</div>
+- **[AI API Specification](./docs/api/AI_API.md)**: Tài liệu về các API của AI Server.
+- **[API V3 Guide](./docs/api/API_V3_README.md)**: Hướng dẫn sử dụng API phiên bản 3.
+- **[API V4 (New)](./docs/api/API_V4.md)**: Tài liệu về API v4 với kiến trúc Two-Branch Neural Network.
+- **[Backend API](./docs/api/BACKEND_API.md)**: Tổng quan về các API của Backend chính.
 
----
+### Architecture & Core Logic
 
-## 🤝 Contributing
+- **[Backend Architecture](./docs/architecture/BACKEND_ARCHITECTURE.md)**: Kiến trúc tổng quan của hệ thống Backend.
+- **[Calories Calculation](./docs/architecture/CALORIES_BURNED_CALCULATE.md)**: Công thức và logic tính toán lượng calo tiêu thụ.
+- **[Health Metrics](./docs/architecture/HEALTH_METRIC_CALCULATE.md)**: Cách tính toán các chỉ số sức khỏe (BMI, TDEE, v.v.).
+- **[Dataset Generation](./docs/architecture/MAKE_DATASET.md)**: Quy trình tạo và xử lý dữ liệu huấn luyện.
+
+### Deployment
+
+- **[Detailed Deployment](./docs/deloy/DEPLOYMENT.md)**: Chi tiết cấu hình và các bước deploy production.
+
+## Contributing
 
 Chúng tôi hoan nghênh mọi đóng góp! Vui lòng đọc [CONTRIBUTING.md](CONTRIBUTING.md) để biết thêm chi tiết.
 
 ---
 
-## 📄 License
+## License
 
 This project is licensed under a **Commercial Proprietary License**.  
 All rights reserved. © 2025 OmniMer Health Team

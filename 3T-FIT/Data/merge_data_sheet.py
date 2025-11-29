@@ -1,5 +1,11 @@
 import pandas as pd
 
+"""
+Script để merge dữ liệu từ WorkoutTrackerDataset.xlsx sang merged_omni_health_dataset.xlsx
+Mục đích để tổng hợp dữ liệu các sheet về cùng 1 sheet để dễ phân tích
+
+"""
+
 # ========== 1️⃣ Đọc dữ liệu từ 4 sheet ==========
 file_path = "./data/WorkoutTrackerDataset.xlsx"
 

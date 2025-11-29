@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:omnihealthmobileflutter/core/theme/app_colors.dart';
 import 'package:omnihealthmobileflutter/core/theme/app_radius.dart';
 import 'package:omnihealthmobileflutter/core/theme/app_spacing.dart';
 import 'package:omnihealthmobileflutter/core/theme/app_typography.dart';
@@ -115,15 +114,18 @@ class _CustomTextFieldState extends State<CustomTextField>
   // }
 
   Color _getBorderColor(BuildContext context) {
-    if (!widget.enabled) return AppColors.gray300;
-    if (_internalError != null || widget.error != null) return AppColors.error;
-    if (_isFocused) return AppColors.primary;
-    return AppColors.gray200;
+    final theme = Theme.of(context);
+    if (!widget.enabled) return theme.disabledColor;
+    if (_internalError != null || widget.error != null)
+      return theme.colorScheme.error;
+    if (_isFocused) return theme.primaryColor;
+    return theme.dividerColor;
   }
 
   @override
   Widget build(BuildContext context) {
     final displayError = widget.error ?? _internalError;
+    final theme = Theme.of(context);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -135,11 +137,12 @@ class _CustomTextFieldState extends State<CustomTextField>
               children: [
                 Text(
                   widget.label!,
-                  style: AppTypography.bodyBoldStyle(
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
                     fontSize: AppTypography.fontSizeSm.sp,
                     color: displayError != null
-                        ? AppColors.error
-                        : AppColors.textPrimary,
+                        ? theme.colorScheme.error
+                        : theme.textTheme.bodyMedium?.color,
                   ),
                 ),
                 if (widget.required)
@@ -159,20 +162,20 @@ class _CustomTextFieldState extends State<CustomTextField>
           ),
         Container(
           decoration: BoxDecoration(
-            color: AppColors.surface, // 🔹 toàn bộ TextField nền surface
+            color: theme.inputDecorationTheme.fillColor ?? theme.cardColor,
             borderRadius: BorderRadius.circular(AppRadius.md.r),
             border: Border.all(color: _getBorderColor(context), width: 1.5),
             boxShadow: _isFocused
                 ? [
                     BoxShadow(
-                      color: AppColors.primary.withOpacity(0.1),
+                      color: theme.primaryColor.withOpacity(0.1),
                       blurRadius: 6,
                       offset: const Offset(0, 3),
                     ),
                   ]
                 : [
                     BoxShadow(
-                      color: AppColors.black.withOpacity(0.02),
+                      color: theme.shadowColor.withOpacity(0.05),
                       blurRadius: 2,
                       offset: const Offset(0, 1),
                     ),
@@ -193,7 +196,7 @@ class _CustomTextFieldState extends State<CustomTextField>
                   height: 40.h,
                   margin: EdgeInsets.only(right: AppSpacing.sm.w),
                   decoration: BoxDecoration(
-                    color: AppColors.background, // 🔹 nền icon bên trái
+                    color: theme.scaffoldBackgroundColor,
                     borderRadius: BorderRadius.circular(AppRadius.sm.r),
                   ),
                   child: Center(child: widget.leftIcon),
@@ -212,15 +215,14 @@ class _CustomTextFieldState extends State<CustomTextField>
                   textInputAction: widget.textInputAction,
                   onSubmitted: widget.onSubmitted,
                   onChanged: widget.onChanged,
-                  style: AppTypography.bodyRegularStyle(
+                  style: theme.textTheme.bodyMedium?.copyWith(
                     fontSize: AppTypography.fontSizeBase.sp,
-                    color: AppColors.textPrimary,
                   ),
                   decoration: InputDecoration(
                     hintText: widget.placeholder,
-                    hintStyle: AppTypography.bodyRegularStyle(
+                    hintStyle: theme.textTheme.bodyMedium?.copyWith(
                       fontSize: AppTypography.fontSizeBase.sp,
-                      color: AppColors.textMuted,
+                      color: theme.hintColor,
                     ),
                     border: InputBorder.none,
                     enabledBorder: InputBorder.none,
@@ -251,18 +253,18 @@ class _CustomTextFieldState extends State<CustomTextField>
             ),
             child: Row(
               children: [
-                const Icon(
+                Icon(
                   Icons.error_outline,
                   size: 14,
-                  color: AppColors.error,
+                  color: theme.colorScheme.error,
                 ),
                 SizedBox(width: 4.w),
                 Expanded(
                   child: Text(
                     displayError,
-                    style: AppTypography.bodyRegularStyle(
+                    style: theme.textTheme.bodySmall?.copyWith(
                       fontSize: AppTypography.fontSizeXs.sp,
-                      color: AppColors.error,
+                      color: theme.colorScheme.error,
                     ),
                   ),
                 ),
@@ -277,9 +279,9 @@ class _CustomTextFieldState extends State<CustomTextField>
             ),
             child: Text(
               widget.helperText!,
-              style: AppTypography.bodyRegularStyle(
+              style: theme.textTheme.bodySmall?.copyWith(
                 fontSize: AppTypography.fontSizeXs.sp,
-                color: AppColors.textSecondary,
+                color: theme.textTheme.bodySmall?.color,
               ),
             ),
           ),

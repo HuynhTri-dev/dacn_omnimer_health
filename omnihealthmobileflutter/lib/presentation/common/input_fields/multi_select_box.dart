@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:multi_select_flutter/multi_select_flutter.dart';
-import 'package:omnihealthmobileflutter/core/theme/app_colors.dart';
 import 'package:omnihealthmobileflutter/core/theme/app_radius.dart';
 import 'package:omnihealthmobileflutter/core/theme/app_spacing.dart';
 import 'package:omnihealthmobileflutter/core/theme/app_typography.dart';
@@ -74,10 +73,12 @@ class _MultiSelectBoxState<T> extends State<MultiSelectBox<T>>
   }
 
   Color _getBorderColor(bool isOpen) {
-    if (widget.disabled) return AppColors.gray300;
-    if (_internalError != null || widget.error != null) return AppColors.error;
-    if (_isFocused || isOpen) return AppColors.primary;
-    return AppColors.gray200;
+    final theme = Theme.of(context);
+    if (widget.disabled) return theme.disabledColor;
+    if (_internalError != null || widget.error != null)
+      return theme.colorScheme.error;
+    if (_isFocused || isOpen) return theme.primaryColor;
+    return theme.dividerColor;
   }
 
   void _validate(List<T>? value) {
@@ -98,38 +99,43 @@ class _MultiSelectBoxState<T> extends State<MultiSelectBox<T>>
   Widget build(BuildContext context) {
     final displayError = widget.error ?? _internalError;
     final selectedCount = widget.value?.length ?? 0;
+    final theme = Theme.of(context);
 
     final field = MultiSelectDialogField<T>(
       items: widget.options,
       initialValue: widget.value ?? [],
       title: Text(
         widget.label ?? 'Chọn giá trị',
-        style: AppTypography.bodyBoldStyle(
+        style: theme.textTheme.titleLarge?.copyWith(
+          fontWeight: FontWeight.bold,
           fontSize: AppTypography.fontSizeLg.sp,
         ),
       ),
-      selectedColor: AppColors.primary,
+      selectedColor: theme.primaryColor,
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: theme.inputDecorationTheme.fillColor ?? theme.cardColor,
         border: Border.all(color: _getBorderColor(false), width: 1.5),
         borderRadius: BorderRadius.circular(AppRadius.md.r),
         boxShadow: _isFocused
             ? [
                 BoxShadow(
-                  color: AppColors.primary.withOpacity(0.1),
+                  color: theme.primaryColor.withOpacity(0.1),
                   blurRadius: 6,
                   offset: const Offset(0, 3),
                 ),
               ]
             : [
                 BoxShadow(
-                  color: AppColors.black.withOpacity(0.02),
+                  color: theme.shadowColor.withOpacity(0.05),
                   blurRadius: 2,
                   offset: const Offset(0, 1),
                 ),
               ],
       ),
-      buttonIcon: Icon(Icons.arrow_drop_down, color: AppColors.textSecondary),
+      buttonIcon: Icon(
+        Icons.arrow_drop_down,
+        color: theme.textTheme.bodySmall?.color,
+      ),
       buttonText: Text(
         selectedCount == 0
             ? widget.placeholder!
@@ -138,11 +144,11 @@ class _MultiSelectBoxState<T> extends State<MultiSelectBox<T>>
                   .firstWhere((item) => item.value == widget.value![0])
                   .label
             : '$selectedCount mục đã chọn',
-        style: AppTypography.bodyRegularStyle(
+        style: theme.textTheme.bodyMedium?.copyWith(
           fontSize: AppTypography.fontSizeBase.sp,
           color: selectedCount > 0
-              ? AppColors.textPrimary
-              : AppColors.textMuted,
+              ? theme.textTheme.bodyMedium?.color
+              : theme.hintColor,
         ),
       ),
       chipDisplay: MultiSelectChipDisplay<T>(
@@ -151,10 +157,10 @@ class _MultiSelectBoxState<T> extends State<MultiSelectBox<T>>
           newValues.remove(value);
           _handleChange(newValues);
         },
-        chipColor: AppColors.primary,
-        textStyle: AppTypography.bodyRegularStyle(
+        chipColor: theme.primaryColor,
+        textStyle: theme.textTheme.bodySmall?.copyWith(
           fontSize: AppTypography.fontSizeXs.sp,
-          color: AppColors.white,
+          color: theme.colorScheme.onPrimary,
         ),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(AppRadius.sm.r),
@@ -163,29 +169,32 @@ class _MultiSelectBoxState<T> extends State<MultiSelectBox<T>>
       ),
       searchable: widget.searchable,
       searchHint: 'Tìm kiếm...',
-      searchTextStyle: AppTypography.bodyRegularStyle(
+      searchTextStyle: theme.textTheme.bodyMedium?.copyWith(
         fontSize: AppTypography.fontSizeBase.sp,
       ),
       onConfirm: _handleChange,
-      itemsTextStyle: AppTypography.bodyRegularStyle(
+      itemsTextStyle: theme.textTheme.bodyMedium?.copyWith(
         fontSize: AppTypography.fontSizeBase.sp,
       ),
-      selectedItemsTextStyle: AppTypography.bodyBoldStyle(
+      selectedItemsTextStyle: theme.textTheme.bodyMedium?.copyWith(
+        fontWeight: FontWeight.bold,
         fontSize: AppTypography.fontSizeBase.sp,
-        color: AppColors.primary,
+        color: theme.primaryColor,
       ),
       confirmText: Text(
         'XÁC NHẬN',
-        style: AppTypography.bodyBoldStyle(
+        style: theme.textTheme.labelLarge?.copyWith(
+          fontWeight: FontWeight.bold,
           fontSize: AppTypography.fontSizeBase.sp,
-          color: AppColors.primary,
+          color: theme.primaryColor,
         ),
       ),
       cancelText: Text(
         'HỦY',
-        style: AppTypography.bodyBoldStyle(
+        style: theme.textTheme.labelLarge?.copyWith(
+          fontWeight: FontWeight.bold,
           fontSize: AppTypography.fontSizeBase.sp,
-          color: AppColors.textSecondary,
+          color: theme.textTheme.bodySmall?.color,
         ),
       ),
     );
@@ -200,11 +209,12 @@ class _MultiSelectBoxState<T> extends State<MultiSelectBox<T>>
               padding: EdgeInsets.only(bottom: AppSpacing.xs.h),
               child: Text(
                 widget.label!,
-                style: AppTypography.bodyBoldStyle(
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
                   fontSize: AppTypography.fontSizeSm.sp,
                   color: displayError != null
-                      ? AppColors.error
-                      : AppColors.textPrimary,
+                      ? theme.colorScheme.error
+                      : theme.textTheme.bodyMedium?.color,
                 ),
               ),
             ),
@@ -222,18 +232,18 @@ class _MultiSelectBoxState<T> extends State<MultiSelectBox<T>>
               ),
               child: Row(
                 children: [
-                  const Icon(
+                  Icon(
                     Icons.error_outline,
                     size: 14,
-                    color: AppColors.error,
+                    color: theme.colorScheme.error,
                   ),
                   SizedBox(width: 4.w),
                   Expanded(
                     child: Text(
                       displayError,
-                      style: AppTypography.bodyRegularStyle(
+                      style: theme.textTheme.bodySmall?.copyWith(
                         fontSize: AppTypography.fontSizeXs.sp,
-                        color: AppColors.error,
+                        color: theme.colorScheme.error,
                       ),
                     ),
                   ),
@@ -248,9 +258,9 @@ class _MultiSelectBoxState<T> extends State<MultiSelectBox<T>>
               ),
               child: Text(
                 widget.helperText!,
-                style: AppTypography.bodyRegularStyle(
+                style: theme.textTheme.bodySmall?.copyWith(
                   fontSize: AppTypography.fontSizeXs.sp,
-                  color: AppColors.textSecondary,
+                  color: theme.textTheme.bodySmall?.color,
                 ),
               ),
             ),

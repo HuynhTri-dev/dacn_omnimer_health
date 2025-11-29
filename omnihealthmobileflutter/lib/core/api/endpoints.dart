@@ -32,7 +32,10 @@ class Endpoints {
   // ================== HEALTH PROFILE ==================
   static const String getHealthProfiles = "/v1/health-profile";
   static const String createHealthProfile = "/v1/health-profile";
-  static const String getLatestHealthProfile = "/v1/health-profile/latest";
+  static const String getLatestHealthProfile =
+      "/v1/health-profile/latest"; // Get the latest profile
+  static String getHealthProfileByDate(String date) =>
+      "/v1/health-profile/date?date=$date";
   static String getHealthProfilesByUserId(String userId) =>
       "/v1/health-profile/user/$userId";
   static String getHealthProfileById(String id) => "/v1/health-profile/$id";
@@ -42,6 +45,7 @@ class Endpoints {
   // ================== GOAL ==================
   static const String getGoals = "/v1/goal";
   static const String createGoal = "/v1/goal";
+  static String getGoalsByUserId(String userId) => "/v1/goal/user/$userId";
   static String getGoalById(String id) => "/v1/goal/$id";
   static String updateGoal(String id) => "/v1/goal/$id";
   static String deleteGoal(String id) => "/v1/goal/$id";

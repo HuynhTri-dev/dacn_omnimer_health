@@ -1,0 +1,30 @@
+{
+  "healthProfile": {
+    "gender": "Male",
+    "age": 25,
+    "height": 175,
+    "weight": 70,
+    "bmi": 22.8,
+    "bodyFatPercentage": 15,
+    "activityLevel": 3,
+    "experienceLevel": "Intermediate",
+    "workoutFrequency": 4,
+    "restingHeartRate": 60,
+    "healthStatus": {
+      "injuries": ["Knee"]
+    }
+  },
+  "goals": [
+    {
+      "goalType": "MuscleGain",
+      "targetMetric": []
+    }
+  ],
+  "exercises": [
+    {
+      "exerciseId": "64f8a...",
+      "exerciseName": "Bench Press"
+    }
+  ],
+  "k": 5 // số lượng bài
+}

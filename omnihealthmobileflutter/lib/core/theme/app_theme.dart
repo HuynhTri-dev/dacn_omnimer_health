@@ -14,6 +14,10 @@ class AppTheme {
       // Colors
       primaryColor: AppColors.primary,
       scaffoldBackgroundColor: AppColors.gray100,
+      disabledColor: AppColors.gray300,
+      dividerColor: AppColors.divider,
+      highlightColor: AppColors.white,
+      shadowColor: AppColors.black,
       colorScheme: ColorScheme.light(
         primary: AppColors.primary,
         secondary: AppColors.secondary,
@@ -154,6 +158,10 @@ class AppTheme {
       // Colors
       primaryColor: AppColors.primary,
       scaffoldBackgroundColor: AppColors.gray900,
+      disabledColor: AppColors.gray700,
+      dividerColor: AppColors.gray700,
+      highlightColor: AppColors.gray800,
+      shadowColor: AppColors.black,
       colorScheme: ColorScheme.dark(
         primary: AppColors.primary,
         secondary: AppColors.secondary,

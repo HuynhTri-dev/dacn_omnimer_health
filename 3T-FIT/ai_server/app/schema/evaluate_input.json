@@ -1,0 +1,99 @@
+{
+  "healthProfile": {
+    "gender": "Male",
+    "age": 25,
+    "height": 175,
+    "weight": 70,
+    "bmi": 22.8,
+    "bodyFatPercentage": 15,
+    "activityLevel": 3,
+    "experienceLevel": "Intermediate",
+    "workoutFrequency": 4,
+    "restingHeartRate": 60,
+    "healthStatus": {
+      "injuries": ["Knee"]
+    }
+  },
+  "timeStart": "2025-11-28T14:00:00.000Z",
+  "notes": "Buổi tập ngực và tim mạch.",
+  "workoutDetail": [
+    {
+      // Barbell Bench Press (Tập tạ, dựa trên số lần lặp lại/Reps)
+      "_id": "60c72b1f90c42d0015f6c8d5",
+      "exerciseId": "60c72b1f90c42d0015f6c8d6",
+      "type": "reps", // Thay thế "Strength" bằng "reps"
+      "sets": [
+        {
+          "_id": "60c72b1f90c42d0015f6c8d7",
+          "setOrder": 1,
+          "reps": 8,
+          "weight": 60,
+          "restAfterSetSeconds": 90,
+          "notes": "",
+          "done": true
+        }
+        // ... Các sets còn lại tương tự
+      ],
+      "durationMin": 15,
+      "deviceData": {
+        "heartRateAvg": 115,
+        "heartRateMax": 130,
+        "caloriesBurned": 100
+      }
+    },
+    {
+      // Treadmill (Chạy bộ, dựa trên Khoảng cách/Distance)
+      "_id": "60c72b1f90c42d0015f6c8db",
+      "exerciseId": "60c72b1f90c42d0015f6c8dc",
+      "type": "distance", // Thay thế "Cardio" bằng "distance"
+      "sets": [
+        {
+          "_id": "60c72b1f90c42d0015f6c8dd",
+          "setOrder": 1,
+          "distance": 780, // mét
+          "duration": 480, // giây
+          "done": true
+        }
+      ],
+      "durationMin": 8,
+      "deviceData": {
+        "heartRateAvg": 145,
+        "heartRateMax": 160,
+        "caloriesBurned": 85
+      }
+    },
+    {
+      // High Knee Skips (Nhảy gối cao, dựa trên Thời gian/Time)
+      "_id": "60c72b1f90c42d0015f6c8de",
+      "exerciseId": "60c72b1f90c42d0015f6c8df",
+      "type": "time", // Thay thế "Conditioning" bằng "time"
+      "sets": [
+        {
+          "_id": "60c72b1f90c42d0015f6c8e0",
+          "setOrder": 1,
+          "duration": 60, // giây
+          "restAfterSetSeconds": 60,
+          "done": true
+        }
+      ],
+      "durationMin": 2,
+      "deviceData": {
+        "heartRateAvg": 135,
+        "heartRateMax": 150,
+        "caloriesBurned": 25
+      }
+    }
+  ],
+  "summary": {
+    "heartRateAvgAllWorkout": 131,
+    "heartRateMaxAllWorkout": 160,
+    "totalSets": 6,
+    "totalReps": 32,
+    "totalWeight": 240,
+    "totalDuration": 1500,
+    "totalCalories": 210,
+    "totalDistance": 780
+  },
+  "createdAt": "2025-11-28T14:40:00.000Z",
+  "updatedAt": "2025-11-28T14:40:00.000Z"
+}

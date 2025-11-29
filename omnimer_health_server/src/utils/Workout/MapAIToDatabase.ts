@@ -1,10 +1,11 @@
 import { Types } from "mongoose";
 import { WorkoutDetailTypeEnum } from "../../common/constants/EnumConstants";
 import { IWorkoutTemplateDetail } from "../../domain/models";
-import { IRAGAIResponse } from "../../domain/entities";
+import { IRAGAIResponse, IRAGExercise } from "../../domain/entities";
 
 export function mapAIResponseToWorkoutDetail(
-  aiResponse: IRAGAIResponse
+  aiResponse: IRAGAIResponse,
+  exerciseStuitable: IRAGExercise[]
 ): IWorkoutTemplateDetail[] {
   return aiResponse.exercises.map<IWorkoutTemplateDetail>((ex) => {
     // Determine type based on first set (can be improved by checking all sets)
@@ -13,8 +14,8 @@ export function mapAIResponseToWorkoutDetail(
 
     if (firstSet) {
       const hasReps = firstSet.reps !== undefined;
-      const hasTime = firstSet.min !== undefined;
-      const hasDistance = firstSet.km !== undefined;
+      const hasTime = firstSet.duration !== undefined;
+      const hasDistance = firstSet.distance !== undefined;
 
       if (hasReps && !hasTime && !hasDistance)
         type = WorkoutDetailTypeEnum.Reps;
@@ -25,16 +26,22 @@ export function mapAIResponseToWorkoutDetail(
       else type = WorkoutDetailTypeEnum.Mixed;
     }
 
+    const matchedExercise = exerciseStuitable.find(
+      (e) => e.exerciseName === ex.name
+    );
+
     return {
-      exerciseId: new Types.ObjectId(), // TODO: map ex.name -> Exercise._id
+      exerciseId: matchedExercise
+        ? new Types.ObjectId(matchedExercise.exerciseId)
+        : new Types.ObjectId(),
       type,
       sets: ex.sets.map((s, idx) => ({
         setOrder: idx + 1,
-        reps: s.reps,
-        weight: s.kg,
-        duration: s.min ? s.min * 60 : undefined, // convert minutes to seconds
-        distance: s.km,
-        restAfterSetSeconds: s.minRest ? s.minRest * 60 : 0,
+        reps: s.reps ?? undefined,
+        weight: s.kg ?? undefined,
+        duration: s.duration ?? undefined,
+        distance: s.distance ?? undefined,
+        restAfterSetSeconds: s.restAfterSetSeconds ?? undefined,
       })),
     };
   });

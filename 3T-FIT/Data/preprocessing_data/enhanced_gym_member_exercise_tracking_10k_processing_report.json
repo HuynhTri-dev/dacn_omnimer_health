@@ -1,0 +1,96 @@
+{
+  "processing_summary": {
+    "target_records": 10000,
+    "total_records": 10000,
+    "achievement_rate": "100.0%",
+    "workout_types": {
+      "Strength": 8692,
+      "Cardio": 658,
+      "HIIT": 470,
+      "Yoga": 180
+    },
+    "exercise_count": 820,
+    "unique_exercises": 820
+  },
+  "data_quality": {
+    "missing_values": {
+      "exercise_name": 0,
+      "duration_min": 0,
+      "avg_hr": 0,
+      "max_hr": 0,
+      "calories": 0,
+      "fatigue": 0,
+      "effort": 0,
+      "mood": 0,
+      "suitability_x": 0,
+      "age": 0,
+      "height_m": 0,
+      "weight_kg": 0,
+      "bmi": 0,
+      "fat_percentage": 0,
+      "resting_heartrate": 0,
+      "experience_level": 0,
+      "workout_frequency": 0,
+      "health_status": 0,
+      "workout_type": 0,
+      "location": 0,
+      "injury_or_pain_notes": 0,
+      "gender": 0,
+      "session_duration": 0,
+      "estimated_1rm": 0,
+      "pace": 0,
+      "duration_capacity": 0,
+      "rest_period": 0,
+      "intensity_score": 0
+    },
+    "avg_calories_per_exercise": 191.96784,
+    "avg_intensity_score": 7.181140000000001,
+    "avg_session_duration": 74.76363994034591,
+    "avg_suitability_x": 0.500137,
+    "data_completeness": "100.0%"
+  },
+  "health_metrics": {
+    "avg_1rm_strength": 81.70604348826508,
+    "avg_bmi": 24.885804,
+    "avg_fat_percentage": 27.780005,
+    "age_distribution": {
+      "count": 10000.0,
+      "mean": 38.8307,
+      "std": 12.561457579901035,
+      "min": 18.0,
+      "25%": 28.0,
+      "50%": 40.0,
+      "75%": 50.0,
+      "max": 61.0
+    },
+    "gender_distribution": {
+      "1": 5186,
+      "0": 4814
+    },
+    "experience_level_distribution": {
+      "2": 4558,
+      "1": 3295,
+      "3": 2147
+    }
+  },
+  "workout_diversity": {
+    "strength_percentage": "86.9%",
+    "cardio_percentage": "6.6%",
+    "hiit_percentage": "4.7%",
+    "yoga_percentage": "1.8%",
+    "avg_exercises_per_strength_session": 5.957505140507196
+  },
+  "transformations_applied": [
+    "Removed ID columns to sync with reference format",
+    "Enhanced data diversity with multiple sessions per user",
+    "Added exercise names from JSON database (800+ exercises)",
+    "Generated SePA fields with realistic distributions",
+    "Calculated missing health metrics (BMI, body fat %)",
+    "Applied readiness factor adjustments",
+    "Estimated 1RM for strength exercises",
+    "Calculated capability metrics (pace, duration_capacity, intensity_score)",
+    "Generated suitability scores (suitability_x only)",
+    "Applied METs and heart rate-based calories calculation",
+    "Enhanced data augmentation to reach target record count"
+  ]
+}

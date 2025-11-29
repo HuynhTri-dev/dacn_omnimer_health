@@ -1,171 +1,476 @@
-# Tổng quan về đầu vào, đầu ra của model
+# 3T-FIT AI Recommendation Engine: Two-Branch Architecture
 
-## **Giai đoạn 1: Training mô hình chung (base model)**
+Hệ thống gợi ý bài tập của 3T-FIT sử dụng kiến trúc **Two-Branch Neural Network** (Mạng nơ-ron 2 nhánh) để giải quyết hai bài toán cốt lõi:
 
-Mục tiêu: xây dựng nền tảng AI biết **mapping dữ liệu sức khỏe ↔ bài tập phù hợp**.
+1.  **Dự đoán Cường độ (Intensity Prediction):** Bài tập này sẽ nặng bao nhiêu đối với người dùng này?
+2.  **Dự đoán Độ phù hợp (Suitability Prediction):** Bài tập này có phù hợp với mục tiêu và tình trạng sức khỏe hiện tại không?
 
-### 1. Dữ liệu đầu vào
+---
 
-- **User health profile (tĩnh):**
-  Lấy dữ liệu từ dabase dữ liệu cơ bản, sức khỏe hiện tại, mục tiêu hiện tại của người dùng
-- **Danh sách bài tập phù hợp:**
-  Exercise: name
+## 🏗️ Kiến trúc Tổng quan
 
-Sử dụng phương pháp RAG để lọc ra các bài tập phù hợp với : Goal, Nhóm cơ muốn tập luyện (BodyPart, Muscle), Tình trạng cơ bản hiện tại (sung sức, bình thường, hơi mệt) để chọn ra các bài tập có độ khó và mức rep/set hợp lý. Từ phương pháp này lọc ra danh sách:
+```mermaid
+graph TD
+    subgraph Input Data
+        U[User Profile & Goals]
+        E[Exercise Metadata]
+        W[Recent WatchLogs]
+    end
 
-```jsx
-exercises: [
-  {
-    _id: Object.Id,
-    name: "Push ups",
-  },
-];
+    subgraph "Branch A: Intensity Model"
+        A_Input[Input Vector A]
+        A_Dense[Dense Layers]
+        A_Out[Output: Predicted Intensity]
+    end
+
+    subgraph "Branch B: Suitability Model"
+        B_Input[Input Vector B]
+        B_Dense[Dense Layers]
+        B_Out[Output: Suitability Score (0-1)]
+    end
+
+    U --> A_Input
+    E --> A_Input
+    A_Input --> A_Dense --> A_Out
+
+    A_Out --> B_Input
+    E --> B_Input
+    W --> B_Input
+    U --> B_Input
+    B_Input --> B_Dense --> B_Out
 ```
 
-⇒ Từ đó lấy danh sách exercises đưa vào input
+---
 
-- **Số lượng bài tập X tính theo mục tiêu: thì mình sẽ truyền vào:**
-  - **Tăng cơ (hypertrophy):** chọn khoảng **5-8 bài tập** trong buổi, mỗi bài tập 2-4 hiệp (sets) với 8-12 lần (reps) mỗi hiệp, dùng mức tạ vừa tới nặng (~ 60-80% 1RM) là tối ưu. Ví dụ: 3 bài lớn (multi-joint) + 2-3 bài nhỏ (isolation). Nhiều nghiên cứu đề xuất rằng khối lượng huấn luyện (sets × reps × tải) là biến số quan trọng. [PMC+1](https://pmc.ncbi.nlm.nih.gov/articles/PMC6950543/?utm_source=chatgpt.com)
-  - **Tăng sức mạnh (strength):** nên chọn khoảng **4-6 bài tập** vì bài tập nặng, mỗi bài 2-3 hiệp, mỗi hiệp khoảng 1-5 lần với tải rất nặng (~ 80-100% 1RM) sẽ kích thích tốt. [PMC+1](https://pmc.ncbi.nlm.nih.gov/articles/PMC7927075/?utm_source=chatgpt.com)
-  - **Sức bền cơ bản / giảm mỡ / sức khỏe tổng thể:** có thể sử dụng **5-8 bài tập** nhẹ hơn, mỗi bài có thể 12-20 lần hoặc hơn, tập với tải nhẹ-vừa và/hoặc nhiều động tác kết hợp (compound + body-weight) để tăng nhịp tim và tiêu hao năng lượng. Ví dụ: 1-2 bài khởi động, 4-5 bài chính, 1 bài giãn cơ kết thúc.
+## 🧠 Chi tiết Kỹ thuật (Technical Specifications)
+
+### 1. Data Preprocessing & Feature Engineering
+
+Trước khi đưa vào model, dữ liệu thô cần được xử lý thành các vector đặc trưng (Feature Vectors).
+
+#### **A. User Features (Thông tin người dùng)**
+
+Nguồn: `User.model.ts`, `HealthProfile.model.ts`, `Goal.model.ts`
+
+| Feature Name       | Source Field                          | Preprocessing / Formula                                         |
+| :----------------- | :------------------------------------ | :-------------------------------------------------------------- |
+| `age_norm`         | `HealthProfile.age`                   | `(age - 10) / (80 - 10)` (MinMax Scaling)                       |
+| `bmi_norm`         | `HealthProfile.bmi`                   | `(bmi - 15) / (40 - 15)`                                        |
+| `experience_score` | `HealthProfile.experienceLevel`       | Map Enum: Beginner=0.2, Intermediate=0.5, Advanced=0.8, Pro=1.0 |
+| `activity_level`   | `HealthProfile.activityLevel`         | Normalized 0-1                                                  |
+| `vo2max_norm`      | `WatchLog.vo2max` (avg)               | `(vo2max - 20) / (60 - 20)`                                     |
+| `goal_type_ohe`    | `Goal.goalType`                       | One-Hot Encoding (e.g., [1, 0, 0] for WeightLoss)               |
+| `injury_history`   | `HealthProfile.healthStatus.injuries` | Multi-hot encoding các vùng cơ thể bị chấn thương               |
+
+#### **B. Exercise Features (Thông tin bài tập)**
+
+Nguồn: `Exercise.model.ts`
+
+| Feature Name       | Source Field           | Preprocessing / Formula                                |
+| :----------------- | :--------------------- | :----------------------------------------------------- |
+| `difficulty_score` | `Exercise.difficulty`  | Map Enum: Beginner=0.3, Intermediate=0.6, Advanced=0.9 |
+| `met_value`        | `Exercise.met`         | Normalized `(met - 1) / (15 - 1)`                      |
+| `muscle_group_ohe` | `Exercise.mainMuscles` | Multi-hot encoding (e.g., Chest=1, Legs=0...)          |
+| `equipment_req`    | `Exercise.equipments`  | Binary vector (0/1) cho các thiết bị có sẵn            |
+
+#### **C. Derived Intensity Features (Hệ số Cường độ Tính toán)**
+
+Các chỉ số này được tính toán dựa trên lịch sử tập luyện hoặc parameters đầu vào của bài tập (nếu đang đánh giá một workout template).
+
+1.  **Resistance Intensity (Cường độ Kháng lực):**
+
+    - Công thức: `RI = (Reps * Weight) / Estimated_1RM`
+    - _Estimated_1RM (Epley Formula):_ `Weight * (1 + Reps/30)`
+    - Nếu chưa có lịch sử 1RM, dùng `Weight / BodyWeight` làm proxy.
+
+2.  **Cardio Intensity (Cường độ Tim mạch):**
+
+    - Công thức: `CI = (Distance / Time) / User_MaxPace`
+    - _User_MaxPace:_ Lấy từ `WatchLog` tốt nhất hoặc ước tính qua `VO2Max`.
+
+3.  **Volume Load (Thể tích tập):**
+
+    - Công thức: `VL = Sets * Reps * Weight`
+    - Chuẩn hóa: `VL_norm = VL / User_Avg_Volume_For_Muscle_Group`
+
+4.  **Rest Density (Mật độ nghỉ):**
+    - Công thức: `RD = RestTime / (RestTime + WorkTime)`
+
+---
+
+### 2. Model Architecture Details
+
+#### **Branch A: Intensity Prediction Model**
+
+_Mục tiêu: Dự đoán mức độ gắng sức (RPE - Rating of Perceived Exertion) mà người dùng sẽ cảm thấy._
+
+- **Input Layer:** `User Features` + `Exercise Features` + `Derived Intensity Features` (Size: ~50 dimensions)
+- **Hidden Layers:**
+  - Dense(64, activation='relu', kernel_regularizer='l2')
+  - Dropout(0.2)
+  - Dense(32, activation='relu')
+- **Output Layer:**
+  - Dense(1, activation='linear') -> **Predicted_RPE** (Scale 1-10)
+
+#### **Branch B: Suitability Prediction Model**
+
+_Mục tiêu: Đánh giá độ phù hợp (0-1) của bài tập tại thời điểm hiện tại._
+
+- **Input Layer:**
+  - `Predicted_RPE` (Output từ Branch A)
+  - `User Health Status` (Stress, Sleep Quality, Recovery Score từ WatchLog)
+  - `Exercise Constraints` (Chấn thương vs. BodyPart của bài tập)
+- **Hidden Layers:**
+  - Dense(128, activation='relu')
+  - Dense(64, activation='relu')
+- **Output Layer:**
+  - Dense(1, activation='sigmoid') -> **Suitability_Score** (0.0 - 1.0)
+
+---
+
+### 3. Quy trình Xử lý & Tích hợp (Integration Flow)
+
+Khi User yêu cầu gợi ý bài tập (Request Recommendation):
+
+1.  **Data Fetching:**
+
+    - Lấy `HealthProfile` & `Goal` mới nhất.
+    - Lấy `WatchLog` 7 ngày gần nhất để tính `Recovery Score` (dựa trên Sleep, Stress, HRV).
+    - Lấy danh sách `Exercise` khả dụng (lọc theo Equipment có sẵn).
+
+2.  **Batch Prediction (Branch A):**
+
+    - Với mỗi bài tập candidate, tạo input vector và chạy qua **Branch A**.
+    - Kết quả: Danh sách các bài tập kèm `Predicted_RPE`.
+
+3.  **Suitability Scoring (Branch B):**
+
+    - Lấy `Predicted_RPE` kết hợp với `Recovery Score` hiện tại.
+    - _Logic cứng (Hard Rules):_ Nếu bài tập tác động vào vùng chấn thương (`painLocations`), gán `Suitability = 0`.
+    - Chạy qua **Branch B** để lấy `Suitability_Score`.
+
+4.  **Ranking & Filtering:**
+    - Sắp xếp theo `Suitability_Score` giảm dần.
+    - Áp dụng **Bảng Đánh giá & Hành động** (xem bên dưới) để chọn top bài tập.
+
+---
+
+## 📊 Bảng Đánh giá & Hành động (Suitability Score Interpretation)
+
+| Score Range     | Nhãn / Đánh giá             | Ý nghĩa                                     | Hành động của Hệ thống                                                        |
+| :-------------- | :-------------------------- | :------------------------------------------ | :---------------------------------------------------------------------------- |
+| **0.0 – 0.4**   | ❌ **Không phù hợp**        | Rủi ro chấn thương cao hoặc không hiệu quả. | **Loại bỏ** khỏi danh sách gợi ý.                                             |
+| **0.4 – 0.6**   | ⚠️ **Hỗ trợ / Thay thế**    | Tác động phụ trợ, không phải bài chính.     | Chỉ gợi ý trong phần **Warm-up** hoặc **Cool-down**.                          |
+| **0.6 – 0.75**  | **Cần điều chỉnh**          | Đúng nhóm cơ nhưng cường độ chưa tối ưu.    | Gợi ý nhưng **tự động điều chỉnh** Reps/Sets (tăng/giảm) để đạt RPE mục tiêu. |
+| **0.75 – 0.85** | 🟢 **Hiệu quả (Good)**      | Phù hợp mục tiêu và thể trạng.              | **Ưu tiên hiển thị** trong Main Workout.                                      |
+| **0.85 – 1.00** | 🟣 **Tối ưu (Perfect Fit)** | "Signature workout" cho user này.           | **Lock-in**: Đưa vào Core Routine, đánh dấu "Recommended".                    |
+
+---
+
+## 🔄 Cơ chế Feedback & Learning (Vòng lặp học)
+
+Hệ thống sẽ tự cập nhật (Retrain) dựa trên dữ liệu thực tế từ `WatchLog` sau khi tập:
+
+1.  **Thu thập dữ liệu thực:**
+
+    - Sau khi user tập, `WatchLog` ghi nhận: `HeartRateAvg`, `Calories`, `ActiveMinutes`.
+    - User input thủ công (nếu có): `Actual RPE`, `Feeling` (1-5).
+
+2.  **Tính toán Loss:**
+
+    - `Loss_Intensity` = `|Predicted_RPE - Actual_RPE|`
+    - `Actual_RPE` có thể ước tính từ HR: `RPE ≈ (HR_avg / HR_max) * 10`.
+
+3.  **Cập nhật Model:**
+    - Lưu cặp `(Input, Actual_Output)` vào Database `TrainingData`.
+    - Định kỳ (hàng tuần), trigger pipeline retrain model để tinh chỉnh trọng số.
+
+---
+
+## 🔌 API Data Contract (JSON Examples)
+
+Mô tả cấu trúc JSON cho việc giao tiếp giữa Client (Mobile App) và AI Service.
+
+### 1. Request: User yêu cầu gợi ý bài tập
+
+**Endpoint:** `POST /api/ai/recommend`
+
+**Input JSON (IRAGUserContext):**
 
 ```json
 {
-  healthProfile: {
-    gender: 'male',
-    age: 0,
-    height: 175,
-    weight: 68,
-    whr: undefined,
-    bmi: 22.2,
-    bmr: 1839.18,
-    bodyFatPercentage: 12.87,
-    muscleMass: 33.54,
-    maxWeightLifted: 80,
-    activityLevel: 4,
-    experienceLevel: 'Intermediate',
-    workoutFrequency: 4,
-    restingHeartRate: 70,
-    healthStatus: {
-      knownConditions: [Array],
-      painLocations: [Array],
-      jointIssues: [Array],
-      injuries: [Array],
-      abnormalities: [Array],
-      notes: 'Feels tired after long workdays, currently on mild exercise routine.'
+  "healthProfile": {
+    "gender": "Male",
+    "age": 25,
+    "height": 175,
+    "weight": 70,
+    "bmi": 22.8,
+    "bodyFatPercentage": 15,
+    "activityLevel": 3,
+    "experienceLevel": "Intermediate",
+    "workoutFrequency": 4,
+    "restingHeartRate": 60,
+    "healthStatus": {
+      "injuries": ["Knee"]
     }
   },
-  goals: [ { goalType: 'WeightLoss', targetMetric: [Array] } ],
-  exercises: [
-    { exerciseName: '' }
+  "goals": [
+    {
+      "goalType": "MuscleGain",
+      "targetMetric": []
+    }
+  ],
+  "exercises": [
+    {
+      "exerciseId": "64f8a...",
+      "exerciseName": "Bench Press"
+    }
+  ],
+  "k": 5
+}
+```
+
+### 2. Response: Danh sách bài tập được gợi ý
+
+**Output JSON (IRAGAIResponse):**
+
+```json
+{
+  "exercises": [
+    {
+      "name": "Barbell Bench Press",
+      "sets": [
+        {
+          "reps": 8,
+          "kg": 60,
+          "minRest": 90
+        },
+        {
+          "reps": 8,
+          "kg": 60,
+          "minRest": 90
+        },
+        {
+          "reps": 8,
+          "kg": 60,
+          "minRest": 90
+        },
+        {
+          "reps": 8,
+          "kg": 60,
+          "minRest": 90
+        }
+      ]
+    },
+    {
+      "name": "Treadmill",
+      "sets": [
+        {
+          "distance": 0.78
+        }
+      ]
+    },
+    {
+      "name": "High Knee Skips",
+      "sets": [
+        {
+          "duration": 60,
+          "restAfterSetSeconds": 60
+        }
+      ]
+    }
   ]
 }
 ```
 
-### 2. Dữ liệu đầu ra
+---
 
-- Top x các name exercise có nhãn sutitable cao nhất và cường độ luyện tập của nó.
+## 🔄 Post-Workout Feedback Loop (Vòng lặp Phản hồi sau tập)
+
+Sau khi user hoàn thành workout, hệ thống sẽ thực hiện quy trình sau để cải thiện độ chính xác cho các gợi ý trong tương lai:
+
+### 1. Thu thập dữ liệu Session
+
+Backend sẽ tổng hợp dữ liệu từ 3 nguồn chính:
+
+- **Workout** (`src/domain/models/Workout/Workout.model.ts`): Chi tiết bài tập thực tế đã thực hiện (Sets, Reps, Weight, Duration).
 
 ```json
-"exercises": {
-	[
-		{
-			"name": "Push up",
-			"sets": [{ // Số lượng bài bao nhiêu set mảng có bao nhiêu
-					"reps": 12,
-					"kg": 20,
-					"km": 12, // Đối với các bài liên quan về chạy, đạp xe
-					"min": 2, // Đối với bài về cardio thì có
-					"minRest": 3
-			},
-			{
-					"reps": 12,
-					"kg": 20,
-					"km": 12, // Đối với các bài liên quan về chạy, đạp xe
-					"min": 2, // Đối với bài về cardio thì có
-					"minRest": 3
-			}],
-		},
-		{
-			...
-		}
-		...
-	],
-	"suitabilityScore": 0.92,
-	"predictedAvgHR": 115,
-	"predictedPeakHR": 135
+workoutDetail: {
+  "type": [
+    {
+      "exerciseId": "",
+      "sets": [
+        {
+          "setOrder": 1,
+          "reps": 3,
+          "weight": 60,
+          "duration": 60,
+          "distance": 60,
+          "restAfterSetSeconds": 60,
+          "notes": "",
+          "done": true
+        }
+      ]
+    }
+  ],
+  "durationMin": 60,
+  "deviceData": {
+    "heartRateAvg": 60,
+    "heartRateMax": 60,
+    "caloriesBurned": 60
+  }
 }
 ```
 
-## **Giai đoạn 2: Training cá nhân hóa (personalization)**
+- **WorkoutFeedback** (`src/domain/models/Workout/WorkoutFeedback.model.ts`): Cảm nhận chủ quan của người dùng (Suitability rating, Pain/Injury notes, Goal achieved).
 
-Mục tiêu: mô hình học theo **thói quen & feedback cá nhân**.
+### 2. Biến đổi & Tính toán Cường độ (Intensity Transformation)
 
-### 1. Dữ liệu thêm
+Hệ thống sẽ tính toán **Hệ số Cường độ Thực tế (Actual Intensity Coefficient)** dựa trên dữ liệu thu thập:
 
-- WatchLog
-- Workout
+- **Volume Load (VL):** `Total Sets * Total Reps * Weight`
+- **Intensity Factor (IF):** `Actual Weight / 1RM (Estimated)`
+- **Cardio Load:** Dựa trên `HeartRateAvg` và `Duration` từ WatchLog.
+- **RPE (Rate of Perceived Exertion):** Ước tính từ `HeartRateMax` hoặc lấy trực tiếp từ Feedback nếu có.
 
-⇒ Lấy và và xử lý để có thể mapping các dữ liệu sức khỏe từ apple watch với các bài tập trong workout. Ví dụ Push up có nhịp tim trung bình, nhịp tim tối đa bao nhiêu,…. Sau đó xử lý đối với các bài tập được dự đoán là có suitable thấp dưới **0,4 thì không cho tập lại**, **từ 0,4 - 0,9 thì cải thiện** các thông số cường độ: Sets/Reps/Weight/TimeRestEachSet, Sets/Time_m/TimeRestEachSet, Distance_km, Duration. Nếu **suitable = 1 thì block lại.**
+### 3. Đánh giá & Gán nhãn (Labeling & Evaluation)
 
-### 2. Mục tiêu
+Dựa trên sự chênh lệch giữa **Cường độ Dự đoán (Predicted)** và **Cường độ Thực tế (Actual)**, kết hợp với Feedback của user:
 
-Model AI có thể gợi ý riêng biệt cho từng userId.
+- **Suitability Labeling:**
+  - Nếu User rate `suitability` cao (8-10) VÀ hoàn thành bài tập đúng giáo án -> **Label: Highly Suitable (1.0)**
+  - Nếu User rate thấp HOẶC bỏ dở bài tập HOẶC HR quá cao so với mục tiêu -> **Label: Not Suitable (0.0)**
+  - Các trường hợp trung gian sẽ có giá trị từ 0.0 - 1.0.
 
-### 3. Inference
+### 4. Cập nhật Model (Future Recommendations)
 
-- Với user mới (cold-start): dùng **giai đoạn 1**.
-- Với user lâu năm: dùng **giai đoạn 2 + embedding** để gợi ý chuẩn hơn.
+- Nhãn `Suitability` mới này sẽ được đưa vào tập dữ liệu huấn luyện (Training Set).
+- Model sẽ học được rằng với `User Context` này, mức cường độ này là phù hợp (hoặc không).
+- **Kết quả:** Các gợi ý trong tương lai sẽ được điều chỉnh (tăng/giảm tạ, thay đổi bài tập) để tiệm cận với nhãn `Highly Suitable`.
 
-```json
-(1) Input Data
- ├── Health Profile (BMI, HR, goals, age, gender, ...)
- ├── Workout History (bài tập, intensity, duration)
- ├── WatchLog (HR trend, calories, fatigue signals)
- └── Feedback (user rating, perceived fatigue)
+---
 
-        ↓
+## 📂 Tham chiếu Data Models (Backend Reference)
 
-(2) Recommendation Engine (2 tầng)
- ├── Tầng 1: RAG / Rule-based Filtering
- │     → lọc danh sách bài tập phù hợp với mục tiêu, nhóm cơ, equipment
- │
- └── Tầng 2: ML Model (DNN | Neural Ranking)
-       → predict “suitability_score”, “expected_heart_rate”, “expected_calories”
-       → gợi ý top 5 bài tập có suitability cao nhất
+Các model MongoDB sử dụng trong hệ thống:
 
-        ↓
+- **WatchLog**: `src/domain/models/Devices/WatchLog.model.ts`
+  - _Key Fields:_ `heartRateAvg`, `vo2max`, `sleepQuality`, `stressLevel`.
+- **Exercise**: `src/domain/models/Exercise/Exercise.model.ts`
+  - _Key Fields:_ `met`, `bodyParts`, `mainMuscles`, `difficulty`.
+- **HealthProfile**: `src/domain/models/Profile/HealthProfile.model.ts`
+  - _Key Fields:_ `age`, `bmi`, `injuries`, `experienceLevel`.
+- **Goal**: `src/domain/models/Profile/Goal.model.ts`
+  - _Key Fields:_ `goalType`, `targetMetric`.
+- **Workout**: `src/domain/models/Workout/Workout.model.ts`
+  - _Key Fields:_ `workoutDetail`, `summary`.
+- **WorkoutFeedback**: `src/domain/models/Workout/WorkoutFeedback.model.ts`
+  - _Key Fields:_ `suitability`, `workout_goal_achieved`.
 
-(3) Execution
- → người dùng thực hiện bài tập, Watch ghi dữ liệu thực tế
+# 🏷️ Chiến lược Tạo Nhãn Dữ Liệu (Label Engineering Strategy)
 
-        ↓
+Tài liệu này mô tả phương pháp tạo ra các biến mục tiêu (Target Variables) từ dữ liệu thô để huấn luyện mô hình AI của **3T-FIT**. Việc này nhằm giải quyết vấn đề thiếu nhãn "Ground Truth" cho nhánh đánh giá độ phù hợp (Branch B).
 
-(4) Evaluation
- ├── Tính toán “actual vs predicted” (HR, calories, hiệu quả)
- ├── Ghi nhận Feedback người dùng
- └── Sinh ra “fitness_score” cho mỗi session
+## 1. Mục tiêu
 
-        ↓
+Chúng ta sẽ tạo ra 2 biến phái sinh:
 
-(5) Feedback Loop (Learning phase)
- ├── Cập nhật embedding / vector RAG
- ├── Re-train / fine-tune ML model định kỳ
- └── Lưu kết quả vào Personal Learning Profile
+1.  **`suitability_score`** (Continuous 0.0 - 1.0): Dùng cho bài toán hồi quy (Regression) để dự đoán mức độ phù hợp chi tiết.
+2.  **`is_suitable`** (Binary 0/1): Dùng cho bài toán phân loại (Classification) để ra quyết định Có/Không gợi ý.
 
+---
+
+## 2. Công thức Tổng quát
+
+Điểm phù hợp được tính dựa trên **Tổng trọng số (Weighted Sum)** của 3 khía cạnh: Tâm lý, Sinh lý và Hiệu suất.
+
+$$SuitabilityScore = (w_1 \cdot P_{psych}) + (w_2 \cdot P_{physio}) + (w_3 \cdot P_{perf})$$
+
+Trong đó:
+
+| Trọng số  | Thành phần                            | Ý nghĩa                                                            | Tỷ trọng |
+| :-------- | :------------------------------------ | :----------------------------------------------------------------- | :------- |
+| **$w_1$** | **Tâm lý (Psychological)**            | Dựa trên `mood` (Tâm trạng) và `fatigue` (Mệt mỏi).                | **40%**  |
+| **$w_2$** | **Sinh lý / An toàn (Physiological)** | Dựa trên `avg_hr` (Nhịp tim TB) so với `max_hr` (Nhịp tim tối đa). | **30%**  |
+| **$w_3$** | **Hiệu suất (Performance)**           | Dựa trên sự tương thích giữa `effort` và `calories`.               | **30%**  |
+
+---
+
+## 3. Chi tiết Triển khai
+
+### A. Thành phần Tâm lý ($P_{psych}$)
+
+Đánh giá trải nghiệm chủ quan của người dùng. Một bài tập tốt là bài tập khiến người dùng cảm thấy hứng khởi và không quá kiệt sức.
+
+- **Đầu vào:** `mood` (1-5), `fatigue` (1-5/10).
+- **Logic:**
+  - `mood` càng cao càng tốt.
+  - `fatigue` càng thấp càng tốt (Nghịch đảo).
+- **Công thức:**
+  $$P_{psych} = (Norm(Mood) \cdot 0.7) + ((1 - Norm(Fatigue)) \cdot 0.3)$$
+
+### B. Thành phần An toàn ($P_{physio}$)
+
+Đảm bảo người dùng tập luyện trong vùng nhịp tim an toàn và hiệu quả, tránh tình trạng quá tải (Over-training) gây nguy hiểm.
+
+- **Đầu vào:** `avg_hr`, `max_hr`.
+- **Logic:**
+  - Tính tỷ lệ: $Ratio = avg\_hr / max\_hr$.
+  - **Vùng tối ưu:** Khoảng 70-80% Max HR là vùng tập luyện bền vững nhất cho đại đa số mục tiêu.
+  - Nếu tỷ lệ quá cao (>95%) $\rightarrow$ Nguy hiểm $\rightarrow$ Điểm thấp.
+- **Công thức:**
+  $$P_{physio} = 1 - |Ratio - 0.75|$$
+  _(Càng gần mức 75%, điểm càng cao và tiến về 1)_
+
+### C. Thành phần Hiệu suất ($P_{perf}$)
+
+Đánh giá ROI (Return on Investment) của sức lực bỏ ra.
+
+- **Đầu vào:** `calories`, `duration_min`, `effort`.
+- **Logic:**
+  - Tính hiệu suất đốt calo/phút: $CPM = calories / duration$.
+  - Chuẩn hóa CPM về thang 0-1.
+- **Công thức:**
+  $$P_{perf} = Norm(CPM)$$
+
+---
+
+## 4. Ngưỡng Phân loại (Classification Threshold)
+
+Để chuyển từ điểm số (`suitability_score`) sang quyết định Nhị phân (`is_suitable`), chúng ta áp dụng ngưỡng cắt (Threshold):
+
+- **Threshold:** `0.7`
+- **Quy tắc:**
+  - Nếu $SuitabilityScore \ge 0.7 \rightarrow$ **1 (Suitable - Phù hợp)**.
+  - Nếu $SuitabilityScore < 0.7 \rightarrow$ **0 (Not Suitable - Không phù hợp)**.
+
+> **Lưu ý:** Ngưỡng 0.7 có thể được tinh chỉnh (Tune) lại trong quá trình Validation để tối ưu hóa F1-Score.
+
+---
+
+## 5. Snippet Python (Tham khảo)
+
+```python
+# Giả lập code tính toán trong quy trình Data Preprocessing
+def calculate_suitability(row):
+    # 1. Psychological (40%)
+    norm_mood = row['mood'] / 5.0
+    norm_fatigue = row['fatigue'] / 5.0 # Giả sử fatigue thang 5
+    p_psych = (norm_mood * 0.7) + ((1 - norm_fatigue) * 0.3)
+
+    # 2. Physiological (30%)
+    hr_ratio = row['avg_hr'] / row['max_hr']
+    # Phạt nặng nếu HR quá cao (>95%) hoặc quá thấp (<50%)
+    p_physio = 1.0 - abs(hr_ratio - 0.75)
+
+    # 3. Performance (30%)
+    # Cần normalize calories/min trên toàn bộ dataset trước khi đưa vào đây
+    # Giả định giá trị đã được normalize là row['norm_cpm']
+    p_perf = row.get('norm_cpm', 0.5)
+
+    # Tổng hợp
+    score = (0.4 * p_psych) + (0.3 * p_physio) + (0.3 * p_perf)
+
+    return max(0, min(1, score)) # Clip trong khoảng 0-1
 ```
-
-### **Hybrid Recommendation Model (Kết hợp RAG + ML)**
-
-Kết hợp 2 tầng:
-
-- **Tầng 1 (RAG / Rule-based Filtering):**
-  Dùng dữ liệu bài tập (exercise dataset) và thông tin health profile để **lọc sơ bộ** các bài tập hợp lý (theo mục tiêu, muscle target, trạng thái sức khỏe, equipment,…).
-  → Kết quả: danh sách “có khả năng phù hợp”. gồm
-  ```json
-  exercisesName: [string]
-  ```
-- **Tầng 2 (ML Model - Regression + Ranking):**
-  Mô hình học sâu hoặc hồi quy (regression / neural ranking) để **ước lượng suitabilityScore**, **predict HR**, **calories** dựa trên dữ liệu tập luyện quá khứ (`workout_id`, `exercise_name`, `intensity`, `fatigue`, `calories`, `effectiveness`...).
-
-> => Tầng 1 giống “retrieval” trong RAG, tầng 2 là “ranking/prediction”.

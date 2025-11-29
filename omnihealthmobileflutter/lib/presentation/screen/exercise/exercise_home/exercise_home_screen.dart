@@ -5,7 +5,6 @@ import 'package:omnihealthmobileflutter/core/constants/enum_constant.dart';
 import 'package:omnihealthmobileflutter/core/theme/app_colors.dart';
 import 'package:omnihealthmobileflutter/core/theme/app_radius.dart';
 import 'package:omnihealthmobileflutter/core/theme/app_spacing.dart';
-import 'package:omnihealthmobileflutter/core/theme/app_typography.dart';
 import 'package:omnihealthmobileflutter/domain/entities/exercise/exercise_list_entity.dart';
 import 'package:omnihealthmobileflutter/domain/entities/exercise/muscle_entity.dart';
 import 'package:omnihealthmobileflutter/presentation/common/auth/user_header_widget.dart';
@@ -49,7 +48,7 @@ class _ExerciseHomeViewState extends State<_ExerciseHomeView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
         child: Column(
           children: [
@@ -80,9 +79,10 @@ class _ExerciseHomeViewState extends State<_ExerciseHomeView> {
                           Text(
                             'Đã xảy ra lỗi\n${state.errorMessage ?? "Unknown error"}',
                             textAlign: TextAlign.center,
-                            style: AppTypography.bodyMedium.copyWith(
-                              color: AppColors.error,
-                            ),
+                            style: Theme.of(context).textTheme.bodyMedium
+                                ?.copyWith(
+                                  color: Theme.of(context).colorScheme.error,
+                                ),
                           ),
                           const SizedBox(height: 16),
                           ElevatedButton(
@@ -120,7 +120,10 @@ class _ExerciseHomeViewState extends State<_ExerciseHomeView> {
                         SizedBox(height: 20.h),
 
                         // Title "Exercise"
-                        Text('Exercise', style: AppTypography.h2),
+                        Text(
+                          'Exercise',
+                          style: Theme.of(context).textTheme.displayMedium,
+                        ),
                         SizedBox(height: 12.h),
 
                         // Search + filter button

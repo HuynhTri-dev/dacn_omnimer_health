@@ -36,7 +36,7 @@ class _FilterSheetState extends State<_FilterSheet> {
     return Container(
       height: MediaQuery.of(context).size.height * 0.85,
       decoration: BoxDecoration(
-        color: AppColors.background,
+        color: Theme.of(context).scaffoldBackgroundColor,
         borderRadius: BorderRadius.vertical(
           top: Radius.circular(AppRadius.xl.r),
         ),
@@ -62,15 +62,19 @@ class _FilterSheetState extends State<_FilterSheet> {
     return Container(
       padding: EdgeInsets.all(AppSpacing.lg.w),
       decoration: BoxDecoration(
-        color: AppColors.surface,
-        border: Border(bottom: BorderSide(color: AppColors.border, width: 1)),
+        color: Theme.of(context).cardColor,
+        border: Border(
+          bottom: BorderSide(color: Theme.of(context).dividerColor, width: 1),
+        ),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(
             'Filters',
-            style: AppTypography.h3.copyWith(fontWeight: FontWeight.bold),
+            style: Theme.of(
+              context,
+            ).textTheme.displaySmall?.copyWith(fontWeight: FontWeight.bold),
           ),
           IconButton(
             onPressed: () => Navigator.pop(context),
@@ -131,7 +135,9 @@ class _FilterSheetState extends State<_FilterSheet> {
   Widget _buildSectionTitle(String title) {
     return Text(
       title,
-      style: AppTypography.bodyLarge.copyWith(fontWeight: FontWeight.w600),
+      style: Theme.of(
+        context,
+      ).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w600),
     );
   }
 
@@ -154,15 +160,19 @@ class _FilterSheetState extends State<_FilterSheet> {
                   selectedLocation = selected ? location : null;
                 });
               },
-              backgroundColor: AppColors.surface,
-              selectedColor: AppColors.primary.withOpacity(0.2),
-              checkmarkColor: AppColors.primary,
-              labelStyle: AppTypography.bodyMedium.copyWith(
-                color: isSelected ? AppColors.primary : AppColors.textPrimary,
+              backgroundColor: Theme.of(context).cardColor,
+              selectedColor: Theme.of(context).primaryColor.withOpacity(0.2),
+              checkmarkColor: Theme.of(context).primaryColor,
+              labelStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: isSelected
+                    ? Theme.of(context).primaryColor
+                    : Theme.of(context).textTheme.bodyMedium?.color,
                 fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
               ),
               side: BorderSide(
-                color: isSelected ? AppColors.primary : AppColors.border,
+                color: isSelected
+                    ? Theme.of(context).primaryColor
+                    : Theme.of(context).dividerColor,
               ),
             );
           }).toList(),
@@ -189,15 +199,19 @@ class _FilterSheetState extends State<_FilterSheet> {
               }
             });
           },
-          backgroundColor: AppColors.surface,
-          selectedColor: AppColors.primary.withOpacity(0.2),
-          checkmarkColor: AppColors.primary,
-          labelStyle: AppTypography.bodyMedium.copyWith(
-            color: isSelected ? AppColors.primary : AppColors.textPrimary,
+          backgroundColor: Theme.of(context).cardColor,
+          selectedColor: Theme.of(context).primaryColor.withOpacity(0.2),
+          checkmarkColor: Theme.of(context).primaryColor,
+          labelStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
+            color: isSelected
+                ? Theme.of(context).primaryColor
+                : Theme.of(context).textTheme.bodyMedium?.color,
             fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
           ),
           side: BorderSide(
-            color: isSelected ? AppColors.primary : AppColors.border,
+            color: isSelected
+                ? Theme.of(context).primaryColor
+                : Theme.of(context).dividerColor,
           ),
         );
       }).toList(),
@@ -222,15 +236,19 @@ class _FilterSheetState extends State<_FilterSheet> {
               }
             });
           },
-          backgroundColor: AppColors.surface,
-          selectedColor: AppColors.primary.withOpacity(0.2),
-          checkmarkColor: AppColors.primary,
-          labelStyle: AppTypography.bodyMedium.copyWith(
-            color: isSelected ? AppColors.primary : AppColors.textPrimary,
+          backgroundColor: Theme.of(context).cardColor,
+          selectedColor: Theme.of(context).primaryColor.withOpacity(0.2),
+          checkmarkColor: Theme.of(context).primaryColor,
+          labelStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
+            color: isSelected
+                ? Theme.of(context).primaryColor
+                : Theme.of(context).textTheme.bodyMedium?.color,
             fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
           ),
           side: BorderSide(
-            color: isSelected ? AppColors.primary : AppColors.border,
+            color: isSelected
+                ? Theme.of(context).primaryColor
+                : Theme.of(context).dividerColor,
           ),
         );
       }).toList(),
@@ -255,15 +273,19 @@ class _FilterSheetState extends State<_FilterSheet> {
               }
             });
           },
-          backgroundColor: AppColors.surface,
-          selectedColor: AppColors.primary.withOpacity(0.2),
-          checkmarkColor: AppColors.primary,
-          labelStyle: AppTypography.bodyMedium.copyWith(
-            color: isSelected ? AppColors.primary : AppColors.textPrimary,
+          backgroundColor: Theme.of(context).cardColor,
+          selectedColor: Theme.of(context).primaryColor.withOpacity(0.2),
+          checkmarkColor: Theme.of(context).primaryColor,
+          labelStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
+            color: isSelected
+                ? Theme.of(context).primaryColor
+                : Theme.of(context).textTheme.bodyMedium?.color,
             fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
           ),
           side: BorderSide(
-            color: isSelected ? AppColors.primary : AppColors.border,
+            color: isSelected
+                ? Theme.of(context).primaryColor
+                : Theme.of(context).dividerColor,
           ),
         );
       }).toList(),
@@ -288,15 +310,19 @@ class _FilterSheetState extends State<_FilterSheet> {
               }
             });
           },
-          backgroundColor: AppColors.surface,
-          selectedColor: AppColors.primary.withOpacity(0.2),
-          checkmarkColor: AppColors.primary,
-          labelStyle: AppTypography.bodyMedium.copyWith(
-            color: isSelected ? AppColors.primary : AppColors.textPrimary,
+          backgroundColor: Theme.of(context).cardColor,
+          selectedColor: Theme.of(context).primaryColor.withOpacity(0.2),
+          checkmarkColor: Theme.of(context).primaryColor,
+          labelStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
+            color: isSelected
+                ? Theme.of(context).primaryColor
+                : Theme.of(context).textTheme.bodyMedium?.color,
             fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
           ),
           side: BorderSide(
-            color: isSelected ? AppColors.primary : AppColors.border,
+            color: isSelected
+                ? Theme.of(context).primaryColor
+                : Theme.of(context).dividerColor,
           ),
         );
       }).toList(),
@@ -315,8 +341,10 @@ class _FilterSheetState extends State<_FilterSheet> {
     return Container(
       padding: EdgeInsets.all(AppSpacing.lg.w),
       decoration: BoxDecoration(
-        color: AppColors.surface,
-        border: Border(top: BorderSide(color: AppColors.border, width: 1)),
+        color: Theme.of(context).cardColor,
+        border: Border(
+          top: BorderSide(color: Theme.of(context).dividerColor, width: 1),
+        ),
       ),
       child: Row(
         children: [

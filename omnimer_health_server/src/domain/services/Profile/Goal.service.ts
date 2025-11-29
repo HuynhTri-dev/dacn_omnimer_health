@@ -73,6 +73,26 @@ export class GoalService {
     }
   }
 
+  /**
+   * Retrieve all health profiles for a specific user.
+   *
+   * @param userId - The ID of the target user.
+   * @param option - Pagination and query options.
+   * @returns A list of HealthProfile documents for the specified user.
+   */
+  async getGoalsByUserId(userId: string, option?: PaginationQueryOptions) {
+    try {
+      return await this.goalRepo.findAll({ userId }, option);
+    } catch (err: any) {
+      await logError({
+        action: "getGoalsByUserId",
+        message: err.message || err,
+        errorMessage: err.stack || err,
+      });
+      throw err;
+    }
+  }
+
   // ======================================================
   // =============== GET GOAL BY ID ========================
   // ======================================================

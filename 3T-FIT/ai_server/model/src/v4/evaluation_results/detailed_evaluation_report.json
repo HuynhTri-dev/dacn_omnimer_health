@@ -1,0 +1,113 @@
+{
+  "evaluation_metadata": {
+    "timestamp": "2025-11-28T20:53:09.828767",
+    "model_version": "TwoBranchRecommendationModel",
+    "dataset_size": 2040,
+    "feature_count": 28,
+    "device": "cpu"
+  },
+  "intensity_prediction_metrics": {
+    "RMSE": 0.20993427455747554,
+    "MAE": 0.12916153272642275,
+    "R2": 0.9934690636405814,
+    "Explained_Variance": 0.9935451649976623,
+    "Mean_Absolute_Percentage_Error": 3.252254921989283,
+    "RPE_Accuracy_1pt": 99.4607843137255,
+    "RPE_Accuracy_2pt": 100.0,
+    "True_RPE_Mean": 6.767647058823529,
+    "Predicted_RPE_Mean": "6.7903085",
+    "True_RPE_Std": 2.59773964784743,
+    "Predicted_RPE_Std": "2.584384"
+  },
+  "suitability_prediction_metrics": {
+    "Accuracy": 0.986764705882353,
+    "Precision": 0.9879391714735186,
+    "Recall": 0.9978813559322034,
+    "F1_Score": 0.9928853754940712,
+    "AUC_ROC": 0.9991009701159679,
+    "AUC_PR": 0.9999281285893841,
+    "RMSE_Continuous": 0.005161169303044576,
+    "MAE_Continuous": 0.004178313734367344,
+    "R2_Continuous": 0.9954013009050411,
+    "True_Suitability_Mean": 0.8057522764783912,
+    "Predicted_Suitability_Mean": "0.80581844",
+    "True_Suitability_Std": 0.07610805245550982,
+    "Predicted_Suitability_Std": "0.073822066",
+    "Category_Accuracy": 0.9563725490196079,
+    "Confusion_Matrix_Categories": [
+      [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        17,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        3,
+        378,
+        29,
+        0
+      ],
+      [
+        0,
+        0,
+        1,
+        1038,
+        2
+      ],
+      [
+        0,
+        0,
+        0,
+        54,
+        518
+      ]
+    ]
+  },
+  "business_metrics": {
+    "Recommendation_Coverage_True": 92.54901960784314,
+    "Recommendation_Coverage_Pred": 93.48039215686275,
+    "High_Quality_Recs_True": 28.03921568627451,
+    "High_Quality_Recs_Pred": 25.49019607843137,
+    "RPE_Distribution_True": {
+      "Very Light": 9.509803921568627,
+      "Light": 19.901960784313726,
+      "Moderate": 21.323529411764707,
+      "Hard": 20.49019607843137,
+      "Very Hard": 28.774509803921568
+    },
+    "RPE_Distribution_Pred": {
+      "Very Light": 7.647058823529412,
+      "Light": 20.93137254901961,
+      "Moderate": 24.068627450980394,
+      "Hard": 18.18627450980392,
+      "Very Hard": 29.166666666666668
+    },
+    "High_Intensity_Predictions_Percent": 36.911764705882355,
+    "Low_Suitability_Predictions_Percent": 0.0,
+    "Intensity_Prediction_Variance": "6.5999513",
+    "Suitability_Prediction_Variance": "0.0054926807"
+  },
+  "summary": {
+    "overall_performance": {
+      "intensity_score": 0.9941523313385856,
+      "suitability_score": 0.9959931728050195,
+      "overall_score": 0.9950727520718026,
+      "performance_grade": "Excellent (A)"
+    },
+    "key_insights": [
+      "\u2705 Strong RPE prediction with high R\u00b2 score",
+      "\u2705 99.5% of RPE predictions within \u00b11 point",
+      "\u2705 Excellent suitability classification",
+      "\u2705 Recommendation coverage well-predicted"
+    ]
+  }
+}

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:omnihealthmobileflutter/core/theme/app_colors.dart';
 import 'package:omnihealthmobileflutter/core/theme/app_radius.dart';
 import 'package:omnihealthmobileflutter/core/theme/app_spacing.dart';
 import 'package:shimmer/shimmer.dart';
@@ -41,44 +40,45 @@ class SkeletonLoading extends StatelessWidget {
           padding: index > 0
               ? EdgeInsets.only(top: AppSpacing.md.h)
               : EdgeInsets.zero,
-          child: _buildSkeleton(),
+          child: _buildSkeleton(context),
         ),
       ),
     );
   }
 
-  Widget _buildSkeleton() {
+  Widget _buildSkeleton(BuildContext context) {
+    final theme = Theme.of(context);
     return Shimmer.fromColors(
-      baseColor: AppColors.gray200,
-      highlightColor: AppColors.gray100,
-      child: _buildSkeletonContent(),
+      baseColor: theme.disabledColor.withOpacity(0.3),
+      highlightColor: theme.cardColor,
+      child: _buildSkeletonContent(context),
     );
   }
 
-  Widget _buildSkeletonContent() {
+  Widget _buildSkeletonContent(BuildContext context) {
     switch (variant) {
       case SkeletonVariant.card:
-        return _buildCard();
+        return _buildCard(context);
       case SkeletonVariant.textField:
-        return _buildTextField();
+        return _buildTextField(context);
       case SkeletonVariant.circleImage:
-        return _buildCircleImage();
+        return _buildCircleImage(context);
       case SkeletonVariant.rectangleImage:
-        return _buildRectangleImage();
+        return _buildRectangleImage(context);
       case SkeletonVariant.avatar:
-        return _buildAvatar();
+        return _buildAvatar(context);
       case SkeletonVariant.line:
-        return _buildLine();
+        return _buildLine(context);
       case SkeletonVariant.button:
-        return _buildButton();
+        return _buildButton(context);
       case SkeletonVariant.listItem:
-        return _buildListItem();
+        return _buildListItem(context);
       default:
         return Container(
           width: (width ?? double.infinity).w,
           height: (height ?? 100).h,
           decoration: BoxDecoration(
-            color: AppColors.white,
+            color: Theme.of(context).cardColor,
             borderRadius: BorderRadius.circular(
               (borderRadius ?? AppRadius.md).r,
             ),
@@ -87,12 +87,13 @@ class SkeletonLoading extends StatelessWidget {
     }
   }
 
-  Widget _buildCard() {
+  Widget _buildCard(BuildContext context) {
+    final theme = Theme.of(context);
     return Container(
       width: (width ?? double.infinity).w,
       height: (height ?? 280).h,
       decoration: BoxDecoration(
-        color: AppColors.white,
+        color: theme.cardColor,
         borderRadius: BorderRadius.circular((borderRadius ?? AppRadius.md).r),
       ),
       child: Column(
@@ -101,7 +102,7 @@ class SkeletonLoading extends StatelessWidget {
           Container(
             width: double.infinity,
             height: 150.h,
-            color: AppColors.gray200,
+            color: theme.dividerColor,
           ),
           Padding(
             padding: EdgeInsets.all(AppSpacing.md.w),
@@ -112,7 +113,7 @@ class SkeletonLoading extends StatelessWidget {
                   width: (width ?? 300).w * 0.7,
                   height: 20.h,
                   decoration: BoxDecoration(
-                    color: AppColors.gray200,
+                    color: theme.dividerColor,
                     borderRadius: BorderRadius.circular(AppRadius.sm.r),
                   ),
                 ),
@@ -121,7 +122,7 @@ class SkeletonLoading extends StatelessWidget {
                   width: (width ?? 300).w * 0.9,
                   height: 14.h,
                   decoration: BoxDecoration(
-                    color: AppColors.gray200,
+                    color: theme.dividerColor,
                     borderRadius: BorderRadius.circular(AppRadius.sm.r),
                   ),
                 ),
@@ -130,7 +131,7 @@ class SkeletonLoading extends StatelessWidget {
                   width: 80.w,
                   height: 32.h,
                   decoration: BoxDecoration(
-                    color: AppColors.gray200,
+                    color: theme.dividerColor,
                     borderRadius: BorderRadius.circular(AppRadius.sm.r),
                   ),
                 ),
@@ -142,48 +143,49 @@ class SkeletonLoading extends StatelessWidget {
     );
   }
 
-  Widget _buildTextField() {
+  Widget _buildTextField(BuildContext context) {
     return Container(
       width: (width ?? double.infinity).w,
       height: (height ?? 48).h,
       decoration: BoxDecoration(
-        color: AppColors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(AppRadius.sm.r),
       ),
     );
   }
 
-  Widget _buildCircleImage() {
+  Widget _buildCircleImage(BuildContext context) {
     final size = (width ?? height ?? 80).w;
     return Container(
       width: size,
       height: size,
-      decoration: const BoxDecoration(
-        color: AppColors.white,
+      decoration: BoxDecoration(
+        color: Theme.of(context).cardColor,
         shape: BoxShape.circle,
       ),
     );
   }
 
-  Widget _buildRectangleImage() {
+  Widget _buildRectangleImage(BuildContext context) {
     return Container(
       width: (width ?? double.infinity).w,
       height: (height ?? 100).h,
       decoration: BoxDecoration(
-        color: AppColors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular((borderRadius ?? AppRadius.md).r),
       ),
     );
   }
 
-  Widget _buildAvatar() {
+  Widget _buildAvatar(BuildContext context) {
+    final theme = Theme.of(context);
     return Row(
       children: [
         Container(
           width: 48.w,
           height: 48.w,
-          decoration: const BoxDecoration(
-            color: AppColors.white,
+          decoration: BoxDecoration(
+            color: theme.cardColor,
             shape: BoxShape.circle,
           ),
         ),
@@ -196,7 +198,7 @@ class SkeletonLoading extends StatelessWidget {
                 width: double.infinity,
                 height: 16.h,
                 decoration: BoxDecoration(
-                  color: AppColors.gray200,
+                  color: theme.dividerColor,
                   borderRadius: BorderRadius.circular(AppRadius.sm.r),
                 ),
               ),
@@ -205,7 +207,7 @@ class SkeletonLoading extends StatelessWidget {
                 width: double.infinity,
                 height: 12.h,
                 decoration: BoxDecoration(
-                  color: AppColors.gray200,
+                  color: theme.dividerColor,
                   borderRadius: BorderRadius.circular(AppRadius.sm.r),
                 ),
               ),
@@ -216,29 +218,30 @@ class SkeletonLoading extends StatelessWidget {
     );
   }
 
-  Widget _buildLine() {
+  Widget _buildLine(BuildContext context) {
     return Container(
       width: (width ?? double.infinity).w,
       height: (height ?? 16).h,
       decoration: BoxDecoration(
-        color: AppColors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(AppRadius.sm.r),
       ),
     );
   }
 
-  Widget _buildButton() {
+  Widget _buildButton(BuildContext context) {
     return Container(
       width: (width ?? 120).w,
       height: (height ?? 40).h,
       decoration: BoxDecoration(
-        color: AppColors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(AppRadius.sm.r),
       ),
     );
   }
 
-  Widget _buildListItem() {
+  Widget _buildListItem(BuildContext context) {
+    final theme = Theme.of(context);
     return Padding(
       padding: EdgeInsets.symmetric(vertical: AppSpacing.sm.h),
       child: Row(
@@ -246,8 +249,8 @@ class SkeletonLoading extends StatelessWidget {
           Container(
             width: 40.w,
             height: 40.w,
-            decoration: const BoxDecoration(
-              color: AppColors.white,
+            decoration: BoxDecoration(
+              color: theme.cardColor,
               shape: BoxShape.circle,
             ),
           ),
@@ -260,7 +263,7 @@ class SkeletonLoading extends StatelessWidget {
                   width: double.infinity,
                   height: 16.h,
                   decoration: BoxDecoration(
-                    color: AppColors.gray200,
+                    color: theme.dividerColor,
                     borderRadius: BorderRadius.circular(AppRadius.sm.r),
                   ),
                 ),
@@ -269,7 +272,7 @@ class SkeletonLoading extends StatelessWidget {
                   width: (width ?? 300).w * 0.7,
                   height: 12.h,
                   decoration: BoxDecoration(
-                    color: AppColors.gray200,
+                    color: theme.dividerColor,
                     borderRadius: BorderRadius.circular(AppRadius.sm.r),
                   ),
                 ),
