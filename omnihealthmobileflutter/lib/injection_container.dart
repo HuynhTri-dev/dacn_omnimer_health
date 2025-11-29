@@ -88,6 +88,9 @@ import 'package:omnihealthmobileflutter/domain/usecases/health_connect/start_wor
 import 'package:omnihealthmobileflutter/domain/usecases/health_connect/stop_workout_session.dart';
 import 'package:health/health.dart';
 import 'package:logger/logger.dart';
+import 'package:omnihealthmobileflutter/domain/abstracts/healthkit_connect_abs.dart';
+import 'package:omnihealthmobileflutter/data/repositories/healthkit_connect_impl.dart';
+import 'package:omnihealthmobileflutter/presentation/screen/healthkit_connect/bloc/healthkit_connect_bloc.dart';
 
 final sl = GetIt.instance;
 
@@ -197,6 +200,10 @@ Future<void> init() async {
 
   sl.registerLazySingleton<HealthConnectRepository>(
     () => HealthConnectRepositoryImpl(sl(), sl(), sl(), sl()),
+  );
+
+  sl.registerLazySingleton<HealthKitConnectRepository>(
+    () => HealthKitConnectRepositoryImpl(sl(), sl(), sl(), sl()),
   );
 
   // ======================
@@ -387,4 +394,7 @@ Future<void> init() async {
       stopWorkoutSession: sl(),
     ),
   );
+
+  // HealthKit Connect BLoC
+  sl.registerFactory(() => HealthKitConnectBloc(repository: sl()));
 }

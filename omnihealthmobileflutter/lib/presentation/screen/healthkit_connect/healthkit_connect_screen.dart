@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-import 'package:omnihealthmobileflutter/presentation/screen/health_connect/bloc/health_connect_bloc.dart';
+import 'package:omnihealthmobileflutter/presentation/screen/healthkit_connect/bloc/healthkit_connect_bloc.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
@@ -12,34 +11,34 @@ import '../../common/button/button_primary.dart';
 import '../../common/skeleton/skeleton_loading.dart';
 import '../../../../injection_container.dart';
 
-class HealthConnectScreen extends StatelessWidget {
-  const HealthConnectScreen({Key? key}) : super(key: key);
+class HealthKitConnectScreen extends StatelessWidget {
+  const HealthKitConnectScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) =>
-          sl.get<HealthConnectBloc>()..add(CheckHealthConnectAvailability()),
-      child: const _HealthConnectScreenContent(),
+          sl.get<HealthKitConnectBloc>()..add(CheckHealthKitAvailability()),
+      child: const _HealthKitConnectScreenContent(),
     );
   }
 }
 
-class _HealthConnectScreenContent extends StatefulWidget {
-  const _HealthConnectScreenContent({Key? key}) : super(key: key);
+class _HealthKitConnectScreenContent extends StatefulWidget {
+  const _HealthKitConnectScreenContent({Key? key}) : super(key: key);
 
   @override
-  State<_HealthConnectScreenContent> createState() =>
-      _HealthConnectScreenContentState();
+  State<_HealthKitConnectScreenContent> createState() =>
+      _HealthKitConnectScreenContentState();
 }
 
-class _HealthConnectScreenContentState
-    extends State<_HealthConnectScreenContent> {
+class _HealthKitConnectScreenContentState
+    extends State<_HealthKitConnectScreenContent> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Health Connect'),
+        title: const Text('Apple Health'),
         backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
         foregroundColor: Theme.of(context).appBarTheme.foregroundColor,
         elevation: 0,
@@ -48,11 +47,11 @@ class _HealthConnectScreenContentState
         ),
       ),
       body: SafeArea(
-        child: BlocConsumer<HealthConnectBloc, HealthConnectState>(
+        child: BlocConsumer<HealthKitConnectBloc, HealthKitConnectState>(
           listener: (context, state) {
-            if (state is HealthConnectError) {
+            if (state is HealthKitConnectError) {
               _showErrorSnackBar(context, state.message);
-            } else if (state is HealthDataSyncSuccess) {
+            } else if (state is HealthKitDataSyncSuccess) {
               _showSuccessSnackBar(context, 'Health data synced successfully!');
             }
           },
@@ -82,15 +81,15 @@ class _HealthConnectScreenContentState
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SvgPicture.asset(
-          'assets/Health_Connect.svg',
+        Image.asset(
+          'assets/healthkit_api.png',
           width: 80.w,
           height: 80.w,
           fit: BoxFit.contain,
         ),
         SizedBox(height: AppSpacing.md),
         Text(
-          'Google Health Connect',
+          'Apple Health',
           style: AppTypography.h1.copyWith(
             fontWeight: FontWeight.bold,
             color: Theme.of(context).textTheme.displayLarge?.color,
@@ -109,32 +108,25 @@ class _HealthConnectScreenContentState
     );
   }
 
-  Widget _buildAvailabilitySection(HealthConnectState state) {
-    if (state is HealthConnectLoading) {
+  Widget _buildAvailabilitySection(HealthKitConnectState state) {
+    if (state is HealthKitConnectLoading) {
       return const SkeletonLoading(variant: SkeletonVariant.card, count: 3);
     }
 
-    if (state is HealthConnectUnavailable) {
+    if (state is HealthKitConnectUnavailable) {
       return _buildErrorCard(
         icon: Icons.warning_amber_outlined,
-        title: 'Health Connect Not Available',
+        title: 'Apple Health Not Available',
         subtitle: state.message,
-        actions: [
-          ButtonPrimary(
-            title: 'Install Health Connect',
-            onPressed: _installHealthConnect,
-            variant: ButtonVariant.primaryOutline,
-            fullWidth: true,
-          ),
-        ],
+        actions: [],
       );
     }
 
-    if (state is HealthConnectAvailable) {
+    if (state is HealthKitConnectAvailable) {
       return _buildAvailabilityCard(state);
     }
 
-    if (state is HealthConnectPermissionsDenied) {
+    if (state is HealthKitConnectPermissionsDenied) {
       return _buildErrorCard(
         icon: Icons.block,
         title: 'Permissions Denied',
@@ -161,7 +153,7 @@ class _HealthConnectScreenContentState
               ),
               SizedBox(width: AppSpacing.sm),
               Text(
-                'Health Connect Status',
+                'Apple Health Status',
                 style: AppTypography.h3.copyWith(
                   color: Theme.of(context).textTheme.displaySmall?.color,
                 ),
@@ -170,7 +162,7 @@ class _HealthConnectScreenContentState
           ),
           SizedBox(height: AppSpacing.md),
           Text(
-            'Checking Health Connect availability...',
+            'Checking Apple Health availability...',
             style: AppTypography.bodyMedium.copyWith(
               color: Theme.of(context).textTheme.bodyMedium?.color,
             ),
@@ -180,24 +172,17 @@ class _HealthConnectScreenContentState
     );
   }
 
-  Widget _buildAvailabilityCard(HealthConnectAvailable state) {
+  Widget _buildAvailabilityCard(HealthKitConnectAvailable state) {
     return _buildCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Icon(
-                state.isInstalled
-                    ? Icons.check_circle_outline
-                    : Icons.warning_amber_outlined,
-                color: state.isInstalled
-                    ? AppColors.success
-                    : AppColors.warning,
-              ),
+              Icon(Icons.check_circle_outline, color: AppColors.success),
               SizedBox(width: AppSpacing.sm),
               Text(
-                'Health Connect Status',
+                'Apple Health Status',
                 style: AppTypography.h3.copyWith(
                   color: Theme.of(context).textTheme.displaySmall?.color,
                 ),
@@ -205,31 +190,16 @@ class _HealthConnectScreenContentState
             ],
           ),
           SizedBox(height: AppSpacing.md),
-          if (state.isInstalled) ...[
-            _buildStatusRow(
-              'Installed',
-              'Health Connect is installed on your device',
-              true,
-            ),
-            _buildStatusRow(
-              'Permissions',
-              state.hasPermissions ? 'Granted' : 'Not granted',
-              state.hasPermissions,
-            ),
-          ] else ...[
-            _buildStatusRow(
-              'Installed',
-              'Health Connect is not installed',
-              false,
-            ),
-            SizedBox(height: AppSpacing.md),
-            ButtonPrimary(
-              title: 'Install Health Connect',
-              onPressed: _installHealthConnect,
-              variant: ButtonVariant.primaryOutline,
-              fullWidth: true,
-            ),
-          ],
+          _buildStatusRow(
+            'Available',
+            'Apple Health is available on your device',
+            true,
+          ),
+          _buildStatusRow(
+            'Permissions',
+            state.hasPermissions ? 'Granted' : 'Not granted',
+            state.hasPermissions,
+          ),
         ],
       ),
     );
@@ -259,7 +229,7 @@ class _HealthConnectScreenContentState
     );
   }
 
-  Widget _buildHealthDataSection(HealthConnectState state) {
+  Widget _buildHealthDataSection(HealthKitConnectState state) {
     return _buildCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -281,16 +251,16 @@ class _HealthConnectScreenContentState
           ),
           SizedBox(height: AppSpacing.md),
 
-          if (state is HealthConnectLoading) ...[
+          if (state is HealthKitConnectLoading) ...[
             const Center(child: CircularProgressIndicator()),
-          ] else if (state is HealthDataLoaded) ...[
+          ] else if (state is HealthKitDataLoaded) ...[
             if (state.todayData != null)
               _buildTodayHealthCard(state.todayData!),
             SizedBox(height: AppSpacing.md),
             _buildSyncInfo(),
-          ] else if (state is HealthConnectPermissionsDenied) ...[
+          ] else if (state is HealthKitConnectPermissionsDenied) ...[
             Text(
-              'Enable Health Connect to see your health data',
+              'Enable Apple Health to see your health data',
               style: AppTypography.bodyMedium.copyWith(
                 color: Theme.of(context).textTheme.bodyMedium?.color,
               ),
@@ -400,7 +370,7 @@ class _HealthConnectScreenContentState
     );
   }
 
-  Widget _buildActionsSection(HealthConnectState state) {
+  Widget _buildActionsSection(HealthKitConnectState state) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -412,17 +382,17 @@ class _HealthConnectScreenContentState
         ),
         SizedBox(height: AppSpacing.md),
 
-        if (state is HealthConnectAvailable && !state.hasPermissions) ...[
+        if (state is HealthKitConnectAvailable && !state.hasPermissions) ...[
           ButtonPrimary(
             title: 'Request Permissions',
             onPressed: _requestPermissions,
-            loading: state is HealthConnectLoading,
+            loading: state is HealthKitConnectLoading,
             fullWidth: true,
           ),
           SizedBox(height: AppSpacing.sm),
         ],
 
-        if (state is HealthDataLoaded) ...[
+        if (state is HealthKitDataLoaded) ...[
           ButtonPrimary(
             title: 'Refresh Health Data',
             onPressed: _refreshHealthData,
@@ -434,11 +404,12 @@ class _HealthConnectScreenContentState
             title: 'Sync to Backend',
             onPressed: _syncToBackend,
             loading:
-                state is HealthConnectSyncing &&
-                (state as HealthConnectSyncing).isSyncing,
+                state is HealthKitConnectSyncing &&
+                (state as HealthKitConnectSyncing).isSyncing,
             fullWidth: true,
           ),
-        ] else if (state is HealthConnectAvailable && state.hasPermissions) ...[
+        ] else if (state is HealthKitConnectAvailable &&
+            state.hasPermissions) ...[
           ButtonPrimary(
             title: 'Load Health Data',
             onPressed: _loadHealthData,
@@ -492,36 +463,34 @@ class _HealthConnectScreenContentState
               color: Theme.of(context).textTheme.bodyMedium?.color,
             ),
           ),
-          SizedBox(height: AppSpacing.lg),
-          ...actions.map(
-            (action) => Padding(
-              padding: EdgeInsets.only(bottom: AppSpacing.sm),
-              child: action,
+          if (actions.isNotEmpty) ...[
+            SizedBox(height: AppSpacing.lg),
+            ...actions.map(
+              (action) => Padding(
+                padding: EdgeInsets.only(bottom: AppSpacing.sm),
+                child: action,
+              ),
             ),
-          ),
+          ],
         ],
       ),
     );
   }
 
-  void _installHealthConnect() {
-    context.read<HealthConnectBloc>().add(CheckHealthConnectAvailability());
-  }
-
   void _requestPermissions() {
-    context.read<HealthConnectBloc>().add(RequestHealthPermissions());
+    context.read<HealthKitConnectBloc>().add(RequestHealthKitPermissions());
   }
 
   void _loadHealthData() {
-    context.read<HealthConnectBloc>().add(GetTodayHealthData());
+    context.read<HealthKitConnectBloc>().add(GetTodayHealthKitData());
   }
 
   void _refreshHealthData() {
-    context.read<HealthConnectBloc>().add(GetTodayHealthData());
+    context.read<HealthKitConnectBloc>().add(GetTodayHealthKitData());
   }
 
   void _syncToBackend() {
-    context.read<HealthConnectBloc>().add(SyncHealthDataToBackend());
+    context.read<HealthKitConnectBloc>().add(SyncHealthKitDataToBackend());
   }
 
   void _showErrorSnackBar(BuildContext context, String message) {
