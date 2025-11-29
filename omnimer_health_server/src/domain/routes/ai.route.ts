@@ -5,7 +5,6 @@ import {
   ExerciseService,
   GoalService,
   HealthProfileService,
-  PermissionService,
   WorkoutTemplateService,
 } from "../services";
 import {
@@ -21,12 +20,11 @@ import {
   ExerciseRating,
   Goal,
   HealthProfile,
-  Permission,
   User,
   WorkoutTemplate,
 } from "../models";
 import { verifyAccessToken } from "../../common/middlewares/auth.middleware";
-import { checkPermission } from "../../common/middlewares/checkPermission";
+// import { checkPermission } from "../../common/middlewares/checkPermission";
 import { HttpError } from "../../utils/HttpError";
 import dotenv from "dotenv";
 

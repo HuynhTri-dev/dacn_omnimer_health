@@ -13,6 +13,7 @@ import 'package:omnihealthmobileflutter/data/datasources/watch_log_datasource.da
 import 'package:omnihealthmobileflutter/data/datasources/health_profile_remote_datasource.dart';
 import 'package:omnihealthmobileflutter/data/datasources/goal_remote_datasource.dart';
 import 'package:omnihealthmobileflutter/data/datasources/workout_datasource.dart';
+import 'package:omnihealthmobileflutter/data/datasources/ai_remote_datasource.dart';
 
 import 'package:omnihealthmobileflutter/data/repositories/auth_repository_impl.dart';
 import 'package:omnihealthmobileflutter/data/repositories/body_part_repository_impl.dart';
@@ -25,6 +26,7 @@ import 'package:omnihealthmobileflutter/data/repositories/muscle_repository_impl
 import 'package:omnihealthmobileflutter/data/repositories/role_repository_impl.dart';
 import 'package:omnihealthmobileflutter/data/repositories/health_profile_repository_impl.dart';
 import 'package:omnihealthmobileflutter/data/repositories/goal_repository_impl.dart';
+import 'package:omnihealthmobileflutter/data/repositories/ai_repository_impl.dart';
 import 'package:omnihealthmobileflutter/domain/abstracts/auth_repository_abs.dart';
 import 'package:omnihealthmobileflutter/domain/abstracts/body_part_repository_abs.dart';
 import 'package:omnihealthmobileflutter/domain/abstracts/equipment_repository_abs.dart';
@@ -36,6 +38,7 @@ import 'package:omnihealthmobileflutter/domain/abstracts/muscle_repository_abs.d
 import 'package:omnihealthmobileflutter/domain/abstracts/role_repositoy_abs.dart';
 import 'package:omnihealthmobileflutter/domain/abstracts/health_profile_repository.dart';
 import 'package:omnihealthmobileflutter/domain/abstracts/goal_repository.dart';
+import 'package:omnihealthmobileflutter/domain/abstracts/ai_repository_abs.dart';
 import 'package:omnihealthmobileflutter/domain/usecases/auth/get_auth_usecase.dart';
 import 'package:omnihealthmobileflutter/domain/usecases/auth/login_usecase.dart';
 import 'package:omnihealthmobileflutter/domain/usecases/auth/logout_usecase.dart';
@@ -104,11 +107,13 @@ import 'package:omnihealthmobileflutter/domain/usecases/workout/update_workout_t
 import 'package:omnihealthmobileflutter/domain/usecases/workout/save_workout_log_usecase.dart';
 import 'package:omnihealthmobileflutter/domain/usecases/workout/get_workout_logs_usecase.dart';
 import 'package:omnihealthmobileflutter/presentation/screen/report/blocs/report_bloc.dart';
+import 'package:omnihealthmobileflutter/domain/usecases/ai/recommend_workout_usecase.dart';
 import 'package:health/health.dart';
 import 'package:logger/logger.dart';
 import 'package:omnihealthmobileflutter/domain/abstracts/healthkit_connect_abs.dart';
 import 'package:omnihealthmobileflutter/data/repositories/healthkit_connect_impl.dart';
 import 'package:omnihealthmobileflutter/presentation/screen/healthkit_connect/bloc/healthkit_connect_bloc.dart';
+import 'package:omnihealthmobileflutter/presentation/screen/workout/workout_template_ai/cubit/workout_template_ai_cubit.dart';
 
 final sl = GetIt.instance;
 
@@ -178,6 +183,10 @@ Future<void> init() async {
     () => WorkoutDataSource(apiClient: sl()),
   );
 
+  sl.registerLazySingleton<AIRemoteDataSource>(
+    () => AIRemoteDataSourceImpl(apiClient: sl()),
+  );
+
   // ======================
   // Repositories
   // ======================
@@ -237,6 +246,10 @@ Future<void> init() async {
   );
   sl.registerLazySingleton<WorkoutLogRepositoryAbs>(
     () => WorkoutLogRepositoryImpl(workoutDataSource: sl()),
+  );
+
+  sl.registerLazySingleton<AIRepositoryAbs>(
+    () => AIRepositoryImpl(remoteDataSource: sl()),
   );
 
   // ======================
@@ -364,6 +377,10 @@ Future<void> init() async {
     () => GetWorkoutLogsUseCase(sl()),
   );
 
+  sl.registerLazySingleton<RecommendWorkoutUseCase>(
+    () => RecommendWorkoutUseCase(sl()),
+  );
+
   // ======================
   // Blocs / Cubits
   // ======================
@@ -473,5 +490,14 @@ Future<void> init() async {
   // Report BLoC
   sl.registerFactory(
     () => ReportBloc(getWorkoutLogsUseCase: sl(), workoutLogRepository: sl()),
+  sl.registerFactory(
+    () => WorkoutTemplateAICubit(
+      getAllBodyPartsUseCase: sl(),
+      getAllEquipmentsUseCase: sl(),
+      getAllExerciseCategoriesUseCase: sl(),
+      getAllExerciseTypesUseCase: sl(),
+      getAllMusclesUseCase: sl(),
+      recommendWorkoutUseCase: sl(),
+    ),
   );
 }
