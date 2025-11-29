@@ -7,6 +7,8 @@ import 'package:omnihealthmobileflutter/injection_container.dart';
 import 'package:omnihealthmobileflutter/presentation/screen/exercise/exercise_home/blocs/exercise_home_bloc.dart';
 import 'package:omnihealthmobileflutter/presentation/screen/exercise/exercise_home/blocs/exercise_home_event.dart';
 import 'package:omnihealthmobileflutter/presentation/screen/exercise/exercise_home/exercise_home_screen.dart';
+import 'package:omnihealthmobileflutter/presentation/screen/workout/workout_home/blocs/workout_home_bloc.dart';
+import 'package:omnihealthmobileflutter/presentation/screen/workout/workout_home/blocs/workout_home_event.dart';
 import 'package:omnihealthmobileflutter/presentation/screen/health_profile/health_profile_home/bloc/health_profile_bloc.dart';
 import 'package:omnihealthmobileflutter/presentation/screen/health_profile/health_profile_home/bloc/health_profile_event.dart';
 import 'package:omnihealthmobileflutter/presentation/screen/health_profile/health_profile_home/bloc/health_profile_state.dart';
@@ -47,7 +49,10 @@ class _HomeScreenState extends State<HomeScreen> {
         create: (_) => sl<ExerciseHomeBloc>()..add(LoadInitialData()),
         child: const ExerciseHomeScreen(),
       ),
-      const WorkoutHomeScreen(),
+      BlocProvider(
+        create: (_) => sl<WorkoutHomeBloc>()..add(LoadInitialWorkoutData()),
+        child: const WorkoutHomeScreen(),
+      ),
       MultiBlocProvider(
         providers: [
           BlocProvider(

@@ -25,6 +25,16 @@ class MuscleModel {
     );
   }
 
+  Map<String, dynamic> toJson() {
+    return {
+      '_id': id,
+      'name': name,
+      'description': description,
+      'imageUrl': imageUrl,
+      'bodyPartNames': bodyPartNames,
+    };
+  }
+
   MuscleEntity toEntity() {
     return MuscleEntity(
       id: id,

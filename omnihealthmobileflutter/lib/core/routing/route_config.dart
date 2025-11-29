@@ -27,6 +27,9 @@ import 'package:omnihealthmobileflutter/presentation/screen/auth/info_account/in
 import 'package:omnihealthmobileflutter/presentation/screen/more/more_screen.dart';
 import 'package:omnihealthmobileflutter/presentation/screen/auth/change_password/change_password_screen.dart';
 import 'package:omnihealthmobileflutter/presentation/screen/auth/verify_account/verify_account_screen.dart';
+import 'package:omnihealthmobileflutter/presentation/screen/workout/workout_template_form/workout_template_form_screen.dart';
+import 'package:omnihealthmobileflutter/presentation/screen/workout/workout_template_detail/workout_template_detail_screen.dart';
+import 'package:omnihealthmobileflutter/presentation/screen/workout/workout_template_detail/cubits/workout_template_detail_cubit.dart';
 
 class RouteConfig {
   // ==================== ROUTE NAMES ====================
@@ -50,6 +53,8 @@ class RouteConfig {
   static const String infoAccount = '/info-account';
   static const String changePassword = '/change-password';
   static const String verifyAccount = '/verify-account';
+  static const String workoutTemplateForm = '/workout-template-form';
+  static const String workoutTemplateDetail = '/workout-template-detail';
 
   // ==================== BUILD AUTH PAGES ====================
   static Widget buildAuthPage(String? routeName) {
@@ -157,6 +162,23 @@ class RouteConfig {
       case verifyAccount:
         return const VerifyAccountScreen();
 
+      case workoutTemplateForm:
+        final templateId = arguments?['templateId'] as String?;
+        return WorkoutTemplateFormScreen(templateId: templateId);
+
+      case workoutTemplateDetail:
+        final templateId = arguments?['templateId'] as String?;
+        if (templateId == null) {
+          return _ErrorPage(message: 'Template ID is required');
+        }
+        return BlocProvider(
+          create: (_) => WorkoutTemplateDetailCubit(
+            getWorkoutTemplateByIdUseCase: sl(),
+            deleteWorkoutTemplateUseCase: sl(),
+          ),
+          child: WorkoutTemplateDetailScreen(templateId: templateId),
+        );
+
       default:
         return _ErrorPage(message: 'Không tìm thấy trang: $routeName');
     }
@@ -240,6 +262,26 @@ class RouteConfig {
 
   static void navigateToVerifyAccount(BuildContext context) {
     Navigator.of(context).pushNamed(verifyAccount);
+  }
+
+  static Future<dynamic> navigateToWorkoutTemplateDetail(
+    BuildContext context, {
+    required String templateId,
+  }) {
+    return Navigator.of(context).pushNamed(
+      workoutTemplateDetail,
+      arguments: {'templateId': templateId},
+    );
+  }
+
+  static Future<dynamic> navigateToWorkoutTemplateForm(
+    BuildContext context, {
+    String? templateId,
+  }) {
+    return Navigator.of(context).pushNamed(
+      workoutTemplateForm,
+      arguments: {'templateId': templateId},
+    );
   }
 }
 
