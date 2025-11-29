@@ -102,7 +102,8 @@ class WorkoutTemplateDetailModel {
       exerciseName: exName,
       exerciseImageUrl: exImageUrl,
       type: json['type'] ?? '',
-      sets: (json['sets'] as List?)
+      sets:
+          (json['sets'] as List?)
               ?.map((set) => WorkoutTemplateSetModel.fromJson(set))
               .toList() ??
           [],
@@ -170,28 +171,14 @@ class WorkoutTemplateModel {
       name: json['name'] ?? '',
       description: json['description'] ?? '',
       notes: json['notes'],
-      equipments: (json['equipments'] as List?)
-              ?.map((e) => EquipmentModel.fromJson(e))
-              .toList() ??
-          [],
-      bodyPartsTarget: (json['bodyPartsTarget'] as List?)
-              ?.map((bp) => BodyPartModel.fromJson(bp))
-              .toList() ??
-          [],
-      exerciseTypes: (json['exerciseTypes'] as List?)
-              ?.map((et) => ExerciseTypeModel.fromJson(et))
-              .toList() ??
-          [],
-      exerciseCategories: (json['exerciseCategories'] as List?)
-              ?.map((ec) => ExerciseCategoryModel.fromJson(ec))
-              .toList() ??
-          [],
-      musclesTarget: (json['musclesTarget'] as List?)
-              ?.map((m) => MuscleModel.fromJson(m))
-              .toList() ??
-          [],
+      equipments: _parseEquipments(json['equipments']),
+      bodyPartsTarget: _parseBodyParts(json['bodyPartsTarget']),
+      exerciseTypes: _parseExerciseTypes(json['exerciseTypes']),
+      exerciseCategories: _parseExerciseCategories(json['exerciseCategories']),
+      musclesTarget: _parseMuscles(json['musclesTarget']),
       location: json['location'],
-      workOutDetail: (json['workOutDetail'] as List?)
+      workOutDetail:
+          (json['workOutDetail'] as List?)
               ?.map((detail) => WorkoutTemplateDetailModel.fromJson(detail))
               .toList() ??
           [],
@@ -206,6 +193,82 @@ class WorkoutTemplateModel {
     );
   }
 
+  /// Parse equipments - handles both populated objects and ID strings
+  static List<EquipmentModel> _parseEquipments(dynamic data) {
+    if (data == null) return [];
+    if (data is! List) return [];
+
+    return data.map((item) {
+      if (item is Map<String, dynamic>) {
+        return EquipmentModel.fromJson(item);
+      } else if (item is String) {
+        // Just ID - create minimal model
+        return EquipmentModel(id: item, name: '');
+      }
+      return EquipmentModel(id: '', name: '');
+    }).toList();
+  }
+
+  /// Parse body parts - handles both populated objects and ID strings
+  static List<BodyPartModel> _parseBodyParts(dynamic data) {
+    if (data == null) return [];
+    if (data is! List) return [];
+
+    return data.map((item) {
+      if (item is Map<String, dynamic>) {
+        return BodyPartModel.fromJson(item);
+      } else if (item is String) {
+        return BodyPartModel(id: item, name: '');
+      }
+      return BodyPartModel(id: '', name: '');
+    }).toList();
+  }
+
+  /// Parse exercise types - handles both populated objects and ID strings
+  static List<ExerciseTypeModel> _parseExerciseTypes(dynamic data) {
+    if (data == null) return [];
+    if (data is! List) return [];
+
+    return data.map((item) {
+      if (item is Map<String, dynamic>) {
+        return ExerciseTypeModel.fromJson(item);
+      } else if (item is String) {
+        return ExerciseTypeModel(id: item, name: '', suitableGoals: []);
+      }
+      return ExerciseTypeModel(id: '', name: '', suitableGoals: []);
+    }).toList();
+  }
+
+  /// Parse exercise categories - handles both populated objects and ID strings
+  static List<ExerciseCategoryModel> _parseExerciseCategories(dynamic data) {
+    if (data == null) return [];
+    if (data is! List) return [];
+
+    return data.map((item) {
+      if (item is Map<String, dynamic>) {
+        return ExerciseCategoryModel.fromJson(item);
+      } else if (item is String) {
+        return ExerciseCategoryModel(id: item, name: '');
+      }
+      return ExerciseCategoryModel(id: '', name: '');
+    }).toList();
+  }
+
+  /// Parse muscles - handles both populated objects and ID strings
+  static List<MuscleModel> _parseMuscles(dynamic data) {
+    if (data == null) return [];
+    if (data is! List) return [];
+
+    return data.map((item) {
+      if (item is Map<String, dynamic>) {
+        return MuscleModel.fromJson(item);
+      } else if (item is String) {
+        return MuscleModel(id: item, name: '', description: '', imageUrl: '');
+      }
+      return MuscleModel(id: '', name: '', description: '', imageUrl: '');
+    }).toList();
+  }
+
   Map<String, dynamic> toJson() {
     return {
       '_id': id,
@@ -215,8 +278,9 @@ class WorkoutTemplateModel {
       'equipments': equipments.map((e) => e.toJson()).toList(),
       'bodyPartsTarget': bodyPartsTarget.map((bp) => bp.toJson()).toList(),
       'exerciseTypes': exerciseTypes.map((et) => et.toJson()).toList(),
-      'exerciseCategories':
-          exerciseCategories.map((ec) => ec.toJson()).toList(),
+      'exerciseCategories': exerciseCategories
+          .map((ec) => ec.toJson())
+          .toList(),
       'musclesTarget': musclesTarget.map((m) => m.toJson()).toList(),
       'location': location,
       'workOutDetail': workOutDetail.map((detail) => detail.toJson()).toList(),
@@ -236,8 +300,9 @@ class WorkoutTemplateModel {
       equipments: equipments.map((e) => e.toEntity()).toList(),
       bodyPartsTarget: bodyPartsTarget.map((bp) => bp.toEntity()).toList(),
       exerciseTypes: exerciseTypes.map((et) => et.toEntity()).toList(),
-      exerciseCategories:
-          exerciseCategories.map((ec) => ec.toEntity()).toList(),
+      exerciseCategories: exerciseCategories
+          .map((ec) => ec.toEntity())
+          .toList(),
       musclesTarget: musclesTarget.map((m) => m.toEntity()).toList(),
       location: location,
       workOutDetail: workOutDetail.map((detail) => detail.toEntity()).toList(),
@@ -254,4 +319,3 @@ class WorkoutTemplateModel {
         .toList();
   }
 }
-

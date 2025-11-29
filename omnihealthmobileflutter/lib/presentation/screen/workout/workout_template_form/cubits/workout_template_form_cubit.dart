@@ -137,24 +137,21 @@ class WorkoutTemplateFormCubit extends Cubit<WorkoutTemplateFormState> {
 
   /// Add exercise to template from entity
   void addExercise(ExerciseListEntity exercise) {
-    String? imageUrl;
-    // Check if exercise has images (assuming ExerciseListEntity might have different property)
-    // Adjust based on actual entity structure
-    try {
-      // Try to get first image if available
-      final dynamic images = (exercise as dynamic).imageUrls;
-      if (images != null && images is List && images.isNotEmpty) {
-        imageUrl = images[0] as String?;
-      }
-    } catch (e) {
-      // Fallback if property doesn't exist
-      imageUrl = null;
+    // Check if exercise already exists
+    if (state.exercises.any((e) => e.exerciseId == exercise.id)) {
+      emit(
+        state.copyWith(
+          status: WorkoutTemplateFormStatus.error,
+          errorMessage: 'Exercise already added',
+        ),
+      );
+      return;
     }
 
     final newExercise = WorkoutExerciseFormData(
       exerciseId: exercise.id,
       exerciseName: exercise.name,
-      exerciseImageUrl: imageUrl,
+      exerciseImageUrl: exercise.imageUrl.isNotEmpty ? exercise.imageUrl : null,
       type:
           'reps', // Default to 'reps' type (matches backend enum: reps, time, distance, mixed)
       sets: [const WorkoutSetFormData(setOrder: 1, reps: null, weight: null)],
@@ -199,6 +196,41 @@ class WorkoutTemplateFormCubit extends Cubit<WorkoutTemplateFormState> {
       state.exercises,
     );
     updatedExercises.removeAt(exerciseIndex);
+    emit(state.copyWith(exercises: updatedExercises));
+  }
+
+  /// Update exercise type (reps, time, distance, mixed)
+  void updateExerciseType(int exerciseIndex, String newType) {
+    final updatedExercises = List<WorkoutExerciseFormData>.from(
+      state.exercises,
+    );
+    final exercise = updatedExercises[exerciseIndex];
+
+    // Reset sets with default values based on new type
+    final resetSets = exercise.sets.map((set) {
+      return WorkoutSetFormData(
+        setOrder: set.setOrder,
+        reps: (newType == 'reps' || newType == 'time' || newType == 'mixed')
+            ? set.reps
+            : null,
+        weight: (newType == 'reps' || newType == 'mixed') ? set.weight : null,
+        duration: (newType == 'time' || newType == 'mixed')
+            ? set.duration
+            : null,
+        distance: (newType == 'distance' || newType == 'mixed')
+            ? set.distance
+            : null,
+        restAfterSetSeconds: (newType != 'distance')
+            ? set.restAfterSetSeconds
+            : null,
+      );
+    }).toList();
+
+    updatedExercises[exerciseIndex] = exercise.copyWith(
+      type: newType,
+      sets: resetSets,
+    );
+
     emit(state.copyWith(exercises: updatedExercises));
   }
 

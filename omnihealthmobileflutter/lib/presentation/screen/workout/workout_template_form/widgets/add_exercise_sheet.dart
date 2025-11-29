@@ -346,22 +346,45 @@ class _ExerciseListItem extends StatelessWidget {
               width: 50.w,
               height: 50.w,
               decoration: BoxDecoration(
-                color: Colors.grey[300],
+                color: Colors.grey[200],
                 borderRadius: BorderRadius.circular(8.r),
-                image: exercise.imageUrl.isNotEmpty
-                    ? DecorationImage(
-                        image: NetworkImage(exercise.imageUrl),
-                        fit: BoxFit.cover,
-                      )
-                    : null,
               ),
-              child: exercise.imageUrl.isEmpty
-                  ? Icon(
-                      Icons.fitness_center,
-                      color: Colors.grey[600],
-                      size: 24.sp,
+              clipBehavior: Clip.antiAlias,
+              child: exercise.imageUrl.isNotEmpty
+                  ? Image.network(
+                      exercise.imageUrl,
+                      fit: BoxFit.cover,
+                      width: 50.w,
+                      height: 50.w,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Icon(
+                          Icons.fitness_center,
+                          color: Colors.grey[500],
+                          size: 24.sp,
+                        );
+                      },
+                      loadingBuilder: (context, child, loadingProgress) {
+                        if (loadingProgress == null) return child;
+                        return Center(
+                          child: SizedBox(
+                            width: 20.w,
+                            height: 20.w,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              value: loadingProgress.expectedTotalBytes != null
+                                  ? loadingProgress.cumulativeBytesLoaded /
+                                      loadingProgress.expectedTotalBytes!
+                                  : null,
+                            ),
+                          ),
+                        );
+                      },
                     )
-                  : null,
+                  : Icon(
+                      Icons.fitness_center,
+                      color: Colors.grey[500],
+                      size: 24.sp,
+                    ),
             ),
 
             SizedBox(width: 12.w),

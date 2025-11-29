@@ -14,13 +14,17 @@ class _TemplateDetailHeader extends StatelessWidget {
   });
 
   String _getLocationLabel(String location) {
-    switch (location.toLowerCase()) {
-      case 'gym':
+    switch (location) {
+      case 'Gym':
         return 'Gym';
-      case 'home':
+      case 'Home':
         return 'Home';
-      case 'outdoor':
+      case 'Outdoor':
         return 'Outdoor';
+      case 'Pool':
+        return 'Pool';
+      case 'None':
+        return 'Not specified';
       default:
         return location;
     }

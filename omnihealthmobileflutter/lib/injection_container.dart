@@ -219,16 +219,12 @@ Future<void> init() async {
     () => HealthConnectRepositoryImpl(sl(), sl(), sl(), sl()),
   );
 
+  // Workout Repositories
   sl.registerLazySingleton<WorkoutTemplateRepositoryAbs>(
     () => WorkoutTemplateRepositoryImpl(workoutDataSource: sl()),
   );
-
   sl.registerLazySingleton<WorkoutStatsRepositoryAbs>(
     () => WorkoutStatsRepositoryImpl(workoutDataSource: sl()),
-  );
-
-  sl.registerLazySingleton<HealthKitConnectRepository>(
-    () => HealthKitConnectRepositoryImpl(sl(), sl(), sl(), sl()),
   );
 
   // ======================
@@ -452,6 +448,4 @@ Future<void> init() async {
       deleteWorkoutTemplateUseCase: sl(),
     ),
   );
-  // HealthKit Connect BLoC
-  sl.registerFactory(() => HealthKitConnectBloc(repository: sl()));
 }
