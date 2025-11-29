@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:omnihealthmobileflutter/core/theme/app_radius.dart';
 import 'package:omnihealthmobileflutter/core/theme/app_spacing.dart';
 import 'package:omnihealthmobileflutter/core/theme/app_typography.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 /// Beautiful checkbox widget for privacy policy and terms of service
 class PolicyCheckbox extends StatelessWidget {
@@ -23,6 +24,13 @@ class PolicyCheckbox extends StatelessWidget {
     this.errorMessage,
     this.disabled = false,
   }) : super(key: key);
+
+  Future<void> _launchUrl(String urlString) async {
+    final Uri url = Uri.parse(urlString);
+    if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
+      debugPrint('Could not launch $url');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -90,7 +98,11 @@ class PolicyCheckbox extends StatelessWidget {
                             decoration: TextDecoration.underline,
                           ),
                           recognizer: TapGestureRecognizer()
-                            ..onTap = disabled ? null : onPrivacyPolicyTap,
+                            ..onTap = disabled
+                                ? null
+                                : () => _launchUrl(
+                                    'https://doc-hosting.flycricket.io/omnimer-health-privacy-policy/37b589ac-7f6f-4ee9-9b0f-fb1ffabc4f04/privacy',
+                                  ),
                         ),
                         const TextSpan(text: ' and '),
                         TextSpan(
@@ -102,7 +114,11 @@ class PolicyCheckbox extends StatelessWidget {
                             decoration: TextDecoration.underline,
                           ),
                           recognizer: TapGestureRecognizer()
-                            ..onTap = disabled ? null : onTermsOfServiceTap,
+                            ..onTap = disabled
+                                ? null
+                                : () => _launchUrl(
+                                    'https://doc-hosting.flycricket.io/omnimer-health-terms-of-use/ce114c8b-104b-4030-bc6f-a5242c146070/terms',
+                                  ),
                         ),
                       ],
                     ),

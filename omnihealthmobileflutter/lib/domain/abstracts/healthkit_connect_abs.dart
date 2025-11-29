@@ -1,17 +1,11 @@
 import 'dart:async';
 import '../entities/health_connect_entity.dart';
 
-abstract class HealthConnectRepository {
-  /// Check if Health Connect is available on the device
-  Future<bool> isHealthConnectAvailable();
+abstract class HealthKitConnectRepository {
+  /// Check if HealthKit is available on the device
+  Future<bool> isHealthKitAvailable();
 
-  /// Check if Health Connect is installed
-  Future<bool> isHealthConnectInstalled();
-
-  /// Install Health Connect from Play Store
-  Future<void> installHealthConnect();
-
-  /// Request permissions for Health Connect data types
+  /// Request permissions for HealthKit data types
   Future<bool> requestPermissions();
 
   /// Check if permissions are granted

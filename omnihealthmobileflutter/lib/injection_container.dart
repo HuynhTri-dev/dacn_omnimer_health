@@ -101,6 +101,9 @@ import 'package:omnihealthmobileflutter/domain/usecases/workout/create_workout_t
 import 'package:omnihealthmobileflutter/domain/usecases/workout/update_workout_template_usecase.dart';
 import 'package:health/health.dart';
 import 'package:logger/logger.dart';
+import 'package:omnihealthmobileflutter/domain/abstracts/healthkit_connect_abs.dart';
+import 'package:omnihealthmobileflutter/data/repositories/healthkit_connect_impl.dart';
+import 'package:omnihealthmobileflutter/presentation/screen/healthkit_connect/bloc/healthkit_connect_bloc.dart';
 
 final sl = GetIt.instance;
 
@@ -214,14 +217,6 @@ Future<void> init() async {
 
   sl.registerLazySingleton<HealthConnectRepository>(
     () => HealthConnectRepositoryImpl(sl(), sl(), sl(), sl()),
-  );
-
-  sl.registerLazySingleton<WorkoutTemplateRepositoryAbs>(
-    () => WorkoutTemplateRepositoryImpl(workoutDataSource: sl()),
-  );
-
-  sl.registerLazySingleton<WorkoutStatsRepositoryAbs>(
-    () => WorkoutStatsRepositoryImpl(workoutDataSource: sl()),
   );
 
   // ======================
@@ -433,16 +428,6 @@ Future<void> init() async {
       syncDataToBackend: sl(),
       startWorkoutSession: sl(),
       stopWorkoutSession: sl(),
-    ),
-  );
-
-  // Workout Home BLoC
-  sl.registerFactory(
-    () => WorkoutHomeBloc(
-      getWeeklyWorkoutStatsUseCase: sl(),
-      getWorkoutTemplatesUseCase: sl(),
-      getUserWorkoutTemplatesUseCase: sl(),
-      deleteWorkoutTemplateUseCase: sl(),
     ),
   );
 }

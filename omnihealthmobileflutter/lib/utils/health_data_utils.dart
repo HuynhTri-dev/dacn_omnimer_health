@@ -1,6 +1,5 @@
 import 'package:health/health.dart' as health_pkg;
 import '../../domain/entities/health_connect_entity.dart';
-import '../../domain/abstracts/health_connect_repository.dart';
 
 class HealthDataUtils {
   static List<health_pkg.HealthDataType> mapToHealthDataTypes(
