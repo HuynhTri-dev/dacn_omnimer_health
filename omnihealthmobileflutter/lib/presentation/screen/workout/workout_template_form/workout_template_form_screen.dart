@@ -7,10 +7,16 @@ import 'package:omnihealthmobileflutter/presentation/screen/workout/workout_temp
 import 'package:omnihealthmobileflutter/presentation/screen/workout/workout_template_form/cubits/workout_template_form_state.dart';
 import 'package:omnihealthmobileflutter/presentation/screen/workout/workout_template_form/cubits/exercise_selection_cubit.dart';
 import 'package:omnihealthmobileflutter/presentation/screen/workout/workout_template_form/cubits/exercise_selection_state.dart';
+import 'package:omnihealthmobileflutter/presentation/screen/workout/workout_template_form/cubits/template_details_cubit.dart';
 import 'package:omnihealthmobileflutter/domain/usecases/workout/get_workout_template_by_id_usecase.dart';
 import 'package:omnihealthmobileflutter/domain/usecases/workout/create_workout_template_usecase.dart';
 import 'package:omnihealthmobileflutter/domain/usecases/workout/update_workout_template_usecase.dart';
 import 'package:omnihealthmobileflutter/domain/usecases/exercise/get_exercises_usecase.dart';
+import 'package:omnihealthmobileflutter/domain/usecases/exercise/get_all_body_parts_usecase.dart';
+import 'package:omnihealthmobileflutter/domain/usecases/exercise/get_all_equipments_usecase.dart';
+import 'package:omnihealthmobileflutter/domain/usecases/exercise/get_all_exercise_categories_usecase.dart';
+import 'package:omnihealthmobileflutter/domain/usecases/exercise/get_all_exercise_types_usecase.dart';
+import 'package:omnihealthmobileflutter/domain/usecases/exercise/get_all_muscles_usecase.dart';
 import 'package:omnihealthmobileflutter/domain/entities/exercise/exercise_list_entity.dart';
 
 part 'widgets/template_header.dart';
@@ -221,8 +227,21 @@ class _WorkoutTemplateFormView extends StatelessWidget {
   void _showAddDetailDialog(BuildContext context) {
     showDialog(
       context: context,
-      builder: (dialogContext) => BlocProvider.value(
-        value: context.read<WorkoutTemplateFormCubit>(),
+      builder: (dialogContext) => MultiBlocProvider(
+        providers: [
+          BlocProvider.value(
+            value: context.read<WorkoutTemplateFormCubit>(),
+          ),
+          BlocProvider(
+            create: (_) => TemplateDetailsCubit(
+              getAllBodyPartsUseCase: sl<GetAllBodyPartsUseCase>(),
+              getAllEquipmentsUseCase: sl<GetAllEquipmentsUseCase>(),
+              getAllExerciseCategoriesUseCase: sl<GetAllExerciseCategoriesUseCase>(),
+              getAllExerciseTypesUseCase: sl<GetAllExerciseTypesUseCase>(),
+              getAllMusclesUseCase: sl<GetAllMuscleTypesUseCase>(),
+            ),
+          ),
+        ],
         child: const _AddDetailDialog(),
       ),
     );

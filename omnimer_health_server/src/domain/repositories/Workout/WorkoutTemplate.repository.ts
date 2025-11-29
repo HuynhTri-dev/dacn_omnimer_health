@@ -23,7 +23,7 @@ export class WorkoutTemplateRepository extends BaseRepository<IWorkoutTemplate> 
         { path: "musclesTarget", select: "_id name" },
         {
           path: "workOutDetail.exerciseId",
-          select: "_id name difficulty met",
+          select: "_id name difficulty met imageUrls",
         },
       ])
       .lean()
