@@ -96,17 +96,34 @@ class WorkoutTemplateAICubit extends Cubit<WorkoutTemplateAIState> {
     emit(state.copyWith(selectedLocation: location));
   }
 
+  void updateK(int k) {
+    emit(state.copyWith(k: k));
+  }
+
   Future<void> createWorkoutById() async {
     emit(state.copyWith(status: WorkoutTemplateAIStatus.submitting));
 
     final result = await recommendWorkoutUseCase(
       RecommendWorkoutParams(
-        bodyPartIds: state.selectedBodyPartIds,
-        equipmentIds: state.selectedEquipmentIds,
-        exerciseCategoryIds: state.selectedExerciseCategoryIds,
-        exerciseTypeIds: state.selectedExerciseTypeIds,
-        muscleIds: state.selectedMuscleIds,
-        location: state.selectedLocation.asString,
+        bodyPartIds: state.selectedBodyPartIds.isNotEmpty
+            ? state.selectedBodyPartIds
+            : null,
+        equipmentIds: state.selectedEquipmentIds.isNotEmpty
+            ? state.selectedEquipmentIds
+            : null,
+        exerciseCategoryIds: state.selectedExerciseCategoryIds.isNotEmpty
+            ? state.selectedExerciseCategoryIds
+            : null,
+        exerciseTypeIds: state.selectedExerciseTypeIds.isNotEmpty
+            ? state.selectedExerciseTypeIds
+            : null,
+        muscleIds: state.selectedMuscleIds.isNotEmpty
+            ? state.selectedMuscleIds
+            : null,
+        location: state.selectedLocation != LocationEnum.None
+            ? state.selectedLocation
+            : null,
+        k: state.k,
       ),
     );
 

@@ -215,7 +215,30 @@ Tài liệu tổng hợp tất cả các API endpoints trong hệ thống OmniMe
 
 ---
 
-## 📝 Notes
+## � Charts & Statistics
+
+### Chart (`/chart`)
+
+| Method | Endpoint                     | Description                                      | Auth Required |
+| ------ | ---------------------------- | ------------------------------------------------ | ------------- |
+| GET    | `/chart/weight-progress`     | Lấy biểu đồ thay đổi cân nặng theo thời gian     | ✅            |
+| GET    | `/chart/workout-frequency`   | Lấy biểu đồ tần suất tập luyện (theo tuần/tháng) | ✅            |
+| GET    | `/chart/calories-burned`     | Lấy biểu đồ lượng calo tiêu thụ theo thời gian   | ✅            |
+| GET    | `/chart/muscle-distribution` | Lấy biểu đồ phân bố nhóm cơ đã tập luyện         | ✅            |
+| GET    | `/chart/goal-progress`       | Lấy biểu đồ trạng thái hoàn thành mục tiêu       | ✅            |
+
+### Admin Chart (`/admin-chart`)
+
+| Method | Endpoint                         | Description                                           | Auth Required |
+| ------ | -------------------------------- | ----------------------------------------------------- | ------------- |
+| GET    | `/admin-chart/user-growth`       | Biểu đồ tăng trưởng người dùng (daily/weekly/monthly) | ✅ (Admin)    |
+| GET    | `/admin-chart/workout-activity`  | Biểu đồ hoạt động tập luyện (daily/weekly/monthly)    | ✅ (Admin)    |
+| GET    | `/admin-chart/popular-exercises` | Biểu đồ bài tập phổ biến nhất (limit=5)               | ✅ (Admin)    |
+| GET    | `/admin-chart/summary`           | Tổng quan hệ thống (Total Users, Workouts, Exercises) | ✅ (Admin)    |
+
+---
+
+## �📝 Notes
 
 ### Authentication
 

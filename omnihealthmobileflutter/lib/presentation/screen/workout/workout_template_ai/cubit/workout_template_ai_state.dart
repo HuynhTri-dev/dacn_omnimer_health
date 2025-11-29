@@ -30,6 +30,7 @@ class WorkoutTemplateAIState extends Equatable {
   final List<String> selectedExerciseTypeIds;
   final List<String> selectedMuscleIds;
   final LocationEnum selectedLocation;
+  final int k;
 
   final WorkoutTemplateEntity? recommendedWorkout;
   final String? errorMessage;
@@ -47,6 +48,7 @@ class WorkoutTemplateAIState extends Equatable {
     this.selectedExerciseTypeIds = const [],
     this.selectedMuscleIds = const [],
     this.selectedLocation = LocationEnum.None,
+    this.k = 5,
     this.recommendedWorkout,
     this.errorMessage,
   });
@@ -64,6 +66,7 @@ class WorkoutTemplateAIState extends Equatable {
     List<String>? selectedExerciseTypeIds,
     List<String>? selectedMuscleIds,
     LocationEnum? selectedLocation,
+    int? k,
     WorkoutTemplateEntity? recommendedWorkout,
     String? errorMessage,
   }) {
@@ -82,6 +85,7 @@ class WorkoutTemplateAIState extends Equatable {
           selectedExerciseTypeIds ?? this.selectedExerciseTypeIds,
       selectedMuscleIds: selectedMuscleIds ?? this.selectedMuscleIds,
       selectedLocation: selectedLocation ?? this.selectedLocation,
+      k: k ?? this.k,
       recommendedWorkout: recommendedWorkout ?? this.recommendedWorkout,
       errorMessage: errorMessage ?? this.errorMessage,
     );
@@ -101,6 +105,7 @@ class WorkoutTemplateAIState extends Equatable {
     selectedExerciseTypeIds,
     selectedMuscleIds,
     selectedLocation,
+    k,
     recommendedWorkout,
     errorMessage,
   ];

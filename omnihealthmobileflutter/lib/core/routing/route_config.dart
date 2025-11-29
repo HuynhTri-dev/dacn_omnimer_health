@@ -30,6 +30,8 @@ import 'package:omnihealthmobileflutter/presentation/screen/auth/verify_account/
 import 'package:omnihealthmobileflutter/presentation/screen/workout/workout_template_form/workout_template_form_screen.dart';
 import 'package:omnihealthmobileflutter/presentation/screen/workout/workout_template_detail/workout_template_detail_screen.dart';
 import 'package:omnihealthmobileflutter/presentation/screen/workout/workout_template_detail/cubits/workout_template_detail_cubit.dart';
+import 'package:omnihealthmobileflutter/presentation/screen/workout/workout_template_ai/workout_template_ai_screen.dart';
+import 'package:omnihealthmobileflutter/presentation/screen/workout/workout_template_ai/cubit/workout_template_ai_cubit.dart';
 import 'package:omnihealthmobileflutter/presentation/screen/workout/workout_session/workout_session_screen.dart';
 import 'package:omnihealthmobileflutter/presentation/screen/workout/workout_session/cubits/workout_session_cubit.dart';
 import 'package:omnihealthmobileflutter/domain/entities/workout/workout_template_entity.dart';
@@ -59,6 +61,7 @@ class RouteConfig {
   static const String verifyAccount = '/verify-account';
   static const String workoutTemplateForm = '/workout-template-form';
   static const String workoutTemplateDetail = '/workout-template-detail';
+  static const String workoutTemplateAI = '/workout-template-ai';
   static const String workoutSession = '/workout-session';
 
   // ==================== BUILD AUTH PAGES ====================
@@ -184,6 +187,10 @@ class RouteConfig {
           child: WorkoutTemplateDetailScreen(templateId: templateId),
         );
 
+      case workoutTemplateAI:
+        return BlocProvider(
+          create: (_) => sl<WorkoutTemplateAICubit>()..loadInitialData(),
+          child: const WorkoutTemplateAIScreen(),
       case workoutSession:
         final template = arguments?['template'] as WorkoutTemplateEntity?;
         if (template == null) {
@@ -299,6 +306,8 @@ class RouteConfig {
     ).pushNamed(workoutTemplateForm, arguments: {'templateId': templateId});
   }
 
+  static void navigateToWorkoutTemplateAI(BuildContext context) {
+    Navigator.of(context).pushNamed(workoutTemplateAI);
   static Future<dynamic> navigateToWorkoutSession(
     BuildContext context, {
     required WorkoutTemplateEntity template,

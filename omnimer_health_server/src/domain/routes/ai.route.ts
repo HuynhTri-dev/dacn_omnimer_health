@@ -34,9 +34,9 @@ const router = Router();
 const apiUrl = process.env.AI_API;
 
 // === Validate AI API endpoint ===
-if (!apiUrl) {
-  throw new HttpError(500, "Missing AI_API environment variable");
-}
+// if (!apiUrl) {
+//   throw new HttpError(500, "Missing AI_API environment variable");
+// }
 
 // === Instantiate Services & Repositories ===
 const healthProfileService = new HealthProfileService(
@@ -50,7 +50,7 @@ const exerciseService = new ExerciseService(
   new ExerciseRepository(Exercise, ExerciseRating)
 );
 
-const aiService = new AIService(apiUrl);
+const aiService = new AIService(apiUrl || "http://localhost:8000");
 
 const workoutTemplateService = new WorkoutTemplateService(
   new WorkoutTemplateRepository(WorkoutTemplate)
@@ -67,7 +67,7 @@ const ragController = new RAGController(
 
 // === Define Routes ===
 // Recommend personalized workout using AI
-router.get(
+router.post(
   "/recommend",
   verifyAccessToken,
   // checkPermission(["user", "coach"]),

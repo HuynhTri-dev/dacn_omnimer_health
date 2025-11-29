@@ -3,22 +3,25 @@ import 'package:omnihealthmobileflutter/core/api/api_response.dart';
 import 'package:omnihealthmobileflutter/domain/abstracts/ai_repository_abs.dart';
 import 'package:omnihealthmobileflutter/domain/entities/workout/workout_template_entity.dart';
 import 'package:omnihealthmobileflutter/domain/usecases/base_usecase.dart';
+import 'package:omnihealthmobileflutter/core/constants/enum_constant.dart';
 
 class RecommendWorkoutParams extends Equatable {
-  final List<String> bodyPartIds;
-  final List<String> equipmentIds;
-  final List<String> exerciseCategoryIds;
-  final List<String> exerciseTypeIds;
-  final List<String> muscleIds;
-  final String location;
+  final List<String>? bodyPartIds;
+  final List<String>? equipmentIds;
+  final List<String>? exerciseCategoryIds;
+  final List<String>? exerciseTypeIds;
+  final List<String>? muscleIds;
+  final LocationEnum? location;
+  final int k;
 
   const RecommendWorkoutParams({
-    required this.bodyPartIds,
-    required this.equipmentIds,
-    required this.exerciseCategoryIds,
-    required this.exerciseTypeIds,
-    required this.muscleIds,
-    required this.location,
+    this.bodyPartIds,
+    this.equipmentIds,
+    this.exerciseCategoryIds,
+    this.exerciseTypeIds,
+    this.muscleIds,
+    this.location,
+    this.k = 5,
   });
 
   @override
@@ -29,6 +32,7 @@ class RecommendWorkoutParams extends Equatable {
     exerciseTypeIds,
     muscleIds,
     location,
+    k,
   ];
 }
 
@@ -50,6 +54,7 @@ class RecommendWorkoutUseCase
       exerciseTypeIds: params.exerciseTypeIds,
       muscleIds: params.muscleIds,
       location: params.location,
+      k: params.k,
     );
   }
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:omnihealthmobileflutter/core/routing/route_config.dart';
 import 'package:omnihealthmobileflutter/presentation/screen/workout/workout_home/blocs/workout_home_bloc.dart';
 import 'package:omnihealthmobileflutter/presentation/screen/workout/workout_home/blocs/workout_home_event.dart';
 import 'package:omnihealthmobileflutter/presentation/screen/workout/workout_template_form/workout_template_form_screen.dart';
@@ -20,12 +21,7 @@ class ActionButtons extends StatelessWidget {
             subtitle: 'Suggest your own workout by 3T-FIT Model',
             backgroundColor: Theme.of(context).primaryColor,
             onTap: () {
-              // TODO: Navigate to AI workout suggestion
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('AI Workout Suggestion - Coming soon!'),
-                ),
-              );
+              RouteConfig.navigateToWorkoutTemplateAI(context);
             },
           ),
         ),

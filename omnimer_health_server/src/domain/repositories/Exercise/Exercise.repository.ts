@@ -244,4 +244,10 @@ export class ExerciseRepository extends BaseRepository<IExercise> {
       averageScore,
     };
   }
+  /**
+   * 🔹 Count total exercises
+   */
+  async countExercises(): Promise<number> {
+    return this.model.countDocuments();
+  }
 }

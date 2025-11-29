@@ -108,4 +108,27 @@ export class HealthProfileRepository extends BaseRepository<IHealthProfile> {
       },
     });
   }
+  /**
+   * 🔹 Lấy lịch sử cân nặng của user
+   * @param userId - ID người dùng
+   * @returns Danh sách { checkupDate, weight }
+   */
+  async getWeightHistory(
+    userId: string
+  ): Promise<{ checkupDate: Date; weight: number }[]> {
+    const profiles = await this.model
+      .find({
+        userId: new Types.ObjectId(userId),
+        weight: { $exists: true, $ne: null },
+      })
+      .sort({ checkupDate: 1 })
+      .select("checkupDate weight")
+      .lean()
+      .exec();
+
+    return profiles.map((p) => ({
+      checkupDate: p.checkupDate,
+      weight: p.weight as number,
+    }));
+  }
 }

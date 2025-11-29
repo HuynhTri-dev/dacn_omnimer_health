@@ -134,4 +134,31 @@ export class UserRepository extends BaseRepository<IUser> {
       throw e;
     }
   }
+  /**
+   * 🔹 Count total users
+   */
+  async countUsers(): Promise<number> {
+    return this.model.countDocuments();
+  }
+
+  /**
+   * 🔹 Get user growth stats
+   */
+  async getUserGrowthStats(
+    period: "daily" | "weekly" | "monthly"
+  ): Promise<{ date: string; count: number }[]> {
+    const dateFormat =
+      period === "daily" ? "%Y-%m-%d" : period === "weekly" ? "%Y-%U" : "%Y-%m";
+
+    return this.model.aggregate([
+      {
+        $group: {
+          _id: { $dateToString: { format: dateFormat, date: "$createdAt" } },
+          count: { $sum: 1 },
+        },
+      },
+      { $sort: { _id: 1 } },
+      { $project: { date: "$_id", count: 1, _id: 0 } },
+    ]);
+  }
 }

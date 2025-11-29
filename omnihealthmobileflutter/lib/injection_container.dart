@@ -252,6 +252,10 @@ Future<void> init() async {
     () => AIRepositoryImpl(remoteDataSource: sl()),
   );
 
+  sl.registerLazySingleton<AIRepositoryAbs>(
+    () => AIRepositoryImpl(remoteDataSource: sl()),
+  );
+
   // ======================
   // Use case
   // ======================
@@ -375,6 +379,10 @@ Future<void> init() async {
   );
   sl.registerLazySingleton<GetWorkoutLogsUseCase>(
     () => GetWorkoutLogsUseCase(sl()),
+  );
+
+  sl.registerLazySingleton<RecommendWorkoutUseCase>(
+    () => RecommendWorkoutUseCase(sl()),
   );
 
   sl.registerLazySingleton<RecommendWorkoutUseCase>(
