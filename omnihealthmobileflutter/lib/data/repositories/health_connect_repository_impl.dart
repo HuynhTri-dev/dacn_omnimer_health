@@ -74,17 +74,23 @@ class HealthConnectRepositoryImpl implements HealthConnectRepository {
         health_pkg.HealthDataType.ACTIVE_ENERGY_BURNED,
         health_pkg.HealthDataType.HEART_RATE,
         health_pkg.HealthDataType.RESTING_HEART_RATE,
-        health_pkg.HealthDataType.SLEEP_IN_BED,
         health_pkg.HealthDataType.SLEEP_ASLEEP,
         health_pkg.HealthDataType.SLEEP_DEEP,
         health_pkg.HealthDataType.SLEEP_REM,
-        health_pkg.HealthDataType.EXERCISE_TIME,
+
         health_pkg.HealthDataType.WORKOUT,
       ];
 
-      final permissions = await _health.requestAuthorization(types);
-      _logger.i('Health Connect permissions granted: $permissions');
-      return permissions;
+      final permissions = types
+          .map((e) => health_pkg.HealthDataAccess.READ)
+          .toList();
+
+      final permissionsGranted = await _health.requestAuthorization(
+        types,
+        permissions: permissions,
+      );
+      _logger.i('Health Connect permissions granted: $permissionsGranted');
+      return permissionsGranted;
     } catch (e) {
       _logger.e('Error requesting Health Connect permissions: $e');
       return false;
@@ -102,17 +108,24 @@ class HealthConnectRepositoryImpl implements HealthConnectRepository {
         health_pkg.HealthDataType.ACTIVE_ENERGY_BURNED,
         health_pkg.HealthDataType.HEART_RATE,
         health_pkg.HealthDataType.RESTING_HEART_RATE,
-        health_pkg.HealthDataType.SLEEP_IN_BED,
         health_pkg.HealthDataType.SLEEP_ASLEEP,
         health_pkg.HealthDataType.SLEEP_DEEP,
         health_pkg.HealthDataType.SLEEP_REM,
-        health_pkg.HealthDataType.EXERCISE_TIME,
+
         health_pkg.HealthDataType.WORKOUT,
       ];
 
-      final hasPermissions = await _health.hasPermissions(types);
+      final permissions = types
+          .map((e) => health_pkg.HealthDataAccess.READ)
+          .toList();
+
+      final hasPermissions = await _health.requestAuthorization(
+        types,
+        permissions: permissions,
+      );
+
       _logger.i('Health Connect has permissions: $hasPermissions');
-      return hasPermissions ?? false;
+      return hasPermissions;
     } catch (e) {
       _logger.e('Error checking Health Connect permissions: $e');
       return false;

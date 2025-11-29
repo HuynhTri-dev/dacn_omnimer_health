@@ -125,7 +125,12 @@ class HealthConnectBloc extends Bloc<HealthConnectEvent, HealthConnectState> {
         currentLoadedState = currentState;
       }
 
-      final todayData = await _getTodayHealthData(NoParams());
+      final todayData = await _getTodayHealthData(NoParams()).timeout(
+        const Duration(seconds: 10),
+        onTimeout: () {
+          throw TimeoutException('Failed to load health data: Timeout');
+        },
+      );
       emit(
         HealthDataLoaded(
           todayData: todayData,

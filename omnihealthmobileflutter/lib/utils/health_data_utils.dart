@@ -11,12 +11,10 @@ class HealthDataUtils {
         health_pkg.HealthDataType.DISTANCE_DELTA,
         health_pkg.HealthDataType.ACTIVE_ENERGY_BURNED,
         health_pkg.HealthDataType.HEART_RATE,
-        health_pkg.HealthDataType.RESTING_HEART_RATE,
-        health_pkg.HealthDataType.SLEEP_IN_BED,
         health_pkg.HealthDataType.SLEEP_ASLEEP,
         health_pkg.HealthDataType.SLEEP_DEEP,
         health_pkg.HealthDataType.SLEEP_REM,
-        health_pkg.HealthDataType.EXERCISE_TIME,
+        health_pkg.HealthDataType.WORKOUT,
       ];
     }
 
@@ -33,7 +31,7 @@ class HealthDataUtils {
           mappedTypes.add(health_pkg.HealthDataType.ACTIVE_ENERGY_BURNED);
           break;
         case HealthDataType.activeMinutes:
-          mappedTypes.add(health_pkg.HealthDataType.EXERCISE_TIME);
+          mappedTypes.add(health_pkg.HealthDataType.WORKOUT);
           break;
         case HealthDataType.heartRate:
           mappedTypes.add(health_pkg.HealthDataType.HEART_RATE);
@@ -47,7 +45,6 @@ class HealthDataUtils {
         case HealthDataType.sleepDuration:
         case HealthDataType.sleepQuality:
           mappedTypes.addAll([
-            health_pkg.HealthDataType.SLEEP_IN_BED,
             health_pkg.HealthDataType.SLEEP_ASLEEP,
             health_pkg.HealthDataType.SLEEP_DEEP,
             health_pkg.HealthDataType.SLEEP_REM,
@@ -106,9 +103,6 @@ class HealthDataUtils {
             case health_pkg.HealthDataType.ACTIVE_ENERGY_BURNED:
               calories = (calories ?? 0) + numVal.toInt();
               break;
-            case health_pkg.HealthDataType.EXERCISE_TIME:
-              activeMinutes = (activeMinutes ?? 0) + numVal.toInt();
-              break;
             case health_pkg.HealthDataType.HEART_RATE:
               heartRateAvg = numVal.toInt();
               break;
@@ -123,6 +117,13 @@ class HealthDataUtils {
             default:
               break;
           }
+        } else if (value is health_pkg.WorkoutHealthValue) {
+          if (point.type == health_pkg.HealthDataType.WORKOUT) {
+            final durationInMinutes = point.dateTo
+                .difference(point.dateFrom)
+                .inMinutes;
+            activeMinutes = (activeMinutes ?? 0) + durationInMinutes;
+          }
         }
       }
 
@@ -131,9 +132,7 @@ class HealthDataUtils {
         steps: steps,
         distance: distance,
         caloriesBurned: calories,
-        activeMinutes: activeMinutes != null
-            ? (activeMinutes / 60).round()
-            : null,
+        activeMinutes: activeMinutes,
         heartRateAvg: heartRateAvg,
         heartRateRest: heartRateRest,
         heartRateMax: null,
