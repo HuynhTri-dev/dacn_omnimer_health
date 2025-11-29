@@ -102,6 +102,8 @@ import 'package:omnihealthmobileflutter/domain/usecases/workout/get_weekly_worko
 import 'package:omnihealthmobileflutter/domain/usecases/workout/create_workout_template_usecase.dart';
 import 'package:omnihealthmobileflutter/domain/usecases/workout/update_workout_template_usecase.dart';
 import 'package:omnihealthmobileflutter/domain/usecases/workout/save_workout_log_usecase.dart';
+import 'package:omnihealthmobileflutter/domain/usecases/workout/get_workout_logs_usecase.dart';
+import 'package:omnihealthmobileflutter/presentation/screen/report/blocs/report_bloc.dart';
 import 'package:health/health.dart';
 import 'package:logger/logger.dart';
 import 'package:omnihealthmobileflutter/domain/abstracts/healthkit_connect_abs.dart';
@@ -358,6 +360,9 @@ Future<void> init() async {
   sl.registerLazySingleton<SaveWorkoutLogUseCase>(
     () => SaveWorkoutLogUseCase(repository: sl()),
   );
+  sl.registerLazySingleton<GetWorkoutLogsUseCase>(
+    () => GetWorkoutLogsUseCase(sl()),
+  );
 
   // ======================
   // Blocs / Cubits
@@ -463,5 +468,10 @@ Future<void> init() async {
       getUserWorkoutTemplatesUseCase: sl(),
       deleteWorkoutTemplateUseCase: sl(),
     ),
+  );
+
+  // Report BLoC
+  sl.registerFactory(
+    () => ReportBloc(getWorkoutLogsUseCase: sl(), workoutLogRepository: sl()),
   );
 }
