@@ -237,4 +237,53 @@ router.post("/new-access-token", authController.createNewAccessToken);
  */
 router.get("/", verifyAccessToken, authController.getAuth);
 
+/**
+ * @swagger
+ * /change-password:
+ *   post:
+ *     tags: [Auth]
+ *     summary: Thay đổi mật khẩu
+ *     description: Thay đổi mật khẩu của người dùng đang đăng nhập
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - currentPassword
+ *               - newPassword
+ *             properties:
+ *               currentPassword:
+ *                 type: string
+ *                 format: password
+ *                 description: Mật khẩu hiện tại
+ *                 example: "oldPassword123"
+ *               newPassword:
+ *                 type: string
+ *                 format: password
+ *                 description: Mật khẩu mới (tối thiểu 8 ký tự)
+ *                 example: "newPassword456"
+ *     responses:
+ *       200:
+ *         description: Thay đổi mật khẩu thành công
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Thay đổi mật khẩu thành công"
+ *       400:
+ *         description: Dữ liệu không hợp lệ (thiếu thông tin, mật khẩu mới quá ngắn, trùng mật khẩu cũ)
+ *       401:
+ *         description: Mật khẩu hiện tại không đúng hoặc chưa đăng nhập
+ *       404:
+ *         description: Người dùng không tồn tại
+ */
+router.post("/change-password", verifyAccessToken, authController.changePassword);
+
 export default router;

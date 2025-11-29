@@ -1,4 +1,5 @@
 export * from "./Profile/Auth.controller";
+export * from "./Profile/Verification.controller";
 export * from "./Profile/User.controller";
 export * from "./Profile/HealthProfile.controller";
 export * from "./Profile/Goal.controller";

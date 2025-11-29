@@ -1,4 +1,5 @@
 export * from "./Profile/Auth.service";
+export * from "./Profile/Verification.service";
 export * from "./Profile/User.service";
 export * from "./Profile/HealthProfile.service";
 export * from "./Profile/Goal.service";

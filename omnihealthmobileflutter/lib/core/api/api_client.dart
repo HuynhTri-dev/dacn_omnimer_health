@@ -268,6 +268,8 @@ Data: ${error.response?.data}
     Map<String, dynamic>? headers,
     T Function(dynamic)? parser,
     bool requiresAuth = true,
+    Duration? receiveTimeout,
+    Duration? sendTimeout,
   }) async {
     try {
       final response = await dio.post(
@@ -277,6 +279,8 @@ Data: ${error.response?.data}
         options: Options(
           headers: headers,
           extra: {'requiresAuth': requiresAuth},
+          receiveTimeout: receiveTimeout,
+          sendTimeout: sendTimeout,
         ),
       );
       return _handleResponse<T>(response, fromJsonT: parser);

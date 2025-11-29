@@ -16,6 +16,15 @@ export interface IUser extends Document {
   roleIds: Types.ObjectId[];
 
   imageUrl?: string;
+
+  // Email Verification Fields
+  isEmailVerified: boolean;
+  emailVerificationToken?: string | null;
+  emailVerificationExpires?: Date | null;
+
+  // Phone Verification Fields (for future use)
+  phoneNumber?: string | null;
+  isPhoneVerified: boolean;
 }
 
 const userSchema = new Schema<IUser>(
@@ -53,6 +62,31 @@ const userSchema = new Schema<IUser>(
       type: String,
       trim: true,
     },
+
+    // Email Verification Fields
+    isEmailVerified: {
+      type: Boolean,
+      default: false,
+    },
+    emailVerificationToken: {
+      type: String,
+      default: null,
+    },
+    emailVerificationExpires: {
+      type: Date,
+      default: null,
+    },
+
+    // Phone Verification Fields
+    phoneNumber: {
+      type: String,
+      trim: true,
+      default: null,
+    },
+    isPhoneVerified: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     timestamps: true,
@@ -61,5 +95,7 @@ const userSchema = new Schema<IUser>(
 
 // Index email và uid để tìm kiếm nhanh
 userSchema.index({ email: 1, uid: 1 });
+// Index for email verification token lookup
+userSchema.index({ emailVerificationToken: 1 });
 
 export const User = mongoose.model<IUser>("User", userSchema);
