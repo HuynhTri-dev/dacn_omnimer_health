@@ -63,16 +63,3 @@ abstract class HealthConnectRepository {
   /// Stream of workout session updates
   Stream<List<HealthConnectWorkoutData>> get workoutDataStream;
 }
-
-enum HealthDataType {
-  steps,
-  distance,
-  calories,
-  activeMinutes,
-  heartRate,
-  heartRateRest,
-  heartRateMax,
-  sleepDuration,
-  sleepQuality,
-  stressLevel,
-}

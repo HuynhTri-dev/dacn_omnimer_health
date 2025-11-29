@@ -5,6 +5,9 @@ import 'package:omnihealthmobileflutter/core/theme/app_spacing.dart';
 import 'package:omnihealthmobileflutter/presentation/screen/more/widgets/more_menu_item.dart';
 
 import 'package:omnihealthmobileflutter/presentation/screen/health_connect/health_connect_screen.dart';
+import 'package:omnihealthmobileflutter/presentation/screen/health_connect/health_connect_setup_widget.dart';
+import 'package:omnihealthmobileflutter/presentation/screen/healthkit_connect/healthkit_connect_screen.dart';
+import 'package:omnihealthmobileflutter/presentation/screen/healthkit_connect/healthkit_connect_setup_widget.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 /// Health & Data section widget for More screen
@@ -31,8 +34,7 @@ class _HealthDataSectionState extends State<HealthDataSection>
   late Animation<double> _expandAnimation;
 
   // State for health data sources
-  bool _isAppleHealthEnabled = false;
-  bool _isHealthConnectEnabled = false;
+
   bool _isSamsungHealthEnabled = false;
 
   @override
@@ -108,34 +110,39 @@ class _HealthDataSectionState extends State<HealthDataSection>
             ),
             child: Column(
               children: [
-                _buildDropdownItem(
-                  assetPath: 'assets/healthkit_api.png',
-                  title: 'Apple Health',
-                  subtitle: 'Connect HealthKit API',
-                  value: _isAppleHealthEnabled,
-                  onChanged: (value) {
-                    setState(() {
-                      _isAppleHealthEnabled = value;
-                    });
-                  },
+                Padding(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: AppSpacing.md,
+                    vertical: AppSpacing.xs,
+                  ),
+                  child: HealthKitConnectSetupWidget(
+                    onNavigateToHealthKit: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const HealthKitConnectScreen(),
+                        ),
+                      );
+                    },
+                  ),
                 ),
-                // Replace the old Health Connect dropdown with the new widget
-                _buildDropdownItem(
-                  assetPath: 'assets/Health_Connect.svg',
-                  title: 'Health Connect',
-                  subtitle: 'Google\'s health data platform',
-                  value: _isHealthConnectEnabled,
-                  onChanged: (value) {
-                    setState(() {
-                      _isHealthConnectEnabled = value;
-                    });
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const HealthConnectScreen(),
-                      ),
-                    );
-                  },
+
+                // Health Connect integration using HealthConnectSetupWidget
+                Padding(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: AppSpacing.md,
+                    vertical: AppSpacing.xs,
+                  ),
+                  child: HealthConnectSetupWidget(
+                    onNavigateToHealthConnect: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const HealthConnectScreen(),
+                        ),
+                      );
+                    },
+                  ),
                 ),
                 _buildDropdownItem(
                   assetPath: 'assets/samsung_health.png',

@@ -10,9 +10,43 @@ import 'package:omnihealthmobileflutter/presentation/common/cubits/theme_cubit.d
 import 'package:omnihealthmobileflutter/presentation/screen/auth/login/cubits/login_cubit.dart';
 import 'package:omnihealthmobileflutter/presentation/screen/auth/login/login_screen.dart';
 import 'package:omnihealthmobileflutter/presentation/screen/home_screen.dart';
+import 'package:receive_intent/receive_intent.dart' as ri;
+import 'package:url_launcher/url_launcher.dart';
 
-class AppView extends StatelessWidget {
+class AppView extends StatefulWidget {
   const AppView({super.key});
+
+  @override
+  State<AppView> createState() => _AppViewState();
+}
+
+class _AppViewState extends State<AppView> {
+  @override
+  void initState() {
+    super.initState();
+    _checkIntent();
+  }
+
+  Future<void> _checkIntent() async {
+    try {
+      final ri.Intent? intent = await ri.ReceiveIntent.getInitialIntent();
+      if (intent != null &&
+          intent.action == 'android.intent.action.VIEW_PERMISSION_USAGE') {
+        _openPrivacyPolicy();
+      }
+    } catch (e) {
+      debugPrint("Error checking intent: $e");
+    }
+  }
+
+  Future<void> _openPrivacyPolicy() async {
+    final Uri url = Uri.parse(
+      'https://doc-hosting.flycricket.io/omnimer-health-privacy-policy/37b589ac-7f6f-4ee9-9b0f-fb1ffabc4f04/privacy',
+    );
+    if (!await launchUrl(url)) {
+      debugPrint('Could not launch $url');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -26,18 +60,13 @@ class AppView extends StatelessWidget {
           themeMode: themeMode,
           home: const AuthWrapper(),
           onGenerateRoute: (settings) {
-            // Lấy state hiện tại của AuthenticationBloc
             final authState = context.read<AuthenticationBloc>().state;
-
-            // Nếu chưa login -> chuyển về login/register
             if (authState is! AuthenticationAuthenticated) {
               return MaterialPageRoute(
                 builder: (_) => RouteConfig.buildAuthPage(settings.name),
                 settings: settings,
               );
             }
-
-            // Nếu đã login -> build page theo role
             return MaterialPageRoute(
               builder: (_) => RouteConfig.buildPage(
                 routeName: settings.name ?? RouteConfig.main,

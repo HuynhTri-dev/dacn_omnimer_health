@@ -31,19 +31,19 @@ class HealthConnectData extends Equatable {
 
   @override
   List<Object?> get props => [
-        date,
-        steps,
-        distance,
-        caloriesBurned,
-        activeMinutes,
-        heartRateAvg,
-        heartRateRest,
-        heartRateMax,
-        sleepDuration,
-        sleepQuality,
-        vo2max,
-        stressLevel,
-      ];
+    date,
+    steps,
+    distance,
+    caloriesBurned,
+    activeMinutes,
+    heartRateAvg,
+    heartRateRest,
+    heartRateMax,
+    sleepDuration,
+    sleepQuality,
+    vo2max,
+    stressLevel,
+  ];
 
   HealthConnectData copyWith({
     DateTime? date,
@@ -99,15 +99,15 @@ class HealthConnectWorkoutData extends Equatable {
 
   @override
   List<Object?> get props => [
-        date,
-        duration,
-        heartRateAvg,
-        heartRateMax,
-        caloriesBurned,
-        distance,
-        workoutId,
-        workoutType,
-      ];
+    date,
+    duration,
+    heartRateAvg,
+    heartRateMax,
+    caloriesBurned,
+    distance,
+    workoutId,
+    workoutType,
+  ];
 
   HealthConnectWorkoutData copyWith({
     DateTime? date,
@@ -130,4 +130,17 @@ class HealthConnectWorkoutData extends Equatable {
       workoutType: workoutType ?? this.workoutType,
     );
   }
+}
+
+enum HealthDataType {
+  steps,
+  distance,
+  calories,
+  activeMinutes,
+  heartRate,
+  heartRateRest,
+  heartRateMax,
+  sleepDuration,
+  sleepQuality,
+  stressLevel,
 }
