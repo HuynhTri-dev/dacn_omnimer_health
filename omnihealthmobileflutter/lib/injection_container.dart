@@ -225,6 +225,8 @@ Future<void> init() async {
 
   sl.registerLazySingleton<WorkoutStatsRepositoryAbs>(
     () => WorkoutStatsRepositoryImpl(workoutDataSource: sl()),
+  );
+
   sl.registerLazySingleton<HealthKitConnectRepository>(
     () => HealthKitConnectRepositoryImpl(sl(), sl(), sl(), sl()),
   );
