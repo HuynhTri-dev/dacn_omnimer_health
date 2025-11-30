@@ -591,6 +591,12 @@ class WorkoutSessionCubit extends Cubit<WorkoutSessionState> {
         logger.i(
           '[WorkoutSessionCubit] Syncing health data for range: $startTime - $endTime',
         );
+
+        // --- SIMULATION: Write Mock Data for Testing ---
+        // TODO: Remove this in production or put behind a debug flag
+        await healthConnectRepository!.writeMockData(startTime, endTime);
+        // -----------------------------------------------
+
         await healthConnectRepository!.syncHealthDataForRange(
           startTime,
           endTime,

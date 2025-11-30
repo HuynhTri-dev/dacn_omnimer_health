@@ -65,4 +65,7 @@ abstract class HealthConnectRepository {
 
   /// Stream of workout session updates
   Stream<List<HealthConnectWorkoutData>> get workoutDataStream;
+
+  /// Write mock data for testing/simulation
+  Future<void> writeMockData(DateTime startTime, DateTime endTime);
 }

@@ -464,7 +464,7 @@ export class WorkoutService {
 
           // Aggregate Data
           const totalCalories = logs.reduce(
-            (sum, log) => sum + (log.caloriesBurned || 0),
+            (sum, log) => sum + (log.caloriesActive || 0),
             0
           );
 

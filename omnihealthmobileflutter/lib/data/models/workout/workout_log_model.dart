@@ -215,10 +215,10 @@ class WorkoutLogModel {
 
     return WorkoutLogModel(
       id: json['_id'],
-      templateId: json['templateId'],
-      workoutName: json['workoutName'] ?? '',
+      templateId: json['templateId'] ?? json['workoutTemplateId'],
+      workoutName: json['workoutName'] ?? json['name'] ?? '',
       exercises:
-          (json['exercises'] as List?)
+          ((json['exercises'] ?? json['workoutDetail']) as List?)
               ?.map((e) => WorkoutLogExerciseModel.fromJson(e))
               .toList() ??
           [],
