@@ -2,6 +2,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:omnihealthmobileflutter/domain/abstracts/workout_log_repository_abs.dart';
 import 'package:omnihealthmobileflutter/domain/usecases/base_usecase.dart';
 import 'package:omnihealthmobileflutter/domain/usecases/workout/get_workout_logs_usecase.dart';
+import 'package:omnihealthmobileflutter/domain/usecases/chart/get_calories_burned_usecase.dart';
+import 'package:omnihealthmobileflutter/domain/usecases/chart/get_muscle_distribution_usecase.dart';
+import 'package:omnihealthmobileflutter/domain/usecases/chart/get_goal_progress_usecase.dart';
+import 'package:omnihealthmobileflutter/domain/usecases/chart/get_weight_progress_usecase.dart';
 import 'package:omnihealthmobileflutter/utils/logger.dart';
 
 import 'report_event.dart';
@@ -10,14 +14,23 @@ import 'report_state.dart';
 class ReportBloc extends Bloc<ReportEvent, ReportState> {
   final GetWorkoutLogsUseCase getWorkoutLogsUseCase;
   final WorkoutLogRepositoryAbs workoutLogRepository;
+  final GetCaloriesBurnedUseCase getCaloriesBurnedUseCase;
+  final GetMuscleDistributionUseCase getMuscleDistributionUseCase;
+  final GetGoalProgressUseCase getGoalProgressUseCase;
+  final GetWeightProgressUseCase getWeightProgressUseCase;
 
   ReportBloc({
     required this.getWorkoutLogsUseCase,
     required this.workoutLogRepository,
+    required this.getCaloriesBurnedUseCase,
+    required this.getMuscleDistributionUseCase,
+    required this.getGoalProgressUseCase,
+    required this.getWeightProgressUseCase,
   }) : super(const ReportState()) {
     on<LoadWorkoutLogs>(_onLoadWorkoutLogs);
     on<RefreshWorkoutLogs>(_onRefreshWorkoutLogs);
     on<DeleteWorkoutLog>(_onDeleteWorkoutLog);
+    on<LoadChartData>(_onLoadChartData);
   }
 
   Future<void> _onLoadWorkoutLogs(
@@ -108,6 +121,48 @@ class ReportBloc extends Bloc<ReportEvent, ReportState> {
     } catch (e) {
       logger.e('[ReportBloc] Error deleting workout log: $e');
       emit(state.copyWith(errorMessage: e.toString()));
+    }
+  }
+
+  Future<void> _onLoadChartData(
+    LoadChartData event,
+    Emitter<ReportState> emit,
+  ) async {
+    logger.i('[ReportBloc] _onLoadChartData called');
+    emit(state.copyWith(isChartLoading: true));
+
+    try {
+      // Load all chart data in parallel
+      final caloriesResponseFuture = getCaloriesBurnedUseCase(NoParams());
+      final muscleResponseFuture = getMuscleDistributionUseCase(NoParams());
+      final goalResponseFuture = getGoalProgressUseCase(NoParams());
+      final weightResponseFuture = getWeightProgressUseCase(NoParams());
+
+      final caloriesResponse = await caloriesResponseFuture;
+      final muscleResponse = await muscleResponseFuture;
+      final goalResponse = await goalResponseFuture;
+      final weightResponse = await weightResponseFuture;
+
+      emit(state.copyWith(
+        isChartLoading: false,
+        caloriesBurned: caloriesResponse.success && caloriesResponse.data != null
+            ? caloriesResponse.data!
+            : [],
+        muscleDistribution: muscleResponse.success && muscleResponse.data != null
+            ? muscleResponse.data!
+            : [],
+        goalProgress: goalResponse.success && goalResponse.data != null
+            ? goalResponse.data!
+            : [],
+        weightProgress: weightResponse.success && weightResponse.data != null
+            ? weightResponse.data!
+            : [],
+      ));
+
+      logger.i('[ReportBloc] Chart data loaded successfully');
+    } catch (e) {
+      logger.e('[ReportBloc] Error loading chart data: $e');
+      emit(state.copyWith(isChartLoading: false));
     }
   }
 }

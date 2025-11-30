@@ -27,3 +27,8 @@ class DeleteWorkoutLog extends ReportEvent {
   List<Object?> get props => [logId];
 }
 
+/// Load chart data (calories burned, muscle distribution, goal progress, weight progress)
+class LoadChartData extends ReportEvent {
+  const LoadChartData();
+}
+

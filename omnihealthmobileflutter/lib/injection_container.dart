@@ -619,7 +619,14 @@ Future<void> init() async {
 
   // Report BLoC
   sl.registerFactory(
-    () => ReportBloc(getWorkoutLogsUseCase: sl(), workoutLogRepository: sl()),
+    () => ReportBloc(
+      getWorkoutLogsUseCase: sl(),
+      workoutLogRepository: sl(),
+      getCaloriesBurnedUseCase: sl(),
+      getMuscleDistributionUseCase: sl(),
+      getGoalProgressUseCase: sl(),
+      getWeightProgressUseCase: sl(),
+    ),
   );
 
   // Change Password Cubit

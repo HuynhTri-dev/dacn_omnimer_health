@@ -32,7 +32,7 @@ export class WorkoutRepository extends BaseRepository<IWorkout> {
   async findAllWorkout(
     filter: FilterQuery<IWorkout> = {},
     options?: PaginationQueryOptions
-  ): Promise<IWorkout[]> {
+  ) {
     try {
       const page = options?.page ?? 1;
       const limit = options?.limit ?? 20;
@@ -44,15 +44,16 @@ export class WorkoutRepository extends BaseRepository<IWorkout> {
         ...(options?.filter || {}),
       };
 
-      // Chỉ lấy các trường quan trọng
-      const projection = "userId workoutTemplateId date summary";
-
       return this.model
-        .find(finalFilter, projection)
-        .populate([{ path: "workoutTemplateId", select: "_id name" }])
+        .find(finalFilter)
+        .populate([
+          { path: "workoutTemplateId", select: "_id name" },
+          { path: "workoutDetail.exerciseId", select: "_id name imageUrls" },
+        ])
         .skip(skip)
         .limit(limit)
         .sort(sort)
+        .lean()
         .exec();
     } catch (e) {
       throw e;

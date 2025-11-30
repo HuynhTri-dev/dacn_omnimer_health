@@ -50,9 +50,22 @@ class _WorkoutSessionScreenState extends State<WorkoutSessionScreen> {
             listener: (context, state) {
               if (state.status == WorkoutSessionStatus.completed) {
                 _showCompletionDialog(context, state);
+              } else if (state.status == WorkoutSessionStatus.error) {
+                _showErrorDialog(
+                  context,
+                  state.errorMessage ?? 'An error occurred',
+                );
               }
             },
             builder: (context, state) {
+              if (state.status == WorkoutSessionStatus.loading) {
+                return const Center(child: CircularProgressIndicator());
+              }
+
+              if (state.status == WorkoutSessionStatus.error) {
+                return const Center(child: CircularProgressIndicator());
+              }
+
               if (state.session == null) {
                 return const Center(child: CircularProgressIndicator());
               }
@@ -111,6 +124,52 @@ class _WorkoutSessionScreenState extends State<WorkoutSessionScreen> {
             },
           ),
         ),
+      ),
+    );
+  }
+
+  void _showErrorDialog(BuildContext context, String message) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogContext) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: AppRadius.radiusMd),
+        title: Row(
+          children: [
+            Icon(Icons.error_outline, color: AppColors.danger, size: 28.sp),
+            SizedBox(width: 8.w),
+            Text(
+              'Cannot Start Workout',
+              style: AppTypography.bodyBoldStyle(
+                fontSize: AppTypography.fontSizeLg,
+                color: AppColors.textPrimary,
+              ),
+            ),
+          ],
+        ),
+        content: Text(
+          message,
+          style: AppTypography.bodyRegularStyle(
+            fontSize: AppTypography.fontSizeBase,
+            color: AppColors.textSecondary,
+          ),
+        ),
+        actions: [
+          ElevatedButton(
+            onPressed: () {
+              Navigator.of(dialogContext).pop();
+              Navigator.of(context).pop(); // Go back to previous screen
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary),
+            child: Text(
+              'OK',
+              style: AppTypography.bodyBoldStyle(
+                fontSize: AppTypography.fontSizeSm,
+                color: AppColors.white,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

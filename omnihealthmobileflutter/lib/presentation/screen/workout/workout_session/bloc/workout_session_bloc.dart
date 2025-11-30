@@ -50,6 +50,8 @@ class WorkoutSessionBloc
     StartWorkoutEvent event,
     Emitter<WorkoutSessionState> emit,
   ) async {
+    emit(state.copyWith(status: WorkoutSessionStatus.loading));
+
     var session = ActiveWorkoutSessionEntity.fromTemplate(event.template);
 
     // Create workout on server if repository is available
@@ -111,12 +113,43 @@ class WorkoutSessionBloc
             logger.i('[WorkoutSessionBloc] Started workout on server');
           }
         } else {
+          // Server returned an error - check for health profile issue
+          String errorMessage = response.message;
+          if (errorMessage.toLowerCase().contains('health profile') ||
+              errorMessage.toLowerCase().contains('không thể tạo buổi tập')) {
+            errorMessage =
+                'Please create your Health Profile first before starting a workout. Go to Health tab to set up your profile.';
+          }
+
           logger.e(
             '[WorkoutSessionBloc] Failed to create workout on server: ${response.message}',
           );
+
+          emit(
+            state.copyWith(
+              status: WorkoutSessionStatus.error,
+              errorMessage: errorMessage,
+            ),
+          );
+          return; // Stop - don't start workout locally
         }
       } catch (e) {
         logger.e('[WorkoutSessionBloc] Error creating workout on server: $e');
+
+        // Check if error message contains health profile info
+        String errorMessage = e.toString();
+        if (errorMessage.toLowerCase().contains('health profile')) {
+          errorMessage =
+              'Please create your Health Profile first before starting a workout. Go to Health tab to set up your profile.';
+        }
+
+        emit(
+          state.copyWith(
+            status: WorkoutSessionStatus.error,
+            errorMessage: errorMessage,
+          ),
+        );
+        return; // Stop - don't start workout locally
       }
     }
 

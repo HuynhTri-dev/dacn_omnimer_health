@@ -207,24 +207,58 @@ class WorkoutLogModel {
     int durationSeconds = 0;
     if (json['durationSeconds'] != null) {
       durationSeconds = json['durationSeconds'];
+    } else if (json['summary'] != null &&
+        json['summary']['totalDuration'] != null) {
+      durationSeconds = json['summary']['totalDuration'];
     } else if (json['startedAt'] != null && json['finishedAt'] != null) {
       final started = DateTime.parse(json['startedAt']);
       final finished = DateTime.parse(json['finishedAt']);
       durationSeconds = finished.difference(started).inSeconds;
     }
 
+    // Handle workoutTemplateId as object or string
+    String? templateId;
+    String workoutName = json['workoutName'] ?? json['name'] ?? '';
+
+    if (json['workoutTemplateId'] is Map<String, dynamic>) {
+      final templateData = json['workoutTemplateId'] as Map<String, dynamic>;
+      templateId = templateData['_id'];
+      if (workoutName.isEmpty) {
+        workoutName = templateData['name'] ?? '';
+      }
+    } else if (json['workoutTemplateId'] is String) {
+      templateId = json['workoutTemplateId'];
+    } else if (json['templateId'] != null) {
+      templateId = json['templateId'];
+    }
+
+    // Parse exercises from workoutDetail
+    List<WorkoutLogExerciseModel> exercises = [];
+    final exerciseList = json['exercises'] ?? json['workoutDetail'];
+    if (exerciseList is List) {
+      exercises = exerciseList
+          .map(
+            (e) => WorkoutLogExerciseModel.fromJson(e as Map<String, dynamic>),
+          )
+          .toList();
+    }
+
+    // Handle startedAt or timeStart
+    DateTime? startedAt;
+    if (json['startedAt'] != null) {
+      startedAt = DateTime.parse(json['startedAt']);
+    } else if (json['timeStart'] != null) {
+      startedAt = DateTime.parse(json['timeStart']);
+    } else if (json['createdAt'] != null) {
+      startedAt = DateTime.parse(json['createdAt']);
+    }
+
     return WorkoutLogModel(
       id: json['_id'],
-      templateId: json['templateId'] ?? json['workoutTemplateId'],
-      workoutName: json['workoutName'] ?? json['name'] ?? '',
-      exercises:
-          ((json['exercises'] ?? json['workoutDetail']) as List?)
-              ?.map((e) => WorkoutLogExerciseModel.fromJson(e))
-              .toList() ??
-          [],
-      startedAt: json['startedAt'] != null
-          ? DateTime.parse(json['startedAt'])
-          : DateTime.now(),
+      templateId: templateId,
+      workoutName: workoutName,
+      exercises: exercises,
+      startedAt: startedAt ?? DateTime.now(),
       finishedAt: json['finishedAt'] != null
           ? DateTime.parse(json['finishedAt'])
           : null,

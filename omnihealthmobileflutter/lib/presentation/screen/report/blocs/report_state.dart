@@ -1,5 +1,9 @@
 import 'package:equatable/equatable.dart';
 import 'package:omnihealthmobileflutter/domain/entities/workout/workout_log_entity.dart';
+import 'package:omnihealthmobileflutter/domain/entities/chart/calories_burned_entity.dart';
+import 'package:omnihealthmobileflutter/domain/entities/chart/muscle_distribution_entity.dart';
+import 'package:omnihealthmobileflutter/domain/entities/chart/goal_progress_entity.dart';
+import 'package:omnihealthmobileflutter/domain/entities/chart/weight_progress_entity.dart';
 
 enum ReportStatus { initial, loading, loaded, error }
 
@@ -8,21 +12,43 @@ class ReportState extends Equatable {
   final List<WorkoutLogEntity> workoutLogs;
   final String? errorMessage;
 
+  // Chart data
+  final List<CaloriesBurnedEntity> caloriesBurned;
+  final List<MuscleDistributionEntity> muscleDistribution;
+  final List<GoalProgressEntity> goalProgress;
+  final List<WeightProgressEntity> weightProgress;
+  final bool isChartLoading;
+
   const ReportState({
     this.status = ReportStatus.initial,
     this.workoutLogs = const [],
     this.errorMessage,
+    this.caloriesBurned = const [],
+    this.muscleDistribution = const [],
+    this.goalProgress = const [],
+    this.weightProgress = const [],
+    this.isChartLoading = false,
   });
 
   ReportState copyWith({
     ReportStatus? status,
     List<WorkoutLogEntity>? workoutLogs,
     String? errorMessage,
+    List<CaloriesBurnedEntity>? caloriesBurned,
+    List<MuscleDistributionEntity>? muscleDistribution,
+    List<GoalProgressEntity>? goalProgress,
+    List<WeightProgressEntity>? weightProgress,
+    bool? isChartLoading,
   }) {
     return ReportState(
       status: status ?? this.status,
       workoutLogs: workoutLogs ?? this.workoutLogs,
       errorMessage: errorMessage,
+      caloriesBurned: caloriesBurned ?? this.caloriesBurned,
+      muscleDistribution: muscleDistribution ?? this.muscleDistribution,
+      goalProgress: goalProgress ?? this.goalProgress,
+      weightProgress: weightProgress ?? this.weightProgress,
+      isChartLoading: isChartLoading ?? this.isChartLoading,
     );
   }
 
@@ -54,6 +80,15 @@ class ReportState extends Equatable {
       workoutLogs.fold(0, (sum, log) => sum + log.completedExercisesCount);
 
   @override
-  List<Object?> get props => [status, workoutLogs, errorMessage];
+  List<Object?> get props => [
+        status,
+        workoutLogs,
+        errorMessage,
+        caloriesBurned,
+        muscleDistribution,
+        goalProgress,
+        weightProgress,
+        isChartLoading,
+      ];
 }
 
