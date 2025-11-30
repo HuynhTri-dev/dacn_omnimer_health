@@ -37,6 +37,7 @@ export class UserRepository extends BaseRepository<IUser> {
         gender: user.gender,
         birthday: user.birthday,
         roleName: roles.map((r) => r.name),
+        isDataSharingAccepted: user.isDataSharingAccepted,
       };
 
       return userResponse;
@@ -72,6 +73,7 @@ export class UserRepository extends BaseRepository<IUser> {
         birthday: user.birthday,
         roleName: roles.map((r) => r.name),
         roleIds: roles.map((r) => r._id),
+        isDataSharingAccepted: user.isDataSharingAccepted,
       };
 
       if (!user.passwordHashed) {

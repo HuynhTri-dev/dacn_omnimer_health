@@ -32,7 +32,8 @@ export class AuthService {
       imageUrl: user.imageUrl,
       gender: user.gender,
       birthday: user.birthday,
-      roleName: user.roleName, // Danh sách tên vai trò
+      roleName: user.roleName,
+      isDataSharingAccepted: user.isDataSharingAccepted,
     };
   }
 
@@ -43,7 +44,8 @@ export class AuthService {
     // Đảm bảo user có _id và roleIds để tạo payload
     const payload: DecodePayload = {
       id: user._id as Types.ObjectId,
-      roleIds: user.roleIds as Types.ObjectId[], // Giả định roleIds là Types.ObjectId[] sau khi tạo
+      roleIds: user.roleIds as Types.ObjectId[],
+      isDataSharingAccepted: user.isDataSharingAccepted,
     };
     return {
       accessToken: JwtUtils.generateAccessToken(payload),
@@ -122,6 +124,7 @@ export class AuthService {
         gender: created.gender,
         birthday: created.birthday,
         roleName: defaultRoleNames,
+        isDataSharingAccepted: created.isDataSharingAccepted,
       };
 
       await logAudit({
@@ -257,7 +260,9 @@ export class AuthService {
   ): Promise<boolean> {
     try {
       // Lấy password hash hiện tại của user
-      const currentPasswordHash = await this.userRepo.getPasswordHashById(userId);
+      const currentPasswordHash = await this.userRepo.getPasswordHashById(
+        userId
+      );
 
       if (!currentPasswordHash) {
         throw new HttpError(404, "Người dùng không tồn tại");
@@ -280,14 +285,20 @@ export class AuthService {
       );
 
       if (isSamePassword) {
-        throw new HttpError(400, "Mật khẩu mới không được trùng với mật khẩu cũ");
+        throw new HttpError(
+          400,
+          "Mật khẩu mới không được trùng với mật khẩu cũ"
+        );
       }
 
       // Mã hóa mật khẩu mới
       const newPasswordHash = await hashPassword(newPassword);
 
       // Cập nhật mật khẩu mới
-      const updated = await this.userRepo.updatePassword(userId, newPasswordHash);
+      const updated = await this.userRepo.updatePassword(
+        userId,
+        newPasswordHash
+      );
 
       if (!updated) {
         throw new HttpError(500, "Không thể cập nhật mật khẩu");

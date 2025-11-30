@@ -27,6 +27,7 @@ import { verifyAccessToken } from "../../common/middlewares/auth.middleware";
 // import { checkPermission } from "../../common/middlewares/checkPermission";
 import { HttpError } from "../../utils/HttpError";
 import dotenv from "dotenv";
+import { GraphDBService } from "../services/LOD/GraphDB.service";
 
 dotenv.config();
 
@@ -39,12 +40,15 @@ const apiUrl = process.env.AI_API;
 // }
 
 // === Instantiate Services & Repositories ===
+const graphDBService = new GraphDBService();
+
 const healthProfileService = new HealthProfileService(
   new HealthProfileRepository(HealthProfile),
-  new UserRepository(User)
+  new UserRepository(User),
+  graphDBService
 );
 
-const goalService = new GoalService(new GoalRepository(Goal));
+const goalService = new GoalService(new GoalRepository(Goal), graphDBService);
 
 const exerciseService = new ExerciseService(
   new ExerciseRepository(Exercise, ExerciseRating)

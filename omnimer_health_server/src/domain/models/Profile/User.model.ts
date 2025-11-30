@@ -30,6 +30,9 @@ export interface IUser extends Document {
   passwordResetCode?: string | null;
   passwordResetExpires?: Date | null;
   passwordResetToken?: string | null;
+
+  // LOD Data Sharing Consent
+  isDataSharingAccepted: boolean;
 }
 
 const userSchema = new Schema<IUser>(
@@ -105,6 +108,12 @@ const userSchema = new Schema<IUser>(
     passwordResetToken: {
       type: String,
       default: null,
+    },
+
+    // LOD Data Sharing Consent
+    isDataSharingAccepted: {
+      type: Boolean,
+      default: false,
     },
   },
   {

@@ -33,6 +33,19 @@ services:
     networks:
       - omnimer_network
 
+  # 3. 🕸️ GraphDB (Knowledge Graph)
+  graphdb:
+    image: ontotext/graphdb:10.6.3
+    container_name: omnimer_health_graphdb
+    ports:
+      - "7200:7200"
+    environment:
+      - GDB_HEAP_SIZE=2G
+    networks:
+      - omnimer_network
+    volumes:
+      - ./graphdb_data:/opt/graphdb/home
+
 networks:
   omnimer_network:
     driver: bridge

@@ -24,9 +24,11 @@ export class HealthProfileController {
       const userId = user?.id?.toString();
       if (!userId) return sendUnauthorized(res);
 
+      const isDataSharingAccepted = (user as any).isDataSharingAccepted;
       const created = await this.healthProfileService.createHealthProfile(
         userId,
-        req.body
+        req.body,
+        isDataSharingAccepted
       );
 
       return sendCreated(res, created, "Tạo hồ sơ sức khỏe thành công");
@@ -131,10 +133,12 @@ export class HealthProfileController {
       const { id } = req.params;
       if (!id) return sendBadRequest(res);
 
+      const isDataSharingAccepted = (user as any).isDataSharingAccepted;
       const updated = await this.healthProfileService.updateHealthProfile(
         id,
         req.body,
-        userId
+        userId,
+        isDataSharingAccepted
       );
 
       return sendSuccess(res, updated, "Cập nhật hồ sơ sức khỏe thành công");
@@ -153,9 +157,11 @@ export class HealthProfileController {
       const { id } = req.params;
       if (!id) return sendBadRequest(res);
 
+      const isDataSharingAccepted = (user as any).isDataSharingAccepted;
       const deleted = await this.healthProfileService.deleteHealthProfile(
         id,
-        userId
+        userId,
+        isDataSharingAccepted
       );
 
       return sendSuccess(res, deleted, "Xóa hồ sơ sức khỏe thành công");

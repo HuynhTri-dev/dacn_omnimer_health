@@ -19,23 +19,28 @@ import {
   calculateCaloriesByMET,
   calculateWorkoutSummary,
 } from "../../../utils/Workout/WorkoutUtil";
+import { GraphDBService } from "../LOD/GraphDB.service";
+import { LODMapper } from "../LOD/LODMapper";
 
 export class WorkoutService {
   private readonly workoutRepo: WorkoutRepository;
   private readonly workoutTemplateRepo: WorkoutTemplateRepository;
   private readonly healthProfileRepo: HealthProfileRepository;
   private readonly watchLogRepo: WatchLogRepository;
+  private readonly graphDBService: GraphDBService;
 
   constructor(
     workoutRepo: WorkoutRepository,
     workoutTemplateRepo: WorkoutTemplateRepository,
     healthProfileRepo: HealthProfileRepository,
-    watchLogRepo: WatchLogRepository
+    watchLogRepo: WatchLogRepository,
+    graphDBService: GraphDBService
   ) {
     this.workoutRepo = workoutRepo;
     this.workoutTemplateRepo = workoutTemplateRepo;
     this.healthProfileRepo = healthProfileRepo;
     this.watchLogRepo = watchLogRepo;
+    this.graphDBService = graphDBService;
   }
 
   // ======================================================
@@ -147,7 +152,11 @@ export class WorkoutService {
    * @returns The deleted workout document
    * @throws HttpError(404) if the does not exist
    */
-  async deleteWorkout(userId: string, workoutId: string) {
+  async deleteWorkout(
+    userId: string,
+    workoutId: string,
+    isDataSharingAccepted?: boolean
+  ) {
     try {
       const deleted = await this.workoutRepo.delete(workoutId);
 
@@ -159,6 +168,10 @@ export class WorkoutService {
           status: StatusLogEnum.Failure,
         });
         throw new HttpError(404, "Buổi tập không tồn tại");
+      }
+
+      if (isDataSharingAccepted) {
+        await this.graphDBService.deleteWorkoutData(workoutId);
       }
 
       await logAudit({
@@ -563,7 +576,11 @@ export class WorkoutService {
    * Trả về thông báo và kết quả summary tổng hợp.
    * @throws {HttpError} - Nếu buổi tập không tồn tại hoặc cập nhật thất bại.
    */
-  async finishWorkout(workoutId: string) {
+  async finishWorkout(
+    workoutId: string,
+    userId?: string,
+    isDataSharingAccepted?: boolean
+  ) {
     try {
       const workout = await this.workoutRepo.findById(workoutId);
       if (!workout) throw new HttpError(404, "Buổi tập không tồn tại");
@@ -573,6 +590,12 @@ export class WorkoutService {
 
       workout.summary = summary;
       await workout.save();
+
+      if (isDataSharingAccepted) {
+        await this.graphDBService.deleteWorkoutData(workoutId);
+        const rdf = LODMapper.mapWorkoutToRDF(workout);
+        await this.graphDBService.insertData(rdf);
+      }
 
       await logAudit({
         action: "finishWorkout",

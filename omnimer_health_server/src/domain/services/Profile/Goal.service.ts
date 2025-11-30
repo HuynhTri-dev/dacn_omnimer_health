@@ -4,12 +4,16 @@ import { IGoal } from "../../models";
 import { HttpError } from "../../../utils/HttpError";
 import { GoalRepository } from "../../repositories";
 import { PaginationQueryOptions } from "../../entities";
+import { GraphDBService } from "../LOD/GraphDB.service";
+import { LODMapper } from "../LOD/LODMapper";
 
 export class GoalService {
   private readonly goalRepo: GoalRepository;
+  private readonly graphDBService: GraphDBService;
 
-  constructor(goalRepo: GoalRepository) {
+  constructor(goalRepo: GoalRepository, graphDBService: GraphDBService) {
     this.goalRepo = goalRepo;
+    this.graphDBService = graphDBService;
   }
 
   // ======================================================
@@ -25,9 +29,18 @@ export class GoalService {
    * @returns The created goal document
    * @throws HttpError if creation fails
    */
-  async createGoal(userId: string, data: Partial<IGoal>) {
+  async createGoal(
+    userId: string,
+    data: Partial<IGoal>,
+    isDataSharingAccepted?: boolean
+  ) {
     try {
       const goal = await this.goalRepo.create(data);
+
+      if (isDataSharingAccepted) {
+        const rdf = LODMapper.mapGoalToRDF(goal);
+        await this.graphDBService.insertData(rdf);
+      }
 
       await logAudit({
         userId,
@@ -135,9 +148,24 @@ export class GoalService {
    * @returns The updated goal document
    * @throws HttpError if update fails
    */
-  async updateGoal(goalId: string, data: Partial<IGoal>, userId?: string) {
+  async updateGoal(
+    goalId: string,
+    data: Partial<IGoal>,
+    userId?: string,
+    isDataSharingAccepted?: boolean
+  ) {
     try {
       const updated = await this.goalRepo.update(goalId, data);
+
+      if (!updated) {
+        throw new HttpError(404, "Goal không tồn tại");
+      }
+
+      if (isDataSharingAccepted) {
+        await this.graphDBService.deleteGoalData(goalId);
+        const rdf = LODMapper.mapGoalToRDF(updated);
+        await this.graphDBService.insertData(rdf);
+      }
 
       await logAudit({
         userId,
@@ -172,7 +200,11 @@ export class GoalService {
    * @returns The deleted goal document
    * @throws HttpError(404) if the goal does not exist
    */
-  async deleteGoal(goalId: string, userId?: string) {
+  async deleteGoal(
+    goalId: string,
+    userId?: string,
+    isDataSharingAccepted?: boolean
+  ) {
     try {
       const deleted = await this.goalRepo.delete(goalId);
 
@@ -184,6 +216,10 @@ export class GoalService {
           status: StatusLogEnum.Failure,
         });
         throw new HttpError(404, "Goal không tồn tại");
+      }
+
+      if (isDataSharingAccepted) {
+        await this.graphDBService.deleteGoalData(goalId);
       }
 
       await logAudit({
