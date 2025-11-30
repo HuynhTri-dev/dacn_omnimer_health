@@ -33,7 +33,7 @@ import 'package:omnihealthmobileflutter/presentation/screen/workout/workout_temp
 import 'package:omnihealthmobileflutter/presentation/screen/workout/workout_template_ai/workout_template_ai_screen.dart';
 import 'package:omnihealthmobileflutter/presentation/screen/workout/workout_template_ai/cubit/workout_template_ai_cubit.dart';
 import 'package:omnihealthmobileflutter/presentation/screen/workout/workout_session/workout_session_screen.dart';
-import 'package:omnihealthmobileflutter/presentation/screen/workout/workout_session/cubits/workout_session_cubit.dart';
+import 'package:omnihealthmobileflutter/presentation/screen/workout/workout_session/bloc/workout_session_bloc.dart';
 import 'package:omnihealthmobileflutter/domain/entities/workout/workout_template_entity.dart';
 import 'package:omnihealthmobileflutter/domain/usecases/workout/save_workout_log_usecase.dart';
 import 'package:omnihealthmobileflutter/domain/abstracts/workout_log_repository_abs.dart';
@@ -201,7 +201,7 @@ class RouteConfig {
           return _ErrorPage(message: 'Workout template is required');
         }
         return BlocProvider(
-          create: (_) => WorkoutSessionCubit(
+          create: (_) => WorkoutSessionBloc(
             saveWorkoutLogUseCase: sl<SaveWorkoutLogUseCase>(),
             workoutLogRepository: sl<WorkoutLogRepositoryAbs>(),
             healthConnectRepository: sl<HealthConnectRepository>(),

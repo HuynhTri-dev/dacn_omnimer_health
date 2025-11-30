@@ -2,6 +2,7 @@ import 'package:omnihealthmobileflutter/core/api/api_response.dart';
 import 'package:omnihealthmobileflutter/data/datasources/workout_datasource.dart';
 import 'package:omnihealthmobileflutter/domain/abstracts/workout_log_repository_abs.dart';
 import 'package:omnihealthmobileflutter/domain/entities/workout/workout_log_entity.dart';
+import 'package:omnihealthmobileflutter/domain/entities/workout/workout_feedback_entity.dart';
 import 'package:omnihealthmobileflutter/utils/logger.dart';
 
 /// Implementation of WorkoutLogRepositoryAbs
@@ -218,6 +219,38 @@ class WorkoutLogRepositoryImpl implements WorkoutLogRepositoryAbs {
       logger.e('[WorkoutLogRepository] startWorkout error: $e');
       return ApiResponse<WorkoutLogEntity>.error(
         "Không thể bắt đầu workout: ${e.toString()}",
+        error: e,
+      );
+    }
+  }
+
+  @override
+  Future<ApiResponse<WorkoutFeedbackEntity>> createWorkoutFeedback(
+    WorkoutFeedbackEntity feedback,
+  ) async {
+    try {
+      final data = {
+        'workoutId': feedback.workoutId,
+        'suitability': feedback.suitability,
+        'workout_goal_achieved': feedback.workoutGoalAchieved,
+        'target_muscle_felt': feedback.targetMuscleFelt,
+        'injury_or_pain_notes': feedback.injuryOrPainNotes,
+        'exercise_not_suitable': feedback.exerciseNotSuitable,
+        'additionalNotes': feedback.additionalNotes,
+      };
+
+      final response = await workoutDataSource.createWorkoutFeedback(data);
+
+      return ApiResponse<WorkoutFeedbackEntity>(
+        success: response.success,
+        message: response.message,
+        data: response.data,
+        error: response.error,
+      );
+    } catch (e) {
+      logger.e('[WorkoutLogRepository] createWorkoutFeedback error: $e');
+      return ApiResponse<WorkoutFeedbackEntity>.error(
+        "Không thể tạo phản hồi workout: ${e.toString()}",
         error: e,
       );
     }

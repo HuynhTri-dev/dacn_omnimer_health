@@ -6,6 +6,7 @@ import 'package:omnihealthmobileflutter/data/models/workout/workout_stats_model.
 import 'package:omnihealthmobileflutter/data/models/workout/workout_log_model.dart';
 import 'package:omnihealthmobileflutter/utils/logger.dart';
 import 'package:omnihealthmobileflutter/utils/query_util/default_query_entity.dart';
+import 'package:omnihealthmobileflutter/data/models/workout/workout_feedback_model.dart';
 
 /// DataSource for Workout Template API calls
 class WorkoutDataSource {
@@ -401,6 +402,26 @@ class WorkoutDataSource {
       logger.e('[startWorkout] Error: $e');
       return ApiResponse<WorkoutLogModel>.error(
         "Failed to start workout: ${e.toString()}",
+      );
+    }
+  }
+
+  /// Create workout feedback
+  Future<ApiResponse<WorkoutFeedbackModel>> createWorkoutFeedback(
+    Map<String, dynamic> data,
+  ) async {
+    try {
+      final response = await apiClient.post<WorkoutFeedbackModel>(
+        Endpoints.createWorkoutFeedback,
+        data: data,
+        parser: (data) =>
+            WorkoutFeedbackModel.fromJson(data as Map<String, dynamic>),
+      );
+      return response;
+    } catch (e) {
+      logger.e('[createWorkoutFeedback] Error: $e');
+      return ApiResponse<WorkoutFeedbackModel>.error(
+        "Failed to create workout feedback: ${e.toString()}",
       );
     }
   }

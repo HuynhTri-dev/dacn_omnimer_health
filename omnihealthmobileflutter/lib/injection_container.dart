@@ -127,6 +127,7 @@ import 'package:omnihealthmobileflutter/data/repositories/healthkit_connect_impl
 import 'package:omnihealthmobileflutter/presentation/screen/healthkit_connect/bloc/healthkit_connect_bloc.dart';
 import 'package:omnihealthmobileflutter/presentation/screen/auth/change_password/cubits/change_password_cubit.dart';
 import 'package:omnihealthmobileflutter/presentation/screen/workout/workout_template_ai/cubit/workout_template_ai_cubit.dart';
+import 'package:omnihealthmobileflutter/presentation/screen/workout/workout_session/bloc/workout_session_bloc.dart';
 import 'package:omnihealthmobileflutter/data/datasources/chart_datasource.dart';
 import 'package:omnihealthmobileflutter/data/repositories/chart_repository_impl.dart';
 import 'package:omnihealthmobileflutter/domain/abstracts/chart_repository_abs.dart';
@@ -135,6 +136,7 @@ import 'package:omnihealthmobileflutter/domain/usecases/chart/get_calories_burne
 import 'package:omnihealthmobileflutter/domain/usecases/chart/get_muscle_distribution_usecase.dart';
 import 'package:omnihealthmobileflutter/domain/usecases/chart/get_goal_progress_usecase.dart';
 import 'package:omnihealthmobileflutter/domain/usecases/chart/get_weight_progress_usecase.dart';
+import 'package:omnihealthmobileflutter/domain/usecases/workout/create_workout_feedback_usecase.dart';
 
 final sl = GetIt.instance;
 
@@ -464,6 +466,10 @@ Future<void> init() async {
     () => GetWeightProgressUseCase(sl()),
   );
 
+  sl.registerLazySingleton<CreateWorkoutFeedbackUseCase>(
+    () => CreateWorkoutFeedbackUseCase(sl()),
+  );
+
   // ======================
   // Blocs / Cubits
   // ======================
@@ -596,6 +602,14 @@ Future<void> init() async {
       getAllExerciseTypesUseCase: sl(),
       getAllMusclesUseCase: sl(),
       recommendWorkoutUseCase: sl(),
+    ),
+  );
+  sl.registerFactory(
+    () => WorkoutSessionBloc(
+      saveWorkoutLogUseCase: sl(),
+      workoutLogRepository: sl(),
+      healthConnectRepository: sl(),
+      createWorkoutFeedbackUseCase: sl(),
     ),
   );
 }

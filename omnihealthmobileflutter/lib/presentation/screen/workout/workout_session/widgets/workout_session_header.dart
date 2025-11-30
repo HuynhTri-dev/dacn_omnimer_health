@@ -45,10 +45,7 @@ class _WorkoutSessionHeader extends StatelessWidget {
               color: AppColors.textPrimary,
             ),
             padding: EdgeInsets.zero,
-            constraints: BoxConstraints(
-              minWidth: 40.w,
-              minHeight: 40.h,
-            ),
+            constraints: BoxConstraints(minWidth: 40.w, minHeight: 40.h),
           ),
 
           // Workout name and timer
@@ -92,11 +89,7 @@ class _WorkoutSessionHeader extends StatelessWidget {
                         ),
                       ),
                       SizedBox(width: 4.w),
-                      Icon(
-                        Icons.edit,
-                        size: 14.sp,
-                        color: AppColors.textMuted,
-                      ),
+                      Icon(Icons.edit, size: 14.sp, color: AppColors.textMuted),
                     ],
                   ),
                 ),
@@ -114,9 +107,7 @@ class _WorkoutSessionHeader extends StatelessWidget {
                 horizontal: AppSpacing.lg.w,
                 vertical: AppSpacing.sm.h,
               ),
-              shape: RoundedRectangleBorder(
-                borderRadius: AppRadius.radiusSm,
-              ),
+              shape: RoundedRectangleBorder(borderRadius: AppRadius.radiusSm),
               elevation: 0,
             ),
             child: Text(
@@ -132,4 +123,3 @@ class _WorkoutSessionHeader extends StatelessWidget {
     );
   }
 }
-

@@ -3,8 +3,11 @@ import 'package:omnihealthmobileflutter/domain/entities/workout/active_workout_s
 
 enum WorkoutSessionStatus { initial, loading, active, paused, completed, error }
 
+enum FeedbackSubmissionStatus { initial, submitting, success, failure }
+
 class WorkoutSessionState extends Equatable {
   final WorkoutSessionStatus status;
+  final FeedbackSubmissionStatus feedbackStatus;
   final ActiveWorkoutSessionEntity? session;
   final String? errorMessage;
   final int? currentExerciseIndex;
@@ -21,6 +24,7 @@ class WorkoutSessionState extends Equatable {
 
   const WorkoutSessionState({
     this.status = WorkoutSessionStatus.initial,
+    this.feedbackStatus = FeedbackSubmissionStatus.initial,
     this.session,
     this.errorMessage,
     this.currentExerciseIndex,
@@ -36,6 +40,7 @@ class WorkoutSessionState extends Equatable {
 
   WorkoutSessionState copyWith({
     WorkoutSessionStatus? status,
+    FeedbackSubmissionStatus? feedbackStatus,
     ActiveWorkoutSessionEntity? session,
     String? errorMessage,
     int? currentExerciseIndex,
@@ -52,6 +57,7 @@ class WorkoutSessionState extends Equatable {
   }) {
     return WorkoutSessionState(
       status: status ?? this.status,
+      feedbackStatus: feedbackStatus ?? this.feedbackStatus,
       session: session ?? this.session,
       errorMessage: errorMessage,
       currentExerciseIndex: currentExerciseIndex ?? this.currentExerciseIndex,
@@ -121,6 +127,7 @@ class WorkoutSessionState extends Equatable {
   @override
   List<Object?> get props => [
     status,
+    feedbackStatus,
     session,
     errorMessage,
     currentExerciseIndex,

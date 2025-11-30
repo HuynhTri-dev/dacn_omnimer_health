@@ -1,5 +1,6 @@
 import 'package:omnihealthmobileflutter/core/api/api_response.dart';
 import 'package:omnihealthmobileflutter/domain/entities/workout/workout_log_entity.dart';
+import 'package:omnihealthmobileflutter/domain/entities/workout/workout_feedback_entity.dart';
 
 /// Abstract repository for Workout Log operations
 abstract class WorkoutLogRepositoryAbs {
@@ -42,4 +43,9 @@ abstract class WorkoutLogRepositoryAbs {
 
   /// Start a workout
   Future<ApiResponse<WorkoutLogEntity>> startWorkout(String id);
+
+  /// Create workout feedback
+  Future<ApiResponse<WorkoutFeedbackEntity>> createWorkoutFeedback(
+    WorkoutFeedbackEntity feedback,
+  );
 }

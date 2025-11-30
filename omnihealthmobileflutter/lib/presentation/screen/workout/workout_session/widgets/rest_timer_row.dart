@@ -8,7 +8,7 @@ class _RestTimerRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<WorkoutSessionCubit, WorkoutSessionState>(
+    return BlocBuilder<WorkoutSessionBloc, WorkoutSessionState>(
       buildWhen: (previous, current) =>
           previous.isResting != current.isResting ||
           previous.restTimeRemaining != current.restTimeRemaining ||
@@ -78,7 +78,7 @@ class _RestTimerRow extends StatelessWidget {
               // Add time button
               IconButton(
                 onPressed: () {
-                  context.read<WorkoutSessionCubit>().addRestTime(30);
+                  context.read<WorkoutSessionBloc>().add(AddRestTimeEvent(30));
                 },
                 icon: Container(
                   padding: EdgeInsets.all(6.w),
@@ -101,7 +101,7 @@ class _RestTimerRow extends StatelessWidget {
               // Skip button
               TextButton(
                 onPressed: () {
-                  context.read<WorkoutSessionCubit>().skipRestTimer();
+                  context.read<WorkoutSessionBloc>().add(SkipRestTimerEvent());
                 },
                 style: TextButton.styleFrom(
                   padding: EdgeInsets.symmetric(

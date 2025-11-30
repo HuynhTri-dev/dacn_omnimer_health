@@ -11,7 +11,7 @@ class _ActiveExerciseCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<WorkoutSessionCubit, WorkoutSessionState>(
+    return BlocBuilder<WorkoutSessionBloc, WorkoutSessionState>(
       buildWhen: (previous, current) =>
           previous.currentExerciseIndex != current.currentExerciseIndex ||
           previous.currentSetIndex != current.currentSetIndex ||
@@ -72,8 +72,8 @@ class _ActiveExerciseCard extends StatelessWidget {
   Widget _buildExerciseHeader(BuildContext context) {
     return InkWell(
       onTap: () {
-        context.read<WorkoutSessionCubit>().toggleExerciseExpansion(
-          exerciseIndex,
+        context.read<WorkoutSessionBloc>().add(
+          ToggleExerciseExpansionEvent(exerciseIndex),
         );
       },
       borderRadius: AppRadius.topMd,
@@ -186,7 +186,7 @@ class _ActiveExerciseCard extends StatelessWidget {
   Widget _buildAddSetButton(BuildContext context) {
     return InkWell(
       onTap: () {
-        context.read<WorkoutSessionCubit>().addSet(exerciseIndex);
+        context.read<WorkoutSessionBloc>().add(AddSetEvent(exerciseIndex));
       },
       child: Container(
         padding: EdgeInsets.symmetric(vertical: AppSpacing.md.h),
@@ -240,7 +240,11 @@ class _ActiveExerciseCard extends StatelessWidget {
               ),
               onTap: () {
                 Navigator.pop(context);
-                // Navigate to exercise detail
+                Navigator.pushNamed(
+                  context,
+                  RouteConfig.exerciseDetail,
+                  arguments: {'exerciseId': exercise.exerciseId},
+                );
               },
             ),
             ListTile(

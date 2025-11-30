@@ -115,10 +115,12 @@ class _ActiveSetRowState extends State<_ActiveSetRow> {
                   onChanged: (value) {
                     final weight = double.tryParse(value);
                     if (weight != null) {
-                      context.read<WorkoutSessionCubit>().updateSetWeight(
-                        widget.exerciseIndex,
-                        widget.setIndex,
-                        weight,
+                      context.read<WorkoutSessionBloc>().add(
+                        UpdateSetWeightEvent(
+                          widget.exerciseIndex,
+                          widget.setIndex,
+                          weight,
+                        ),
                       );
                     }
                   },
@@ -134,10 +136,12 @@ class _ActiveSetRowState extends State<_ActiveSetRow> {
                   onChanged: (value) {
                     final reps = int.tryParse(value);
                     if (reps != null) {
-                      context.read<WorkoutSessionCubit>().updateSetReps(
-                        widget.exerciseIndex,
-                        widget.setIndex,
-                        reps,
+                      context.read<WorkoutSessionBloc>().add(
+                        UpdateSetRepsEvent(
+                          widget.exerciseIndex,
+                          widget.setIndex,
+                          reps,
+                        ),
                       );
                     }
                   },
@@ -153,9 +157,8 @@ class _ActiveSetRowState extends State<_ActiveSetRow> {
   Widget _buildCheckbox(BuildContext context, bool isCompleted) {
     return GestureDetector(
       onTap: () {
-        context.read<WorkoutSessionCubit>().toggleSetCompletion(
-          widget.exerciseIndex,
-          widget.setIndex,
+        context.read<WorkoutSessionBloc>().add(
+          ToggleSetCompletionEvent(widget.exerciseIndex, widget.setIndex),
         );
       },
       child: Container(
