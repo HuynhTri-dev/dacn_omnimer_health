@@ -28,4 +28,24 @@ export class WatchLogRepository extends BaseRepository<IWatchLog> {
     const result = await this.model.deleteMany(filter);
     return result; // { acknowledged: boolean, deletedCount: number }
   }
+
+  /**
+   * Tìm các WatchLog trong khoảng thời gian
+   * @param userId - ID người dùng
+   * @param startTime - Thời gian bắt đầu
+   * @param endTime - Thời gian kết thúc
+   */
+  async findLogsByTimeRange(
+    userId: string,
+    startTime: Date,
+    endTime: Date
+  ): Promise<IWatchLog[]> {
+    return this.model
+      .find({
+        userId: userId,
+        date: { $gte: startTime, $lte: endTime },
+      })
+      .sort({ date: 1 })
+      .exec();
+  }
 }

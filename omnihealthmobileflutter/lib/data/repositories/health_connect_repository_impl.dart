@@ -8,6 +8,7 @@ import '../models/health_connect_model.dart';
 import '../datasources/watch_log_datasource.dart';
 import '../../services/shared_preferences_service.dart';
 import '../../utils/health_data_utils.dart';
+import '../../utils/health_data_mocker.dart';
 
 class HealthConnectRepositoryImpl implements HealthConnectRepository {
   final health_pkg.Health _health;
@@ -68,23 +69,37 @@ class HealthConnectRepositoryImpl implements HealthConnectRepository {
     try {
       if (!Platform.isAndroid) return false;
 
-      final types = [
+      final readTypes = [
         health_pkg.HealthDataType.STEPS,
         health_pkg.HealthDataType.DISTANCE_DELTA,
         health_pkg.HealthDataType.ACTIVE_ENERGY_BURNED,
         health_pkg.HealthDataType.HEART_RATE,
         health_pkg.HealthDataType.RESTING_HEART_RATE,
-        health_pkg.HealthDataType.SLEEP_IN_BED,
         health_pkg.HealthDataType.SLEEP_ASLEEP,
         health_pkg.HealthDataType.SLEEP_DEEP,
         health_pkg.HealthDataType.SLEEP_REM,
-        health_pkg.HealthDataType.EXERCISE_TIME,
         health_pkg.HealthDataType.WORKOUT,
       ];
 
-      final permissions = await _health.requestAuthorization(types);
-      _logger.i('Health Connect permissions granted: $permissions');
-      return permissions;
+      final writeTypes = [
+        health_pkg.HealthDataType.STEPS,
+        health_pkg.HealthDataType.DISTANCE_DELTA,
+        health_pkg.HealthDataType.ACTIVE_ENERGY_BURNED,
+        health_pkg.HealthDataType.HEART_RATE,
+      ];
+
+      final types = [...readTypes, ...writeTypes];
+      final permissions = [
+        ...readTypes.map((e) => health_pkg.HealthDataAccess.READ),
+        ...writeTypes.map((e) => health_pkg.HealthDataAccess.WRITE),
+      ];
+
+      final permissionsGranted = await _health.requestAuthorization(
+        types,
+        permissions: permissions,
+      );
+      _logger.i('Health Connect permissions granted: $permissionsGranted');
+      return permissionsGranted;
     } catch (e) {
       _logger.e('Error requesting Health Connect permissions: $e');
       return false;
@@ -96,21 +111,36 @@ class HealthConnectRepositoryImpl implements HealthConnectRepository {
     try {
       if (!Platform.isAndroid) return false;
 
-      final types = [
+      final readTypes = [
         health_pkg.HealthDataType.STEPS,
         health_pkg.HealthDataType.DISTANCE_DELTA,
         health_pkg.HealthDataType.ACTIVE_ENERGY_BURNED,
         health_pkg.HealthDataType.HEART_RATE,
         health_pkg.HealthDataType.RESTING_HEART_RATE,
-        health_pkg.HealthDataType.SLEEP_IN_BED,
         health_pkg.HealthDataType.SLEEP_ASLEEP,
         health_pkg.HealthDataType.SLEEP_DEEP,
         health_pkg.HealthDataType.SLEEP_REM,
-        health_pkg.HealthDataType.EXERCISE_TIME,
         health_pkg.HealthDataType.WORKOUT,
       ];
 
-      final hasPermissions = await _health.hasPermissions(types);
+      final writeTypes = [
+        health_pkg.HealthDataType.STEPS,
+        health_pkg.HealthDataType.DISTANCE_DELTA,
+        health_pkg.HealthDataType.ACTIVE_ENERGY_BURNED,
+        health_pkg.HealthDataType.HEART_RATE,
+      ];
+
+      final types = [...readTypes, ...writeTypes];
+      final permissions = [
+        ...readTypes.map((e) => health_pkg.HealthDataAccess.READ),
+        ...writeTypes.map((e) => health_pkg.HealthDataAccess.WRITE),
+      ];
+
+      final hasPermissions = await _health.hasPermissions(
+        types,
+        permissions: permissions,
+      );
+
       _logger.i('Health Connect has permissions: $hasPermissions');
       return hasPermissions ?? false;
     } catch (e) {
@@ -274,6 +304,39 @@ class HealthConnectRepositoryImpl implements HealthConnectRepository {
   }
 
   @override
+  Future<bool> syncHealthDataForRange(
+    DateTime startTime,
+    DateTime endTime,
+  ) async {
+    try {
+      // Fetch raw data points directly to avoid daily grouping
+      final types = [
+        health_pkg.HealthDataType.STEPS,
+        health_pkg.HealthDataType.DISTANCE_DELTA,
+        health_pkg.HealthDataType.ACTIVE_ENERGY_BURNED,
+        health_pkg.HealthDataType.HEART_RATE,
+      ];
+
+      final healthDataPoints = await _health.getHealthDataFromTypes(
+        types: types,
+        startTime: startTime,
+        endTime: endTime,
+      );
+
+      // Aggregate all points into a single log with the specific startTime
+      final aggregatedData = HealthDataUtils.processHealthDataAggregated(
+        healthDataPoints,
+        startTime,
+      );
+
+      return await syncHealthDataToBackend(healthData: [aggregatedData]);
+    } catch (e) {
+      _logger.e('Error syncing health data for range: $e');
+      return false;
+    }
+  }
+
+  @override
   Future<DateTime?> getLastSyncTimestamp() async {
     try {
       final timestamp = await _sharedPreferencesService.get<String>(
@@ -305,6 +368,24 @@ class HealthConnectRepositoryImpl implements HealthConnectRepository {
   @override
   Stream<List<HealthConnectWorkoutData>> get workoutDataStream =>
       _workoutDataController.stream;
+
+  @override
+  Future<void> writeMockData(DateTime startTime, DateTime endTime) async {
+    try {
+      if (!Platform.isAndroid) return;
+
+      // Check permissions first to ensure we can write
+      if (!await hasPermissions()) {
+        _logger.w('Cannot write mock data: Missing permissions');
+        return;
+      }
+
+      final mocker = HealthDataMocker(_health);
+      await mocker.writeMockSessionData(startTime: startTime, endTime: endTime);
+    } catch (e) {
+      _logger.e('Error writing mock data: $e');
+    }
+  }
 
   void dispose() {
     _healthDataController.close();

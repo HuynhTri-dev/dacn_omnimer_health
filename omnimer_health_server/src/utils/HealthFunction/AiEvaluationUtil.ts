@@ -25,7 +25,9 @@ function parseJsonSafe(str: string): any {
  */
 export async function callOllamaEvaluation(profileData: any) {
   try {
-    const response = await axios.post("http://localhost:11434/api/generate", {
+    const ollamaUrl =
+      process.env.OLLAMA_BASE_URL || "http://host.docker.internal:11434";
+    const response = await axios.post(`${ollamaUrl}/api/generate`, {
       model: "gpt-oss:120b-cloud",
       prompt: `
       Analyze the following health profile and provide a structured JSON response.

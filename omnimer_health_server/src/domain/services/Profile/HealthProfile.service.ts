@@ -7,6 +7,8 @@ import { IRAGHealthProfile, PaginationQueryOptions } from "../../entities";
 import { calculateHealthMetrics } from "../../../utils/HealthFunction/HealthCalculationUtil";
 import { callOllamaEvaluation } from "../../../utils/HealthFunction/AiEvaluationUtil";
 import { Types } from "mongoose";
+import { GraphDBService } from "../LOD/GraphDB.service";
+import { LODMapper } from "../LOD/LODMapper";
 
 /**
  * Service class for handling HealthProfile-related operations.
@@ -15,13 +17,16 @@ import { Types } from "mongoose";
 export class HealthProfileService {
   private readonly healthProfileRepo: HealthProfileRepository;
   private readonly userRepo: UserRepository;
+  private readonly graphDBService: GraphDBService;
 
   constructor(
     healthProfileRepo: HealthProfileRepository,
-    userRepo: UserRepository
+    userRepo: UserRepository,
+    graphDBService: GraphDBService
   ) {
     this.healthProfileRepo = healthProfileRepo;
     this.userRepo = userRepo;
+    this.graphDBService = graphDBService;
   }
 
   // =========================================================
@@ -37,7 +42,11 @@ export class HealthProfileService {
    *
    * @throws HttpError - If user or health profile creation fails.
    */
-  async createHealthProfile(userId: string, data: Partial<IHealthProfile>) {
+  async createHealthProfile(
+    userId: string,
+    data: Partial<IHealthProfile>,
+    isDataSharingAccepted?: boolean
+  ) {
     try {
       // Retrieve user information
       const user = await this.userRepo.findById(
@@ -82,6 +91,11 @@ export class HealthProfileService {
         checkupDate: new Date(),
         aiEvaluation,
       });
+
+      if (isDataSharingAccepted) {
+        const rdf = LODMapper.mapHealthProfileToRDF(healthProfile);
+        await this.graphDBService.insertData(rdf);
+      }
 
       // Audit log
       await logAudit({
@@ -254,7 +268,8 @@ export class HealthProfileService {
   async updateHealthProfile(
     healthProfileId: string,
     data: Partial<IHealthProfile>,
-    userId: string
+    userId: string,
+    isDataSharingAccepted?: boolean
   ) {
     try {
       // Retrieve existing profile
@@ -304,6 +319,16 @@ export class HealthProfileService {
         updatedAt: new Date(),
       });
 
+      if (!updated) {
+        throw new HttpError(404, "Update health profile failed");
+      }
+
+      if (isDataSharingAccepted) {
+        await this.graphDBService.deleteHealthProfileData(healthProfileId);
+        const rdf = LODMapper.mapHealthProfileToRDF(updated);
+        await this.graphDBService.insertData(rdf);
+      }
+
       // Audit log
       await logAudit({
         userId,
@@ -338,7 +363,11 @@ export class HealthProfileService {
    *
    * @throws HttpError - If the profile does not exist.
    */
-  async deleteHealthProfile(healthProfileId: string, userId: string) {
+  async deleteHealthProfile(
+    healthProfileId: string,
+    userId: string,
+    isDataSharingAccepted?: boolean
+  ) {
     try {
       const existing = await this.healthProfileRepo.findById(healthProfileId);
       if (!existing) {
@@ -355,6 +384,10 @@ export class HealthProfileService {
       }
 
       const deleted = await this.healthProfileRepo.delete(healthProfileId);
+
+      if (isDataSharingAccepted) {
+        await this.graphDBService.deleteHealthProfileData(healthProfileId);
+      }
 
       await logAudit({
         userId,

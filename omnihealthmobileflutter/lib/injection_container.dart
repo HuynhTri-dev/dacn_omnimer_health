@@ -12,8 +12,12 @@ import 'package:omnihealthmobileflutter/data/datasources/role_datasource.dart';
 import 'package:omnihealthmobileflutter/data/datasources/watch_log_datasource.dart';
 import 'package:omnihealthmobileflutter/data/datasources/health_profile_remote_datasource.dart';
 import 'package:omnihealthmobileflutter/data/datasources/goal_remote_datasource.dart';
-
+import 'package:omnihealthmobileflutter/data/datasources/workout_datasource.dart';
+import 'package:omnihealthmobileflutter/data/datasources/verification_datasource.dart';
+import 'package:omnihealthmobileflutter/data/datasources/ai_remote_datasource.dart';
+import 'package:omnihealthmobileflutter/data/datasources/forgot_password_datasource.dart';
 import 'package:omnihealthmobileflutter/data/repositories/auth_repository_impl.dart';
+import 'package:omnihealthmobileflutter/data/repositories/verification_repository_impl.dart';
 import 'package:omnihealthmobileflutter/data/repositories/body_part_repository_impl.dart';
 import 'package:omnihealthmobileflutter/data/repositories/equipment_repository_impl.dart';
 import 'package:omnihealthmobileflutter/data/repositories/exercise_category_repository_impl.dart';
@@ -24,6 +28,7 @@ import 'package:omnihealthmobileflutter/data/repositories/muscle_repository_impl
 import 'package:omnihealthmobileflutter/data/repositories/role_repository_impl.dart';
 import 'package:omnihealthmobileflutter/data/repositories/health_profile_repository_impl.dart';
 import 'package:omnihealthmobileflutter/data/repositories/goal_repository_impl.dart';
+import 'package:omnihealthmobileflutter/data/repositories/ai_repository_impl.dart';
 import 'package:omnihealthmobileflutter/domain/abstracts/auth_repository_abs.dart';
 import 'package:omnihealthmobileflutter/domain/abstracts/body_part_repository_abs.dart';
 import 'package:omnihealthmobileflutter/domain/abstracts/equipment_repository_abs.dart';
@@ -35,12 +40,25 @@ import 'package:omnihealthmobileflutter/domain/abstracts/muscle_repository_abs.d
 import 'package:omnihealthmobileflutter/domain/abstracts/role_repositoy_abs.dart';
 import 'package:omnihealthmobileflutter/domain/abstracts/health_profile_repository.dart';
 import 'package:omnihealthmobileflutter/domain/abstracts/goal_repository.dart';
+import 'package:omnihealthmobileflutter/domain/abstracts/ai_repository_abs.dart';
+import 'package:omnihealthmobileflutter/domain/abstracts/verification_repository_abs.dart';
+import 'package:omnihealthmobileflutter/domain/abstracts/forgot_password_repository_abs.dart';
+import 'package:omnihealthmobileflutter/data/repositories/forgot_password_repository_impl.dart';
 import 'package:omnihealthmobileflutter/domain/usecases/auth/get_auth_usecase.dart';
+import 'package:omnihealthmobileflutter/domain/usecases/auth/get_verification_status_usecase.dart';
+import 'package:omnihealthmobileflutter/domain/usecases/auth/send_verification_email_usecase.dart';
+import 'package:omnihealthmobileflutter/domain/usecases/auth/resend_verification_email_usecase.dart';
+import 'package:omnihealthmobileflutter/domain/usecases/auth/request_change_email_usecase.dart';
 import 'package:omnihealthmobileflutter/domain/usecases/auth/login_usecase.dart';
 import 'package:omnihealthmobileflutter/domain/usecases/auth/logout_usecase.dart';
 import 'package:omnihealthmobileflutter/domain/usecases/auth/refresh_token_usecase.dart';
 import 'package:omnihealthmobileflutter/domain/usecases/auth/register_usecase.dart';
 import 'package:omnihealthmobileflutter/domain/usecases/auth/update_user_usecase.dart';
+import 'package:omnihealthmobileflutter/domain/usecases/auth/change_password_usecase.dart';
+import 'package:omnihealthmobileflutter/domain/usecases/auth/request_password_reset_usecase.dart';
+import 'package:omnihealthmobileflutter/domain/usecases/auth/verify_reset_code_usecase.dart';
+import 'package:omnihealthmobileflutter/domain/usecases/auth/reset_password_usecase.dart';
+import 'package:omnihealthmobileflutter/domain/usecases/auth/resend_reset_code_usecase.dart';
 import 'package:omnihealthmobileflutter/domain/usecases/exercise/get_all_body_parts_usecase.dart';
 import 'package:omnihealthmobileflutter/domain/usecases/exercise/get_all_equipments_usecase.dart';
 import 'package:omnihealthmobileflutter/domain/usecases/exercise/get_all_exercise_categories_usecase.dart';
@@ -76,9 +94,18 @@ import 'package:omnihealthmobileflutter/presentation/screen/health_profile/healt
 import 'package:omnihealthmobileflutter/presentation/screen/health_profile/health_profile_form/bloc/health_profile_form_bloc.dart';
 import 'package:omnihealthmobileflutter/presentation/screen/goal/bloc/goal_bloc.dart';
 import 'package:omnihealthmobileflutter/presentation/screen/auth/info_account/cubits/info_account_cubit.dart';
+import 'package:omnihealthmobileflutter/presentation/screen/auth/verify_account/cubits/verify_account_cubit.dart';
 import 'package:omnihealthmobileflutter/presentation/screen/health_connect/bloc/health_connect_bloc.dart';
+import 'package:omnihealthmobileflutter/presentation/screen/workout/workout_home/blocs/workout_home_bloc.dart';
 import 'package:omnihealthmobileflutter/domain/abstracts/health_connect_repository.dart';
 import 'package:omnihealthmobileflutter/data/repositories/health_connect_repository_impl.dart';
+import 'package:omnihealthmobileflutter/domain/abstracts/workout_template_repository_abs.dart';
+import 'package:omnihealthmobileflutter/domain/abstracts/workout_stats_repository_abs.dart';
+import 'package:omnihealthmobileflutter/data/repositories/workout_template_repository_impl.dart';
+import 'package:omnihealthmobileflutter/data/repositories/workout_stats_repository_impl.dart';
+import 'package:omnihealthmobileflutter/data/repositories/workout_log_repository_impl.dart';
+import 'package:omnihealthmobileflutter/domain/abstracts/workout_log_repository_abs.dart';
+
 import 'package:omnihealthmobileflutter/domain/usecases/health_connect/check_health_connect_availability.dart';
 import 'package:omnihealthmobileflutter/domain/usecases/health_connect/request_health_permissions.dart';
 import 'package:omnihealthmobileflutter/domain/usecases/health_connect/get_today_health_data.dart';
@@ -86,8 +113,38 @@ import 'package:omnihealthmobileflutter/domain/usecases/health_connect/get_healt
 import 'package:omnihealthmobileflutter/domain/usecases/health_connect/sync_health_data_to_backend.dart';
 import 'package:omnihealthmobileflutter/domain/usecases/health_connect/start_workout_session.dart';
 import 'package:omnihealthmobileflutter/domain/usecases/health_connect/stop_workout_session.dart';
+import 'package:omnihealthmobileflutter/domain/usecases/workout/get_workout_templates_usecase.dart';
+import 'package:omnihealthmobileflutter/domain/usecases/workout/get_user_workout_templates_usecase.dart';
+import 'package:omnihealthmobileflutter/domain/usecases/workout/get_workout_template_by_id_usecase.dart';
+import 'package:omnihealthmobileflutter/domain/usecases/workout/delete_workout_template_usecase.dart';
+import 'package:omnihealthmobileflutter/domain/usecases/workout/get_weekly_workout_stats_usecase.dart';
+import 'package:omnihealthmobileflutter/domain/usecases/workout/create_workout_template_usecase.dart';
+import 'package:omnihealthmobileflutter/domain/usecases/workout/update_workout_template_usecase.dart';
+import 'package:omnihealthmobileflutter/domain/usecases/workout/save_workout_log_usecase.dart';
+import 'package:omnihealthmobileflutter/domain/usecases/workout/get_workout_logs_usecase.dart';
+import 'package:omnihealthmobileflutter/domain/usecases/workout/complete_workout_set_usecase.dart';
+import 'package:omnihealthmobileflutter/domain/usecases/workout/complete_workout_exercise_usecase.dart';
+import 'package:omnihealthmobileflutter/domain/usecases/workout/finish_workout_usecase.dart';
+import 'package:omnihealthmobileflutter/presentation/screen/report/blocs/report_bloc.dart';
+import 'package:omnihealthmobileflutter/domain/usecases/ai/recommend_workout_usecase.dart';
 import 'package:health/health.dart';
 import 'package:logger/logger.dart';
+import 'package:omnihealthmobileflutter/domain/abstracts/healthkit_connect_abs.dart';
+import 'package:omnihealthmobileflutter/data/repositories/healthkit_connect_impl.dart';
+import 'package:omnihealthmobileflutter/presentation/screen/healthkit_connect/bloc/healthkit_connect_bloc.dart';
+import 'package:omnihealthmobileflutter/presentation/screen/auth/change_password/cubits/change_password_cubit.dart';
+import 'package:omnihealthmobileflutter/presentation/screen/auth/forgot_password/cubits/forgot_password_cubit.dart';
+import 'package:omnihealthmobileflutter/presentation/screen/workout/workout_template_ai/cubit/workout_template_ai_cubit.dart';
+import 'package:omnihealthmobileflutter/presentation/screen/workout/workout_session/bloc/workout_session_bloc.dart';
+import 'package:omnihealthmobileflutter/data/datasources/chart_datasource.dart';
+import 'package:omnihealthmobileflutter/data/repositories/chart_repository_impl.dart';
+import 'package:omnihealthmobileflutter/domain/abstracts/chart_repository_abs.dart';
+import 'package:omnihealthmobileflutter/domain/usecases/chart/get_workout_frequency_usecase.dart';
+import 'package:omnihealthmobileflutter/domain/usecases/chart/get_calories_burned_usecase.dart';
+import 'package:omnihealthmobileflutter/domain/usecases/chart/get_muscle_distribution_usecase.dart';
+import 'package:omnihealthmobileflutter/domain/usecases/chart/get_goal_progress_usecase.dart';
+import 'package:omnihealthmobileflutter/domain/usecases/chart/get_weight_progress_usecase.dart';
+import 'package:omnihealthmobileflutter/domain/usecases/workout/create_workout_feedback_usecase.dart';
 
 final sl = GetIt.instance;
 
@@ -153,6 +210,26 @@ Future<void> init() async {
     () => GoalRemoteDataSourceImpl(apiClient: sl()),
   );
 
+  sl.registerLazySingleton<WorkoutDataSource>(
+    () => WorkoutDataSource(apiClient: sl()),
+  );
+
+  sl.registerLazySingleton<VerificationDataSource>(
+    () => VerificationDataSourceImpl(apiClient: sl()),
+  );
+
+  sl.registerLazySingleton<AIRemoteDataSource>(
+    () => AIRemoteDataSourceImpl(apiClient: sl()),
+  );
+
+  sl.registerLazySingleton<ChartDataSource>(
+    () => ChartDataSource(apiClient: sl()),
+  );
+
+  sl.registerLazySingleton<ForgotPasswordDataSource>(
+    () => ForgotPasswordDataSourceImpl(apiClient: sl()),
+  );
+
   // ======================
   // Repositories
   // ======================
@@ -199,6 +276,36 @@ Future<void> init() async {
     () => HealthConnectRepositoryImpl(sl(), sl(), sl(), sl()),
   );
 
+  sl.registerLazySingleton<HealthKitConnectRepository>(
+    () => HealthKitConnectRepositoryImpl(sl(), sl(), sl(), sl()),
+  );
+
+  // Workout Repositories
+  sl.registerLazySingleton<WorkoutTemplateRepositoryAbs>(
+    () => WorkoutTemplateRepositoryImpl(workoutDataSource: sl()),
+  );
+  sl.registerLazySingleton<WorkoutStatsRepositoryAbs>(
+    () => WorkoutStatsRepositoryImpl(workoutDataSource: sl()),
+  );
+  sl.registerLazySingleton<WorkoutLogRepositoryAbs>(
+    () => WorkoutLogRepositoryImpl(workoutDataSource: sl()),
+  );
+
+  sl.registerLazySingleton<VerificationRepositoryAbs>(
+    () => VerificationRepositoryImpl(dataSource: sl()),
+  );
+  sl.registerLazySingleton<AIRepositoryAbs>(
+    () => AIRepositoryImpl(remoteDataSource: sl()),
+  );
+
+  sl.registerLazySingleton<ChartRepositoryAbs>(
+    () => ChartRepositoryImpl(chartDataSource: sl()),
+  );
+
+  sl.registerLazySingleton<ForgotPasswordRepositoryAbs>(
+    () => ForgotPasswordRepositoryImpl(dataSource: sl()),
+  );
+
   // ======================
   // Use case
   // ======================
@@ -210,6 +317,38 @@ Future<void> init() async {
   );
   sl.registerLazySingleton<RegisterUseCase>(() => RegisterUseCase(sl()));
   sl.registerLazySingleton<UpdateUserUseCase>(() => UpdateUserUseCase(sl()));
+  sl.registerLazySingleton<ChangePasswordUseCase>(
+    () => ChangePasswordUseCase(sl()),
+  );
+
+  // Forgot Password Use Cases
+  sl.registerLazySingleton<RequestPasswordResetUseCase>(
+    () => RequestPasswordResetUseCase(sl()),
+  );
+  sl.registerLazySingleton<VerifyResetCodeUseCase>(
+    () => VerifyResetCodeUseCase(sl()),
+  );
+  sl.registerLazySingleton<ResetPasswordUseCase>(
+    () => ResetPasswordUseCase(sl()),
+  );
+  sl.registerLazySingleton<ResendResetCodeUseCase>(
+    () => ResendResetCodeUseCase(sl()),
+  );
+
+  // Verification Use Cases
+  sl.registerLazySingleton<GetVerificationStatusUseCase>(
+    () => GetVerificationStatusUseCase(sl()),
+  );
+  sl.registerLazySingleton<SendVerificationEmailUseCase>(
+    () => SendVerificationEmailUseCase(sl()),
+  );
+  sl.registerLazySingleton<ResendVerificationEmailUseCase>(
+    () => ResendVerificationEmailUseCase(sl()),
+  );
+  sl.registerLazySingleton<RequestChangeEmailUseCase>(
+    () => RequestChangeEmailUseCase(sl()),
+  );
+
   sl.registerLazySingleton<GetRolesForSelectBoxUseCase>(
     () => GetRolesForSelectBoxUseCase(sl()),
   );
@@ -295,6 +434,72 @@ Future<void> init() async {
     () => StopWorkoutSessionUseCase(sl()),
   );
 
+  // Workout Template Use Cases
+  sl.registerLazySingleton<GetWorkoutTemplatesUseCase>(
+    () => GetWorkoutTemplatesUseCase(sl()),
+  );
+  sl.registerLazySingleton<GetUserWorkoutTemplatesUseCase>(
+    () => GetUserWorkoutTemplatesUseCase(sl()),
+  );
+  sl.registerLazySingleton<GetWorkoutTemplateByIdUseCase>(
+    () => GetWorkoutTemplateByIdUseCase(sl()),
+  );
+  sl.registerLazySingleton<DeleteWorkoutTemplateUseCase>(
+    () => DeleteWorkoutTemplateUseCase(sl()),
+  );
+  sl.registerLazySingleton<GetWeeklyWorkoutStatsUseCase>(
+    () => GetWeeklyWorkoutStatsUseCase(sl()),
+  );
+  sl.registerLazySingleton<CreateWorkoutTemplateUseCase>(
+    () => CreateWorkoutTemplateUseCase(sl()),
+  );
+  sl.registerLazySingleton<UpdateWorkoutTemplateUseCase>(
+    () => UpdateWorkoutTemplateUseCase(sl()),
+  );
+  sl.registerLazySingleton<SaveWorkoutLogUseCase>(
+    () => SaveWorkoutLogUseCase(repository: sl()),
+  );
+  sl.registerLazySingleton<GetWorkoutLogsUseCase>(
+    () => GetWorkoutLogsUseCase(sl()),
+  );
+  sl.registerLazySingleton<CompleteWorkoutSetUseCase>(
+    () => CompleteWorkoutSetUseCase(sl()),
+  );
+  sl.registerLazySingleton<CompleteWorkoutExerciseUseCase>(
+    () => CompleteWorkoutExerciseUseCase(sl()),
+  );
+  sl.registerLazySingleton<FinishWorkoutUseCase>(
+    () => FinishWorkoutUseCase(sl()),
+  );
+
+  sl.registerLazySingleton<RecommendWorkoutUseCase>(
+    () => RecommendWorkoutUseCase(sl()),
+  );
+
+  sl.registerLazySingleton<GetWorkoutFrequencyUseCase>(
+    () => GetWorkoutFrequencyUseCase(sl()),
+  );
+
+  sl.registerLazySingleton<GetCaloriesBurnedUseCase>(
+    () => GetCaloriesBurnedUseCase(sl()),
+  );
+
+  sl.registerLazySingleton<GetMuscleDistributionUseCase>(
+    () => GetMuscleDistributionUseCase(sl()),
+  );
+
+  sl.registerLazySingleton<GetGoalProgressUseCase>(
+    () => GetGoalProgressUseCase(sl()),
+  );
+
+  sl.registerLazySingleton<GetWeightProgressUseCase>(
+    () => GetWeightProgressUseCase(sl()),
+  );
+
+  sl.registerLazySingleton<CreateWorkoutFeedbackUseCase>(
+    () => CreateWorkoutFeedbackUseCase(sl()),
+  );
+
   // ======================
   // Blocs / Cubits
   // ======================
@@ -374,6 +579,16 @@ Future<void> init() async {
     ),
   );
 
+  // Verify Account Cubit
+  sl.registerFactory(
+    () => VerifyAccountCubit(
+      getVerificationStatusUseCase: sl(),
+      sendVerificationEmailUseCase: sl(),
+      resendVerificationEmailUseCase: sl(),
+      requestChangeEmailUseCase: sl(),
+    ),
+  );
+
   // Health Connect BLoC
   sl.registerFactory(
     () => HealthConnectBloc(
@@ -385,6 +600,63 @@ Future<void> init() async {
       syncDataToBackend: sl(),
       startWorkoutSession: sl(),
       stopWorkoutSession: sl(),
+    ),
+  );
+
+  // HealthKit Connect BLoC
+  sl.registerFactory(() => HealthKitConnectBloc(repository: sl()));
+
+  // Workout Home BLoC
+  sl.registerFactory(
+    () => WorkoutHomeBloc(
+      getWeeklyWorkoutStatsUseCase: sl(),
+      getWorkoutTemplatesUseCase: sl(),
+      getUserWorkoutTemplatesUseCase: sl(),
+      deleteWorkoutTemplateUseCase: sl(),
+      getWorkoutFrequencyUseCase: sl(),
+    ),
+  );
+
+  // Report BLoC
+  sl.registerFactory(
+    () => ReportBloc(
+      getWorkoutLogsUseCase: sl(),
+      workoutLogRepository: sl(),
+      getCaloriesBurnedUseCase: sl(),
+      getMuscleDistributionUseCase: sl(),
+      getGoalProgressUseCase: sl(),
+      getWeightProgressUseCase: sl(),
+    ),
+  );
+
+  // Change Password Cubit
+  sl.registerFactory(() => ChangePasswordCubit(changePasswordUseCase: sl()));
+
+  // Forgot Password Cubit
+  sl.registerFactory(
+    () => ForgotPasswordCubit(
+      requestPasswordResetUseCase: sl(),
+      verifyResetCodeUseCase: sl(),
+      resetPasswordUseCase: sl(),
+      resendResetCodeUseCase: sl(),
+    ),
+  );
+  sl.registerFactory(
+    () => WorkoutTemplateAICubit(
+      getAllBodyPartsUseCase: sl(),
+      getAllEquipmentsUseCase: sl(),
+      getAllExerciseCategoriesUseCase: sl(),
+      getAllExerciseTypesUseCase: sl(),
+      getAllMusclesUseCase: sl(),
+      recommendWorkoutUseCase: sl(),
+    ),
+  );
+  sl.registerFactory(
+    () => WorkoutSessionBloc(
+      saveWorkoutLogUseCase: sl(),
+      workoutLogRepository: sl(),
+      healthConnectRepository: sl(),
+      createWorkoutFeedbackUseCase: sl(),
     ),
   );
 }

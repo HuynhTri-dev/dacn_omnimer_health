@@ -5,12 +5,15 @@ import { HealthProfileRepository, UserRepository } from "../repositories";
 import { verifyAccessToken } from "../../common/middlewares/auth.middleware";
 import { HealthProfile, User } from "../models";
 
+import { GraphDBService } from "../services/LOD/GraphDB.service";
+
 const router = Router();
 
 // Khởi tạo controller
 const healthProfileService = new HealthProfileService(
   new HealthProfileRepository(HealthProfile),
-  new UserRepository(User)
+  new UserRepository(User),
+  new GraphDBService()
 );
 const controller = new HealthProfileController(healthProfileService);
 

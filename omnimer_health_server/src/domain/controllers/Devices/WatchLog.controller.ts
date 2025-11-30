@@ -63,7 +63,12 @@ export class WatchLogController {
         return sendNoContent(res);
       }
 
-      await this.watchLogService.createManyWatchLog(userId, logsData);
+      const isDataSharingAccepted = (user as any).isDataSharingAccepted;
+      await this.watchLogService.createManyWatchLog(
+        userId,
+        logsData,
+        isDataSharingAccepted
+      );
 
       return sendNoContent(res);
     } catch (err) {

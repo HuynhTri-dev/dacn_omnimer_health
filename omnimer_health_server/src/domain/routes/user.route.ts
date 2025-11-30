@@ -21,6 +21,35 @@ const controller = new UserController(service);
 
 /**
  * @swagger
+ * /data-sharing:
+ *   patch:
+ *     tags: [User]
+ *     summary: Chuyển đổi trạng thái chia sẻ dữ liệu
+ *     description: Chuyển đổi trạng thái isDataSharingAccepted. Nếu bật, đồng bộ dữ liệu sang GraphDB. Nếu tắt, xóa dữ liệu khỏi GraphDB.
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Cập nhật thành công
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Cập nhật trạng thái chia sẻ dữ liệu thành công"
+ *                 data:
+ *                   $ref: '#/components/schemas/User'
+ *       401:
+ *         description: Chưa đăng nhập
+ *       404:
+ *         description: Người dùng không tồn tại
+ */
+router.patch("/data-sharing", verifyAccessToken, controller.toggleDataSharing);
+
+/**
+ * @swagger
  * /{id}:
  *   put:
  *     tags: [User]

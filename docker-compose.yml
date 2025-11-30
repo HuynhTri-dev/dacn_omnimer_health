@@ -13,6 +13,9 @@ services:
     environment:
       - PORT=8000
       - NODE_ENV=production
+      - OLLAMA_BASE_URL=http://host.docker.internal:11434
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     networks:
       - omnimer_network
 
@@ -30,17 +33,18 @@ services:
     networks:
       - omnimer_network
 
-  # 3. 📊 Admin Dashboard (React/Vite + NGINX)
-  adminpage:
-    container_name: omnimer_health_admin
-    build:
-      context: ./adminpage
-      dockerfile: Dockerfile
-    restart: unless-stopped
+  # 3. 🕸️ GraphDB (Knowledge Graph)
+  graphdb:
+    image: ontotext/graphdb:10.6.3
+    container_name: omnimer_health_graphdb
     ports:
-      - "3000:80"
+      - "7200:7200"
+    environment:
+      - GDB_HEAP_SIZE=2G
     networks:
       - omnimer_network
+    volumes:
+      - ./graphdb_data:/opt/graphdb/home
 
 networks:
   omnimer_network:

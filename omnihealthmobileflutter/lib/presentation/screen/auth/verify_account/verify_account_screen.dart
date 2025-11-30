@@ -1,20 +1,34 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:omnihealthmobileflutter/core/theme/app_colors.dart';
 import 'package:omnihealthmobileflutter/core/theme/app_spacing.dart';
-import 'package:omnihealthmobileflutter/core/theme/app_typography.dart';
 import 'package:omnihealthmobileflutter/core/theme/app_radius.dart';
+import 'package:omnihealthmobileflutter/domain/entities/auth/verification_status_entity.dart';
+import 'package:omnihealthmobileflutter/injection_container.dart';
+import 'package:omnihealthmobileflutter/presentation/screen/auth/verify_account/cubits/verify_account_cubit.dart';
+import 'package:omnihealthmobileflutter/presentation/screen/auth/verify_account/cubits/verify_account_state.dart';
 
 /// Verify Account Screen - Email verification and authentication methods
-class VerifyAccountScreen extends StatefulWidget {
+class VerifyAccountScreen extends StatelessWidget {
   const VerifyAccountScreen({Key? key}) : super(key: key);
 
   @override
-  State<VerifyAccountScreen> createState() => _VerifyAccountScreenState();
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (context) => sl<VerifyAccountCubit>()..loadVerificationStatus(),
+      child: const _VerifyAccountView(),
+    );
+  }
 }
 
-class _VerifyAccountScreenState extends State<VerifyAccountScreen> {
-  bool _isEmailVerified = false;
+class _VerifyAccountView extends StatefulWidget {
+  const _VerifyAccountView({Key? key}) : super(key: key);
+
+  @override
+  State<_VerifyAccountView> createState() => _VerifyAccountViewState();
+}
+
+class _VerifyAccountViewState extends State<_VerifyAccountView> {
   bool _isTwoFactorEnabled = false;
   final TextEditingController _emailController = TextEditingController();
 
@@ -26,78 +40,131 @@ class _VerifyAccountScreenState extends State<VerifyAccountScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final textTheme = theme.textTheme;
+
     return Scaffold(
-      backgroundColor: AppColors.background,
       appBar: AppBar(
-        backgroundColor: AppColors.background,
-        elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios, color: AppColors.textPrimary),
+          icon: Icon(Icons.arrow_back_ios, color: colorScheme.onSurface),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
           'Verify Account',
-          style: AppTypography.headingBoldStyle(
-            fontSize: AppTypography.fontSizeLg.sp,
-            color: AppColors.textPrimary,
-          ),
+          style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
         ),
       ),
-      body: SingleChildScrollView(
-        padding: AppSpacing.paddingMd,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Email Verification Section
-            _buildSectionHeader('Email Verification'),
-            SizedBox(height: AppSpacing.sm),
-            _buildEmailVerificationCard(),
+      body: BlocConsumer<VerifyAccountCubit, VerifyAccountState>(
+        listener: (context, state) {
+          if (state is VerifyAccountEmailSent) {
+            _showSnackBar(context, state.message, isSuccess: true);
+          } else if (state is VerifyAccountChangeEmailSent) {
+            _showSnackBar(context, state.message, isSuccess: true);
+            _emailController.clear();
+          } else if (state is VerifyAccountError) {
+            _showSnackBar(context, state.message, isSuccess: false);
+          }
+        },
+        builder: (context, state) {
+          if (state is VerifyAccountLoading) {
+            return const Center(child: CircularProgressIndicator());
+          }
 
-            SizedBox(height: AppSpacing.lg),
+          VerificationStatusEntity? status;
+          if (state is VerifyAccountLoaded) {
+            status = state.status;
+          } else if (state is VerifyAccountEmailSent) {
+            status = state.status;
+          } else if (state is VerifyAccountError) {
+            status = state.previousStatus;
+          }
 
-            // Change Email Section
-            _buildSectionHeader('Change Email'),
-            SizedBox(height: AppSpacing.sm),
-            _buildChangeEmailCard(),
+          final isEmailSending = state is VerifyAccountEmailSending;
+          final isChangeEmailSending = state is VerifyAccountChangeEmailSending;
 
-            SizedBox(height: AppSpacing.lg),
+          return RefreshIndicator(
+            onRefresh: () =>
+                context.read<VerifyAccountCubit>().loadVerificationStatus(),
+            child: SingleChildScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              padding: AppSpacing.paddingMd,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Email Verification Section
+                  _buildSectionHeader(context, 'Email Verification'),
+                  SizedBox(height: AppSpacing.sm),
+                  _buildEmailVerificationCard(
+                    context,
+                    status: status,
+                    isLoading: isEmailSending,
+                  ),
 
-            // Two-Factor Authentication Section
-            _buildSectionHeader('Two-Factor Authentication'),
-            SizedBox(height: AppSpacing.sm),
-            _buildTwoFactorCard(),
+                  SizedBox(height: AppSpacing.lg),
 
-            SizedBox(height: AppSpacing.lg),
+                  // Change Email Section
+                  _buildSectionHeader(context, 'Change Email'),
+                  SizedBox(height: AppSpacing.sm),
+                  _buildChangeEmailCard(
+                    context,
+                    currentEmail: status?.email,
+                    isLoading: isChangeEmailSending,
+                  ),
 
-            // Authentication Methods Section
-            _buildSectionHeader('Authentication Methods'),
-            SizedBox(height: AppSpacing.sm),
-            _buildAuthMethodsCard(),
-          ],
-        ),
+                  SizedBox(height: AppSpacing.lg),
+
+                  // Two-Factor Authentication Section
+                  _buildSectionHeader(context, 'Two-Factor Authentication'),
+                  SizedBox(height: AppSpacing.sm),
+                  _buildTwoFactorCard(context),
+
+                  SizedBox(height: AppSpacing.lg),
+
+                  // Authentication Methods Section
+                  _buildSectionHeader(context, 'Authentication Methods'),
+                  SizedBox(height: AppSpacing.sm),
+                  _buildAuthMethodsCard(context),
+
+                  SizedBox(height: AppSpacing.xl),
+                ],
+              ),
+            ),
+          );
+        },
       ),
     );
   }
 
-  Widget _buildSectionHeader(String title) {
+  Widget _buildSectionHeader(BuildContext context, String title) {
     return Text(
       title,
-      style: AppTypography.headingBoldStyle(
-        fontSize: AppTypography.fontSizeBase.sp,
-        color: AppColors.textPrimary,
-      ),
+      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+            fontWeight: FontWeight.bold,
+          ),
     );
   }
 
-  Widget _buildEmailVerificationCard() {
+  Widget _buildEmailVerificationCard(
+    BuildContext context, {
+    VerificationStatusEntity? status,
+    bool isLoading = false,
+  }) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final textTheme = theme.textTheme;
+
+    final isVerified = status?.isEmailVerified ?? false;
+    final email = status?.maskedEmail ?? 'Loading...';
+
     return Container(
       padding: AppSpacing.paddingMd,
       decoration: BoxDecoration(
-        color: AppColors.white,
+        color: theme.cardColor,
         borderRadius: AppRadius.radiusMd,
         boxShadow: [
           BoxShadow(
-            color: AppColors.black.withOpacity(0.05),
+            color: theme.shadowColor.withOpacity(0.05),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -108,10 +175,18 @@ class _VerifyAccountScreenState extends State<VerifyAccountScreen> {
         children: [
           Row(
             children: [
-              Icon(
-                _isEmailVerified ? Icons.verified : Icons.warning_amber_rounded,
-                color: _isEmailVerified ? AppColors.success : AppColors.warning,
-                size: 24.sp,
+              Container(
+                padding: EdgeInsets.all(AppSpacing.sm),
+                decoration: BoxDecoration(
+                  color: (isVerified ? Colors.green : Colors.orange)
+                      .withOpacity(0.1),
+                  borderRadius: AppRadius.radiusSm,
+                ),
+                child: Icon(
+                  isVerified ? Icons.verified : Icons.warning_amber_rounded,
+                  color: isVerified ? Colors.green : Colors.orange,
+                  size: 24.sp,
+                ),
               ),
               SizedBox(width: AppSpacing.sm),
               Expanded(
@@ -119,47 +194,68 @@ class _VerifyAccountScreenState extends State<VerifyAccountScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      _isEmailVerified
-                          ? 'Email Verified'
-                          : 'Email Not Verified',
-                      style: AppTypography.bodyBoldStyle(
-                        fontSize: AppTypography.fontSizeBase.sp,
-                        color: AppColors.textPrimary,
+                      isVerified ? 'Email Verified' : 'Email Not Verified',
+                      style: textTheme.bodyLarge?.copyWith(
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
                     SizedBox(height: 4.h),
                     Text(
-                      _isEmailVerified
-                          ? 'Your email has been verified'
-                          : 'Please verify your email address',
-                      style: AppTypography.bodyRegularStyle(
-                        fontSize: AppTypography.fontSizeSm.sp,
-                        color: AppColors.textSecondary,
+                      email,
+                      style: textTheme.bodySmall?.copyWith(
+                        color: textTheme.bodySmall?.color?.withOpacity(0.7),
                       ),
                     ),
                   ],
                 ),
               ),
+              if (isVerified)
+                Icon(Icons.check_circle, color: Colors.green, size: 28.sp),
             ],
           ),
-          if (!_isEmailVerified) ...[
+          if (!isVerified) ...[
             SizedBox(height: AppSpacing.md),
             SizedBox(
               width: double.infinity,
-              child: ElevatedButton(
-                onPressed: _sendVerificationEmail,
+              child: ElevatedButton.icon(
+                onPressed: isLoading
+                    ? null
+                    : () => context
+                        .read<VerifyAccountCubit>()
+                        .sendVerificationEmail(),
+                icon: isLoading
+                    ? SizedBox(
+                        width: 20.w,
+                        height: 20.h,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: colorScheme.onPrimary,
+                        ),
+                      )
+                    : const Icon(Icons.email_outlined),
+                label: Text(isLoading ? 'Sending...' : 'Send Verification Email'),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary,
+                  backgroundColor: colorScheme.primary,
+                  foregroundColor: colorScheme.onPrimary,
                   padding: EdgeInsets.symmetric(vertical: AppSpacing.sm),
                   shape: RoundedRectangleBorder(
                     borderRadius: AppRadius.radiusMd,
                   ),
                 ),
+              ),
+            ),
+            SizedBox(height: AppSpacing.sm),
+            Center(
+              child: TextButton(
+                onPressed: isLoading
+                    ? null
+                    : () => context
+                        .read<VerifyAccountCubit>()
+                        .resendVerificationEmail(),
                 child: Text(
-                  'Send Verification Email',
-                  style: AppTypography.bodyBoldStyle(
-                    fontSize: AppTypography.fontSizeBase.sp,
-                    color: AppColors.white,
+                  'Resend verification email',
+                  style: textTheme.bodySmall?.copyWith(
+                    color: colorScheme.primary,
                   ),
                 ),
               ),
@@ -170,15 +266,22 @@ class _VerifyAccountScreenState extends State<VerifyAccountScreen> {
     );
   }
 
-  Widget _buildChangeEmailCard() {
+  Widget _buildChangeEmailCard(
+    BuildContext context, {
+    String? currentEmail,
+    bool isLoading = false,
+  }) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return Container(
       padding: AppSpacing.paddingMd,
       decoration: BoxDecoration(
-        color: AppColors.white,
+        color: theme.cardColor,
         borderRadius: AppRadius.radiusMd,
         boxShadow: [
           BoxShadow(
-            color: AppColors.black.withOpacity(0.05),
+            color: theme.shadowColor.withOpacity(0.05),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -187,41 +290,62 @@ class _VerifyAccountScreenState extends State<VerifyAccountScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          if (currentEmail != null && currentEmail.isNotEmpty) ...[
+            Text(
+              'Current email: $currentEmail',
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.textTheme.bodySmall?.color?.withOpacity(0.7),
+              ),
+            ),
+            SizedBox(height: AppSpacing.sm),
+          ],
           TextField(
             controller: _emailController,
+            keyboardType: TextInputType.emailAddress,
             decoration: InputDecoration(
               labelText: 'New Email Address',
               hintText: 'Enter new email',
-              prefixIcon: Icon(Icons.email_outlined, color: AppColors.primary),
+              prefixIcon: Icon(Icons.email_outlined, color: colorScheme.primary),
               border: OutlineInputBorder(
                 borderRadius: AppRadius.radiusMd,
-                borderSide: BorderSide(color: AppColors.border),
+                borderSide: BorderSide(color: colorScheme.outline),
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: AppRadius.radiusMd,
-                borderSide: BorderSide(color: AppColors.border),
+                borderSide: BorderSide(color: colorScheme.outline),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: AppRadius.radiusMd,
-                borderSide: BorderSide(color: AppColors.primary, width: 2),
+                borderSide: BorderSide(color: colorScheme.primary, width: 2),
               ),
             ),
           ),
           SizedBox(height: AppSpacing.md),
           SizedBox(
             width: double.infinity,
-            child: ElevatedButton(
-              onPressed: _changeEmail,
+            child: ElevatedButton.icon(
+              onPressed: isLoading
+                  ? null
+                  : () => context
+                      .read<VerifyAccountCubit>()
+                      .requestChangeEmail(_emailController.text.trim()),
+              icon: isLoading
+                  ? SizedBox(
+                      width: 20.w,
+                      height: 20.h,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: colorScheme.onPrimary,
+                      ),
+                    )
+                  : const Icon(Icons.swap_horiz),
+              label: Text(isLoading ? 'Sending...' : 'Request Email Change'),
               style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primary,
+                backgroundColor: colorScheme.primary,
+                foregroundColor: colorScheme.onPrimary,
                 padding: EdgeInsets.symmetric(vertical: AppSpacing.sm),
-                shape: RoundedRectangleBorder(borderRadius: AppRadius.radiusMd),
-              ),
-              child: Text(
-                'Change Email',
-                style: AppTypography.bodyBoldStyle(
-                  fontSize: AppTypography.fontSizeBase.sp,
-                  color: AppColors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: AppRadius.radiusMd,
                 ),
               ),
             ),
@@ -231,15 +355,19 @@ class _VerifyAccountScreenState extends State<VerifyAccountScreen> {
     );
   }
 
-  Widget _buildTwoFactorCard() {
+  Widget _buildTwoFactorCard(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final textTheme = theme.textTheme;
+
     return Container(
       padding: AppSpacing.paddingMd,
       decoration: BoxDecoration(
-        color: AppColors.white,
+        color: theme.cardColor,
         borderRadius: AppRadius.radiusMd,
         boxShadow: [
           BoxShadow(
-            color: AppColors.black.withOpacity(0.05),
+            color: theme.shadowColor.withOpacity(0.05),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -247,7 +375,14 @@ class _VerifyAccountScreenState extends State<VerifyAccountScreen> {
       ),
       child: Row(
         children: [
-          Icon(Icons.security, color: AppColors.primary, size: 24.sp),
+          Container(
+            padding: EdgeInsets.all(AppSpacing.sm),
+            decoration: BoxDecoration(
+              color: colorScheme.primary.withOpacity(0.1),
+              borderRadius: AppRadius.radiusSm,
+            ),
+            child: Icon(Icons.security, color: colorScheme.primary, size: 24.sp),
+          ),
           SizedBox(width: AppSpacing.sm),
           Expanded(
             child: Column(
@@ -255,18 +390,14 @@ class _VerifyAccountScreenState extends State<VerifyAccountScreen> {
               children: [
                 Text(
                   'Two-Factor Authentication',
-                  style: AppTypography.bodyBoldStyle(
-                    fontSize: AppTypography.fontSizeBase.sp,
-                    color: AppColors.textPrimary,
+                  style: textTheme.bodyLarge?.copyWith(
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
                 SizedBox(height: 4.h),
                 Text(
                   'Add an extra layer of security',
-                  style: AppTypography.bodyRegularStyle(
-                    fontSize: AppTypography.fontSizeSm.sp,
-                    color: AppColors.textSecondary,
-                  ),
+                  style: textTheme.bodySmall,
                 ),
               ],
             ),
@@ -277,23 +408,25 @@ class _VerifyAccountScreenState extends State<VerifyAccountScreen> {
               setState(() {
                 _isTwoFactorEnabled = value;
               });
-              _toggleTwoFactor(value);
+              _showComingSoonSnackbar(context, 'Two-Factor Authentication');
             },
-            activeColor: AppColors.primary,
+            activeColor: colorScheme.primary,
           ),
         ],
       ),
     );
   }
 
-  Widget _buildAuthMethodsCard() {
+  Widget _buildAuthMethodsCard(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.white,
+        color: theme.cardColor,
         borderRadius: AppRadius.radiusMd,
         boxShadow: [
           BoxShadow(
-            color: AppColors.black.withOpacity(0.05),
+            color: theme.shadowColor.withOpacity(0.05),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -302,38 +435,47 @@ class _VerifyAccountScreenState extends State<VerifyAccountScreen> {
       child: Column(
         children: [
           _buildAuthMethodItem(
+            context,
             icon: Icons.fingerprint,
             title: 'Biometric Authentication',
             subtitle: 'Use fingerprint or face ID',
-            onTap: _setupBiometric,
+            onTap: () => _showComingSoonSnackbar(context, 'Biometric'),
           ),
-          Divider(height: 1, color: AppColors.border),
+          Divider(height: 1, color: theme.dividerColor),
           _buildAuthMethodItem(
+            context,
             icon: Icons.phone_android,
             title: 'SMS Authentication',
             subtitle: 'Verify with SMS code',
-            onTap: _setupSMS,
+            onTap: () => _showComingSoonSnackbar(context, 'SMS'),
           ),
-          Divider(height: 1, color: AppColors.border),
+          Divider(height: 1, color: theme.dividerColor),
           _buildAuthMethodItem(
+            context,
             icon: Icons.qr_code,
             title: 'Authenticator App',
             subtitle: 'Use Google Authenticator or similar',
-            onTap: _setupAuthenticatorApp,
+            onTap: () => _showComingSoonSnackbar(context, 'Authenticator App'),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildAuthMethodItem({
+  Widget _buildAuthMethodItem(
+    BuildContext context, {
     required IconData icon,
     required String title,
     required String subtitle,
     required VoidCallback onTap,
   }) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final textTheme = theme.textTheme;
+
     return InkWell(
       onTap: onTap,
+      borderRadius: AppRadius.radiusMd,
       child: Padding(
         padding: AppSpacing.paddingMd,
         child: Row(
@@ -341,10 +483,10 @@ class _VerifyAccountScreenState extends State<VerifyAccountScreen> {
             Container(
               padding: EdgeInsets.all(AppSpacing.sm),
               decoration: BoxDecoration(
-                color: AppColors.primary.withOpacity(0.1),
+                color: colorScheme.primary.withOpacity(0.1),
                 borderRadius: AppRadius.radiusSm,
               ),
-              child: Icon(icon, color: AppColors.primary, size: 24.sp),
+              child: Icon(icon, color: colorScheme.primary, size: 24.sp),
             ),
             SizedBox(width: AppSpacing.md),
             Expanded(
@@ -353,25 +495,18 @@ class _VerifyAccountScreenState extends State<VerifyAccountScreen> {
                 children: [
                   Text(
                     title,
-                    style: AppTypography.bodyBoldStyle(
-                      fontSize: AppTypography.fontSizeBase.sp,
-                      color: AppColors.textPrimary,
+                    style: textTheme.bodyLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                   SizedBox(height: 4.h),
-                  Text(
-                    subtitle,
-                    style: AppTypography.bodyRegularStyle(
-                      fontSize: AppTypography.fontSizeSm.sp,
-                      color: AppColors.textSecondary,
-                    ),
-                  ),
+                  Text(subtitle, style: textTheme.bodySmall),
                 ],
               ),
             ),
             Icon(
               Icons.arrow_forward_ios,
-              color: AppColors.textMuted,
+              color: textTheme.bodySmall?.color?.withOpacity(0.5),
               size: 16.sp,
             ),
           ],
@@ -380,36 +515,23 @@ class _VerifyAccountScreenState extends State<VerifyAccountScreen> {
     );
   }
 
-  void _sendVerificationEmail() {
-    // TODO: Implement send verification email
+  void _showSnackBar(BuildContext context, String message,
+      {bool isSuccess = true}) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: const Text('Verification email sent!'),
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: AppRadius.radiusMd),
-        margin: AppSpacing.paddingMd,
-      ),
-    );
-  }
-
-  void _changeEmail() {
-    // TODO: Implement change email
-    if (_emailController.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text('Please enter a new email address'),
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(borderRadius: AppRadius.radiusMd),
-          margin: AppSpacing.paddingMd,
-          backgroundColor: AppColors.error,
+        content: Row(
+          children: [
+            Icon(
+              isSuccess ? Icons.check_circle : Icons.error,
+              color: Colors.white,
+            ),
+            SizedBox(width: AppSpacing.sm),
+            Expanded(child: Text(message)),
+          ],
         ),
-      );
-      return;
-    }
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: const Text('Email change request sent!'),
+        backgroundColor: isSuccess ? Colors.green : colorScheme.error,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: AppRadius.radiusMd),
         margin: AppSpacing.paddingMd,
@@ -417,51 +539,10 @@ class _VerifyAccountScreenState extends State<VerifyAccountScreen> {
     );
   }
 
-  void _toggleTwoFactor(bool enabled) {
-    // TODO: Implement two-factor toggle
+  void _showComingSoonSnackbar(BuildContext context, String feature) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(
-          enabled
-              ? 'Two-factor authentication enabled'
-              : 'Two-factor authentication disabled',
-        ),
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: AppRadius.radiusMd),
-        margin: AppSpacing.paddingMd,
-      ),
-    );
-  }
-
-  void _setupBiometric() {
-    // TODO: Implement biometric setup
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: const Text('Biometric authentication - Coming soon!'),
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: AppRadius.radiusMd),
-        margin: AppSpacing.paddingMd,
-      ),
-    );
-  }
-
-  void _setupSMS() {
-    // TODO: Implement SMS setup
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: const Text('SMS authentication - Coming soon!'),
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: AppRadius.radiusMd),
-        margin: AppSpacing.paddingMd,
-      ),
-    );
-  }
-
-  void _setupAuthenticatorApp() {
-    // TODO: Implement authenticator app setup
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: const Text('Authenticator app - Coming soon!'),
+        content: Text('$feature - Coming soon!'),
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: AppRadius.radiusMd),
         margin: AppSpacing.paddingMd,

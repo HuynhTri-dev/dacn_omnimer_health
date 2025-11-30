@@ -76,7 +76,12 @@ export class WorkoutController {
       if (!userId) return sendUnauthorized(res);
       const { id } = req.params;
 
-      const deleted = await this.workoutService.deleteWorkout(userId, id);
+      const isDataSharingAccepted = (user as any).isDataSharingAccepted;
+      const deleted = await this.workoutService.deleteWorkout(
+        userId,
+        id,
+        isDataSharingAccepted
+      );
       return sendSuccess(res, deleted, "Xóa buổi tập thành công");
     } catch (err) {
       next(err);
@@ -223,13 +228,24 @@ export class WorkoutController {
     next: NextFunction
   ) => {
     try {
+      const user = req.user as DecodePayload;
+      const userId = user?.id?.toString();
+      if (!userId) return sendUnauthorized(res);
+
       const { id } = req.params;
-      const { workoutDetailId, durationMin, deviceData } = req.body;
+      const { workoutDetailId, startTime, endTime, deviceData } = req.body;
+
+      if (!startTime || !endTime) {
+        // Có thể throw lỗi hoặc xử lý mặc định, nhưng ở đây ta yêu cầu client gửi lên
+        // throw new HttpError(400, "Start time and end time are required");
+      }
 
       const result = await this.workoutService.completeExercise(
+        userId,
         id,
         workoutDetailId,
-        durationMin,
+        startTime,
+        endTime,
         deviceData
       );
       return sendSuccess(res, result, "Hoàn thành bài tập thành công");
@@ -247,7 +263,16 @@ export class WorkoutController {
   finish = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { id } = req.params;
-      const result = await this.workoutService.finishWorkout(id);
+      const user = req.user as DecodePayload;
+      const userId = user?.id?.toString();
+      if (!userId) return sendUnauthorized(res);
+
+      const isDataSharingAccepted = (user as any).isDataSharingAccepted;
+      const result = await this.workoutService.finishWorkout(
+        id,
+        userId,
+        isDataSharingAccepted
+      );
       return sendSuccess(res, result, "Đã hoàn thành buổi tập");
     } catch (err) {
       next(err);

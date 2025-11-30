@@ -35,9 +35,9 @@ omnihealthmobileflutter/ios/Flutter/flutter_export_environment.sh merge=ours
 **/*.log merge=ours
 
 # Package lock files (uncomment if you want to always keep your version)
-# **/package-lock.json merge=ours
-# **/yarn.lock merge=ours
-# **/pnpm-lock.yaml merge=ours
+**/package-lock.json merge=ours
+**/yarn.lock merge=ours
+**/pnpm-lock.yaml merge=ours
 
 # Docker local overrides - always keep local version
 docker-compose.override.yml merge=ours

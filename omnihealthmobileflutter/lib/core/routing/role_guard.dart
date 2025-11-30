@@ -21,6 +21,7 @@ class RoleGuard {
     '/info-account': ['user', 'coach', 'admin'],
     '/change-password': ['user', 'coach', 'admin'],
     '/verify-account': ['user', 'coach', 'admin'],
+    '/workout-template-ai': ['user', 'coach', 'admin'],
   };
 
   /// Kiểm tra xem người dùng (với danh sách roleName) có quyền truy cập route không

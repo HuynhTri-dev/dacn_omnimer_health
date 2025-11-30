@@ -26,4 +26,11 @@ abstract class AuthRepositoryAbs {
 
   /// Update user profile
   Future<ApiResponse<UserEntity>> updateUser(String id, UserEntity user);
+
+  /// Change password
+  /// Returns ApiResponse<void> on success or error message on failure.
+  Future<ApiResponse<void>> changePassword(
+    String currentPassword,
+    String newPassword,
+  );
 }

@@ -1,19 +1,24 @@
 import express from "express";
 
 import { WorkoutController } from "../controllers";
-import { HealthProfile, Workout, WorkoutTemplate } from "../models";
+import { HealthProfile, Workout, WorkoutTemplate, WatchLog } from "../models";
 import {
   HealthProfileRepository,
   WorkoutRepository,
   WorkoutTemplateRepository,
+  WatchLogRepository,
 } from "../repositories";
 import { WorkoutService } from "../services";
 import { verifyAccessToken } from "../../common/middlewares/auth.middleware";
 
+import { GraphDBService } from "../services/LOD/GraphDB.service";
+
 const service = new WorkoutService(
   new WorkoutRepository(Workout),
   new WorkoutTemplateRepository(WorkoutTemplate),
-  new HealthProfileRepository(HealthProfile)
+  new HealthProfileRepository(HealthProfile),
+  new WatchLogRepository(WatchLog),
+  new GraphDBService()
 );
 
 const controller = new WorkoutController(service);

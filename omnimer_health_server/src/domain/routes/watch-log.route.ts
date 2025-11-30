@@ -5,9 +5,11 @@ import { WatchLogRepository } from "../repositories";
 import { WatchLog } from "../models";
 import { verifyAccessToken } from "../../common/middlewares/auth.middleware";
 
+import { GraphDBService } from "../services/LOD/GraphDB.service";
+
 const router = express.Router();
 const watchLogRepo = new WatchLogRepository(WatchLog);
-const watchLogService = new WatchLogService(watchLogRepo);
+const watchLogService = new WatchLogService(watchLogRepo, new GraphDBService());
 const watchLogController = new WatchLogController(watchLogService);
 
 router.post("/", verifyAccessToken, watchLogController.create);

@@ -69,4 +69,27 @@ export class UserController {
       next(err);
     }
   };
+
+  // =================== TOGGLE DATA SHARING ===================
+  toggleDataSharing = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const user = req.user as DecodePayload;
+      const userId = user?.id?.toString();
+      if (!userId) return sendUnauthorized(res);
+
+      const updated = await this.userService.toggleDataSharing(userId);
+
+      return sendSuccess(
+        res,
+        updated,
+        "Cập nhật trạng thái chia sẻ dữ liệu thành công"
+      );
+    } catch (err) {
+      next(err);
+    }
+  };
 }

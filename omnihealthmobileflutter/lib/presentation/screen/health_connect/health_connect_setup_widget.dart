@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:omnihealthmobileflutter/presentation/screen/health_connect/bloc/health_connect_bloc.dart';
 import '../../../../injection_container.dart';
+import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
 
@@ -103,6 +104,7 @@ class HealthConnectSetupWidget extends StatelessWidget {
                     'Health Connect',
                     style: AppTypography.h1.copyWith(
                       fontWeight: FontWeight.bold,
+                      color: Theme.of(context).textTheme.displayLarge?.color,
                     ),
                   ),
                   SizedBox(height: 2.h),
@@ -186,8 +188,8 @@ class HealthConnectSetupWidget extends StatelessWidget {
       padding: EdgeInsets.all(AppSpacing.sm),
       decoration: BoxDecoration(
         color: state.isInstalled
-            ? Colors.green.withOpacity(0.1)
-            : Colors.orange.withOpacity(0.1),
+            ? AppColors.success.withOpacity(0.1)
+            : AppColors.warning.withOpacity(0.1),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Row(
@@ -195,7 +197,7 @@ class HealthConnectSetupWidget extends StatelessWidget {
           Icon(
             state.isInstalled ? Icons.check_circle : Icons.warning,
             size: 16.w,
-            color: state.isInstalled ? Colors.green : Colors.orange,
+            color: state.isInstalled ? AppColors.success : AppColors.warning,
           ),
           SizedBox(width: AppSpacing.sm),
           Expanded(
@@ -206,7 +208,9 @@ class HealthConnectSetupWidget extends StatelessWidget {
                         : 'Permissions required'
                   : 'Health Connect not installed',
               style: AppTypography.bodySmall.copyWith(
-                color: state.isInstalled ? Colors.green : Colors.orange,
+                color: state.isInstalled
+                    ? AppColors.success
+                    : AppColors.warning,
                 fontWeight: FontWeight.w500,
               ),
             ),
@@ -252,18 +256,18 @@ class HealthConnectSetupWidget extends StatelessWidget {
     return Container(
       padding: EdgeInsets.all(AppSpacing.sm),
       decoration: BoxDecoration(
-        color: Colors.green.withOpacity(0.1),
+        color: AppColors.success.withOpacity(0.1),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Row(
         children: [
-          Icon(Icons.check_circle, size: 16.w, color: Colors.green),
+          Icon(Icons.check_circle, size: 16.w, color: AppColors.success),
           SizedBox(width: AppSpacing.sm),
           Expanded(
             child: Text(
               'Connected and permissions granted',
               style: AppTypography.bodySmall.copyWith(
-                color: Colors.green,
+                color: AppColors.success,
                 fontWeight: FontWeight.w500,
               ),
             ),
@@ -326,7 +330,9 @@ class HealthConnectSetupWidget extends StatelessWidget {
           Expanded(
             child: Text(
               'Checking Health Connect...',
-              style: AppTypography.bodySmall,
+              style: AppTypography.bodySmall.copyWith(
+                color: Theme.of(context).textTheme.bodySmall?.color,
+              ),
             ),
           ),
         ],

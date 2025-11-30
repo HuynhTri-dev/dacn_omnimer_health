@@ -1,5 +1,5 @@
 # Use an official Python runtime as a parent image
-FROM python:3.10-slim
+FROM python:3.13-slim
 
 # Set the working directory in the container
 WORKDIR /app
@@ -14,10 +14,10 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY ai_server ./ai_server
 
 # Set the PYTHONPATH to include the current directory
-ENV PYTHONPATH=/app
+ENV PYTHONPATH=/app:/app/ai_server/app
 
 # Expose port 8888
 EXPOSE 8888
 
 # Run app.main:app when the container launches
-CMD ["uvicorn", "ai_server.app.main:app", "--host", "0.0.0.0", "--port", "8888"]
+CMD ["uvicorn", "ai_server.app.main:app", "--host", "0.0.0.0", "--port", "8888", "--reload"]

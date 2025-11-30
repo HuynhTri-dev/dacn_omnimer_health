@@ -32,7 +32,7 @@ export class WorkoutRepository extends BaseRepository<IWorkout> {
   async findAllWorkout(
     filter: FilterQuery<IWorkout> = {},
     options?: PaginationQueryOptions
-  ): Promise<IWorkout[]> {
+  ) {
     try {
       const page = options?.page ?? 1;
       const limit = options?.limit ?? 20;
@@ -44,15 +44,16 @@ export class WorkoutRepository extends BaseRepository<IWorkout> {
         ...(options?.filter || {}),
       };
 
-      // Chỉ lấy các trường quan trọng
-      const projection = "userId workoutTemplateId date summary";
-
       return this.model
-        .find(finalFilter, projection)
-        .populate([{ path: "workoutTemplateId", select: "_id name" }])
+        .find(finalFilter)
+        .populate([
+          { path: "workoutTemplateId", select: "_id name" },
+          { path: "workoutDetail.exerciseId", select: "_id name imageUrls" },
+        ])
         .skip(skip)
         .limit(limit)
         .sort(sort)
+        .lean()
         .exec();
     } catch (e) {
       throw e;
@@ -192,5 +193,137 @@ export class WorkoutRepository extends BaseRepository<IWorkout> {
     ]);
 
     return result.length > 0 ? result[0] : null;
+  }
+
+  /**
+   * 🔹 Lấy danh sách thời gian tập luyện để tính tần suất
+   */
+  async getWorkoutsForFrequency(
+    userId: string
+  ): Promise<{ timeStart: Date }[]> {
+    return this.model
+      .find({ userId: new Types.ObjectId(userId) })
+      .select("timeStart")
+      .lean()
+      .exec();
+  }
+
+  /**
+   * 🔹 Lấy lịch sử calo tiêu thụ
+   */
+  async getCaloriesBurnedHistory(
+    userId: string
+  ): Promise<{ timeStart: Date; calories: number }[]> {
+    const workouts = await this.model
+      .find({ userId: new Types.ObjectId(userId) })
+      .sort({ timeStart: 1 })
+      .select("timeStart summary.totalCalories")
+      .lean()
+      .exec();
+
+    return workouts.map((w) => ({
+      timeStart: w.timeStart,
+      calories: w.summary?.totalCalories || 0,
+    }));
+  }
+
+  /**
+   * 🔹 Thống kê phân bố nhóm cơ tập luyện
+   */
+  async getMuscleDistributionStats(
+    userId: string
+  ): Promise<{ muscle: string; count: number }[]> {
+    return this.model.aggregate([
+      { $match: { userId: new Types.ObjectId(userId) } },
+      { $unwind: "$workoutDetail" },
+      {
+        $lookup: {
+          from: "exercises",
+          localField: "workoutDetail.exerciseId",
+          foreignField: "_id",
+          as: "exercise",
+        },
+      },
+      { $unwind: "$exercise" },
+      { $unwind: "$exercise.muscles" },
+      {
+        $lookup: {
+          from: "muscles",
+          localField: "exercise.muscles",
+          foreignField: "_id",
+          as: "muscleDetail",
+        },
+      },
+      { $unwind: "$muscleDetail" },
+      {
+        $group: {
+          _id: "$muscleDetail.name",
+          count: { $sum: 1 },
+        },
+      },
+      { $project: { muscle: "$_id", count: 1, _id: 0 } },
+    ]);
+  }
+  /**
+   * 🔹 Count total workouts
+   */
+  async countWorkouts(): Promise<number> {
+    return this.model.countDocuments();
+  }
+
+  /**
+   * 🔹 Get workout activity stats
+   */
+  async getWorkoutActivityStats(
+    period: "daily" | "weekly" | "monthly"
+  ): Promise<{ date: string; count: number }[]> {
+    const dateFormat =
+      period === "daily" ? "%Y-%m-%d" : period === "weekly" ? "%Y-%U" : "%Y-%m";
+
+    return this.model.aggregate([
+      {
+        $group: {
+          _id: { $dateToString: { format: dateFormat, date: "$timeStart" } },
+          count: { $sum: 1 },
+        },
+      },
+      { $sort: { _id: 1 } },
+      { $project: { date: "$_id", count: 1, _id: 0 } },
+    ]);
+  }
+
+  /**
+   * 🔹 Get popular exercises stats
+   */
+  async getPopularExercisesStats(
+    limit: number = 5
+  ): Promise<{ exerciseName: string; count: number }[]> {
+    return this.model.aggregate([
+      { $unwind: "$workoutDetail" },
+      {
+        $group: {
+          _id: "$workoutDetail.exerciseId",
+          count: { $sum: 1 },
+        },
+      },
+      { $sort: { count: -1 } },
+      { $limit: limit },
+      {
+        $lookup: {
+          from: "exercises",
+          localField: "_id",
+          foreignField: "_id",
+          as: "exercise",
+        },
+      },
+      { $unwind: "$exercise" },
+      {
+        $project: {
+          exerciseName: "$exercise.name",
+          count: 1,
+          _id: 0,
+        },
+      },
+    ]);
   }
 }

@@ -4,36 +4,48 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:omnihealthmobileflutter/presentation/screen/health_connect/bloc/health_connect_bloc.dart';
 
+import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../domain/entities/health_connect_entity.dart';
 import '../../common/button/button_primary.dart';
 import '../../common/skeleton/skeleton_loading.dart';
+import '../../../../injection_container.dart';
 
-class HealthConnectScreen extends StatefulWidget {
+class HealthConnectScreen extends StatelessWidget {
   const HealthConnectScreen({Key? key}) : super(key: key);
 
   @override
-  State<HealthConnectScreen> createState() => _HealthConnectScreenState();
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (context) =>
+          sl.get<HealthConnectBloc>()..add(CheckHealthConnectAvailability()),
+      child: const _HealthConnectScreenContent(),
+    );
+  }
 }
 
-class _HealthConnectScreenState extends State<HealthConnectScreen> {
-  @override
-  void initState() {
-    super.initState();
-    // Check availability when screen loads
-    context.read<HealthConnectBloc>().add(CheckHealthConnectAvailability());
-  }
+class _HealthConnectScreenContent extends StatefulWidget {
+  const _HealthConnectScreenContent({Key? key}) : super(key: key);
 
+  @override
+  State<_HealthConnectScreenContent> createState() =>
+      _HealthConnectScreenContentState();
+}
+
+class _HealthConnectScreenContentState
+    extends State<_HealthConnectScreenContent> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Health Connect'),
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black,
+        backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
+        foregroundColor: Theme.of(context).appBarTheme.foregroundColor,
         elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.black),
+        iconTheme: IconThemeData(
+          color: Theme.of(context).appBarTheme.foregroundColor,
+        ),
       ),
       body: SafeArea(
         child: BlocConsumer<HealthConnectBloc, HealthConnectState>(
@@ -79,7 +91,10 @@ class _HealthConnectScreenState extends State<HealthConnectScreen> {
         SizedBox(height: AppSpacing.md),
         Text(
           'Google Health Connect',
-          style: AppTypography.h1.copyWith(fontWeight: FontWeight.bold),
+          style: AppTypography.h1.copyWith(
+            fontWeight: FontWeight.bold,
+            color: Theme.of(context).textTheme.displayLarge?.color,
+          ),
         ),
         SizedBox(height: AppSpacing.sm),
         Text(
@@ -145,11 +160,21 @@ class _HealthConnectScreenState extends State<HealthConnectScreen> {
                 color: Theme.of(context).colorScheme.primary,
               ),
               SizedBox(width: AppSpacing.sm),
-              Text('Health Connect Status', style: AppTypography.h3),
+              Text(
+                'Health Connect Status',
+                style: AppTypography.h3.copyWith(
+                  color: Theme.of(context).textTheme.displaySmall?.color,
+                ),
+              ),
             ],
           ),
           SizedBox(height: AppSpacing.md),
-          Text('Checking Health Connect availability...'),
+          Text(
+            'Checking Health Connect availability...',
+            style: AppTypography.bodyMedium.copyWith(
+              color: Theme.of(context).textTheme.bodyMedium?.color,
+            ),
+          ),
         ],
       ),
     );
@@ -166,10 +191,17 @@ class _HealthConnectScreenState extends State<HealthConnectScreen> {
                 state.isInstalled
                     ? Icons.check_circle_outline
                     : Icons.warning_amber_outlined,
-                color: state.isInstalled ? Colors.green : Colors.orange,
+                color: state.isInstalled
+                    ? AppColors.success
+                    : AppColors.warning,
               ),
               SizedBox(width: AppSpacing.sm),
-              Text('Health Connect Status', style: AppTypography.h3),
+              Text(
+                'Health Connect Status',
+                style: AppTypography.h3.copyWith(
+                  color: Theme.of(context).textTheme.displaySmall?.color,
+                ),
+              ),
             ],
           ),
           SizedBox(height: AppSpacing.md),
@@ -211,14 +243,14 @@ class _HealthConnectScreenState extends State<HealthConnectScreen> {
           Icon(
             isSuccess ? Icons.check_circle : Icons.error,
             size: 16.w,
-            color: isSuccess ? Colors.green : Colors.red,
+            color: isSuccess ? AppColors.success : AppColors.error,
           ),
           SizedBox(width: AppSpacing.sm),
           Expanded(
             child: Text(
               '$label: $value',
               style: AppTypography.bodyMedium.copyWith(
-                color: isSuccess ? Colors.green : Colors.red,
+                color: isSuccess ? AppColors.success : AppColors.error,
               ),
             ),
           ),
@@ -239,7 +271,12 @@ class _HealthConnectScreenState extends State<HealthConnectScreen> {
                 color: Theme.of(context).colorScheme.primary,
               ),
               SizedBox(width: AppSpacing.sm),
-              Text('Health Data', style: AppTypography.h3),
+              Text(
+                'Health Data',
+                style: AppTypography.h3.copyWith(
+                  color: Theme.of(context).textTheme.displaySmall?.color,
+                ),
+              ),
             ],
           ),
           SizedBox(height: AppSpacing.md),
@@ -254,10 +291,17 @@ class _HealthConnectScreenState extends State<HealthConnectScreen> {
           ] else if (state is HealthConnectPermissionsDenied) ...[
             Text(
               'Enable Health Connect to see your health data',
-              style: AppTypography.bodyMedium,
+              style: AppTypography.bodyMedium.copyWith(
+                color: Theme.of(context).textTheme.bodyMedium?.color,
+              ),
             ),
           ] else ...[
-            Text('No health data available', style: AppTypography.bodyMedium),
+            Text(
+              'No health data available',
+              style: AppTypography.bodyMedium.copyWith(
+                color: Theme.of(context).textTheme.bodyMedium?.color,
+              ),
+            ),
           ],
         ],
       ),
@@ -277,7 +321,12 @@ class _HealthConnectScreenState extends State<HealthConnectScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Today\'s Health Data', style: AppTypography.h4),
+          Text(
+            'Today\'s Health Data',
+            style: AppTypography.h4.copyWith(
+              color: Theme.of(context).textTheme.headlineMedium?.color,
+            ),
+          ),
           SizedBox(height: AppSpacing.sm),
           Wrap(
             spacing: AppSpacing.md,
@@ -321,7 +370,12 @@ class _HealthConnectScreenState extends State<HealthConnectScreen> {
               color: Theme.of(context).colorScheme.primary,
             ),
           ),
-          Text(label, style: AppTypography.bodySmall),
+          Text(
+            label,
+            style: AppTypography.bodySmall.copyWith(
+              color: Theme.of(context).textTheme.bodySmall?.color,
+            ),
+          ),
         ],
       ),
     );
@@ -338,7 +392,9 @@ class _HealthConnectScreenState extends State<HealthConnectScreen> {
         SizedBox(width: AppSpacing.xs),
         Text(
           'Health data is synced automatically',
-          style: AppTypography.bodySmall,
+          style: AppTypography.bodySmall.copyWith(
+            color: Theme.of(context).textTheme.bodySmall?.color,
+          ),
         ),
       ],
     );
@@ -348,7 +404,12 @@ class _HealthConnectScreenState extends State<HealthConnectScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Actions', style: AppTypography.h3),
+        Text(
+          'Actions',
+          style: AppTypography.h3.copyWith(
+            color: Theme.of(context).textTheme.displaySmall?.color,
+          ),
+        ),
         SizedBox(height: AppSpacing.md),
 
         if (state is HealthConnectAvailable && !state.hasPermissions) ...[
@@ -425,7 +486,12 @@ class _HealthConnectScreenState extends State<HealthConnectScreen> {
             ],
           ),
           SizedBox(height: AppSpacing.md),
-          Text(subtitle, style: AppTypography.bodyMedium),
+          Text(
+            subtitle,
+            style: AppTypography.bodyMedium.copyWith(
+              color: Theme.of(context).textTheme.bodyMedium?.color,
+            ),
+          ),
           SizedBox(height: AppSpacing.lg),
           ...actions.map(
             (action) => Padding(

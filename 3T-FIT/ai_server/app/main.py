@@ -67,7 +67,7 @@ async def startup_event():
         # Load V4
         logger.info("Loading Model v4...")
         # Adjust path to point to correct model directory relative to app/main.py
-        model_v4_loaded = load_model_v4_artifacts("../model/src/v4/model_v4")
+        model_v4_loaded = load_model_v4_artifacts("/app/ai_server/model/src/v4/model_v4")
         
         if model_v4_loaded:
             logger.info("✅ Model v4 loaded successfully")

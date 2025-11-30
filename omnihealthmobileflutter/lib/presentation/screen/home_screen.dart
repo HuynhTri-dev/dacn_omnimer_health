@@ -7,6 +7,8 @@ import 'package:omnihealthmobileflutter/injection_container.dart';
 import 'package:omnihealthmobileflutter/presentation/screen/exercise/exercise_home/blocs/exercise_home_bloc.dart';
 import 'package:omnihealthmobileflutter/presentation/screen/exercise/exercise_home/blocs/exercise_home_event.dart';
 import 'package:omnihealthmobileflutter/presentation/screen/exercise/exercise_home/exercise_home_screen.dart';
+import 'package:omnihealthmobileflutter/presentation/screen/workout/workout_home/blocs/workout_home_bloc.dart';
+import 'package:omnihealthmobileflutter/presentation/screen/workout/workout_home/blocs/workout_home_event.dart';
 import 'package:omnihealthmobileflutter/presentation/screen/health_profile/health_profile_home/bloc/health_profile_bloc.dart';
 import 'package:omnihealthmobileflutter/presentation/screen/health_profile/health_profile_home/bloc/health_profile_event.dart';
 import 'package:omnihealthmobileflutter/presentation/screen/health_profile/health_profile_home/bloc/health_profile_state.dart';
@@ -16,13 +18,17 @@ import 'package:omnihealthmobileflutter/presentation/screen/workout/workout_home
 import 'package:omnihealthmobileflutter/presentation/screen/goal/bloc/goal_bloc.dart';
 import 'package:omnihealthmobileflutter/presentation/common/blocs/auth/authentication_bloc.dart';
 import 'package:omnihealthmobileflutter/presentation/common/blocs/auth/authentication_state.dart';
+import 'package:omnihealthmobileflutter/presentation/screen/report/blocs/report_bloc.dart';
+import 'package:omnihealthmobileflutter/presentation/screen/report/blocs/report_event.dart';
+import 'package:omnihealthmobileflutter/presentation/screen/report/report_screen.dart';
 
 /// Màn hình Home chính với Bottom Navigation Bar
-/// Quản lý 4 trang chính của ứng dụng:
+/// Quản lý 5 trang chính của ứng dụng:
 /// 1. Exercise - Danh sách bài tập
 /// 2. Workout - Kế hoạch tập luyện
-/// 3. Health Profile - Thông tin sức khỏe
-/// 4. More - Cài đặt và tùy chọn
+/// 3. Report - Lịch sử workout logs
+/// 4. Health Profile - Thông tin sức khỏe
+/// 5. More - Cài đặt và tùy chọn
 ///
 /// Sử dụng CurvedNavigationBar để tạo bottom bar đẹp mắt
 class HomeScreen extends StatefulWidget {
@@ -47,7 +53,14 @@ class _HomeScreenState extends State<HomeScreen> {
         create: (_) => sl<ExerciseHomeBloc>()..add(LoadInitialData()),
         child: const ExerciseHomeScreen(),
       ),
-      const WorkoutHomeScreen(),
+      BlocProvider(
+        create: (_) => sl<WorkoutHomeBloc>()..add(LoadInitialWorkoutData()),
+        child: const WorkoutHomeScreen(),
+      ),
+      BlocProvider(
+        create: (_) => sl<ReportBloc>()..add(const LoadWorkoutLogs()),
+        child: const ReportScreen(),
+      ),
       MultiBlocProvider(
         providers: [
           BlocProvider(
@@ -202,7 +215,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
 
-            // Health Profile tab
+            // Report tab
             CurvedNavigationBarItem(
               child: Container(
                 decoration: _currentIndex == 2
@@ -218,14 +231,14 @@ class _HomeScreenState extends State<HomeScreen> {
                       )
                     : null,
                 child: Icon(
-                  Icons.favorite,
+                  Icons.bar_chart,
                   size: 26.sp,
                   color: _currentIndex == 2
                       ? theme.colorScheme.onPrimary
                       : theme.textTheme.bodySmall?.color,
                 ),
               ),
-              label: 'Health',
+              label: 'Report',
               labelStyle: TextStyle(
                 fontSize: 12.sp,
                 fontFamily: 'Montserrat',
@@ -236,7 +249,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
 
-            // More tab
+            // Health Profile tab
             CurvedNavigationBarItem(
               child: Container(
                 decoration: _currentIndex == 3
@@ -252,9 +265,43 @@ class _HomeScreenState extends State<HomeScreen> {
                       )
                     : null,
                 child: Icon(
-                  Icons.more_horiz,
+                  Icons.favorite,
                   size: 26.sp,
                   color: _currentIndex == 3
+                      ? theme.colorScheme.onPrimary
+                      : theme.textTheme.bodySmall?.color,
+                ),
+              ),
+              label: 'Health',
+              labelStyle: TextStyle(
+                fontSize: 12.sp,
+                fontFamily: 'Montserrat',
+                fontWeight: FontWeight.w600,
+                color: _currentIndex == 3
+                    ? theme.primaryColor
+                    : theme.textTheme.bodySmall?.color,
+              ),
+            ),
+
+            // More tab
+            CurvedNavigationBarItem(
+              child: Container(
+                decoration: _currentIndex == 4
+                    ? BoxDecoration(
+                        shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(
+                            color: theme.primaryColor.withOpacity(0.4),
+                            blurRadius: 12,
+                            spreadRadius: 2,
+                          ),
+                        ],
+                      )
+                    : null,
+                child: Icon(
+                  Icons.more_horiz,
+                  size: 26.sp,
+                  color: _currentIndex == 4
                       ? theme.colorScheme.onPrimary
                       : theme.textTheme.bodySmall?.color,
                 ),
@@ -264,7 +311,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 fontSize: 12.sp,
                 fontFamily: 'Montserrat',
                 fontWeight: FontWeight.w600,
-                color: _currentIndex == 3
+                color: _currentIndex == 4
                     ? theme.primaryColor
                     : theme.textTheme.bodySmall?.color,
               ),

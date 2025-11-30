@@ -84,4 +84,35 @@ export class AuthController {
       next(err);
     }
   };
+
+  /**
+   * Thay đổi mật khẩu người dùng
+   */
+  changePassword = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const userId = req.user?.id;
+      const { currentPassword, newPassword } = req.body;
+
+      if (!userId) {
+        sendBadRequest(res, "Không tìm thấy thông tin người dùng");
+        return;
+      }
+
+      if (!currentPassword || !newPassword) {
+        sendBadRequest(res, "Thiếu mật khẩu hiện tại hoặc mật khẩu mới");
+        return;
+      }
+
+      if (newPassword.length < 8) {
+        sendBadRequest(res, "Mật khẩu mới phải có ít nhất 8 ký tự");
+        return;
+      }
+
+      await this.authService.changePassword(userId, currentPassword, newPassword);
+
+      return sendSuccess(res, null, "Thay đổi mật khẩu thành công");
+    } catch (err: any) {
+      next(err);
+    }
+  };
 }

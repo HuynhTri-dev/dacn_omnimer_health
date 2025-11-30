@@ -26,7 +26,12 @@ export class GoalController {
         return;
       }
 
-      const goal = await this.goalService.createGoal(userId, req.body);
+      const isDataSharingAccepted = (user as any).isDataSharingAccepted;
+      const goal = await this.goalService.createGoal(
+        userId,
+        req.body,
+        isDataSharingAccepted
+      );
       return sendCreated(res, goal, "Tạo mục tiêu thành công");
     } catch (err) {
       next(err);
@@ -80,10 +85,12 @@ export class GoalController {
         return;
       }
 
+      const isDataSharingAccepted = (user as any).isDataSharingAccepted;
       const goal = await this.goalService.updateGoal(
         req.params.id,
         req.body,
-        userId
+        userId,
+        isDataSharingAccepted
       );
       return sendSuccess(res, goal, "Cập nhật mục tiêu thành công");
     } catch (err) {
@@ -101,7 +108,12 @@ export class GoalController {
         return;
       }
 
-      const goal = await this.goalService.deleteGoal(req.params.id, userId);
+      const isDataSharingAccepted = (user as any).isDataSharingAccepted;
+      const goal = await this.goalService.deleteGoal(
+        req.params.id,
+        userId,
+        isDataSharingAccepted
+      );
       return sendSuccess(res, goal, "Xóa mục tiêu thành công");
     } catch (err) {
       next(err);

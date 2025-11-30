@@ -16,6 +16,23 @@ export interface IUser extends Document {
   roleIds: Types.ObjectId[];
 
   imageUrl?: string;
+
+  // Email Verification Fields
+  isEmailVerified: boolean;
+  emailVerificationToken?: string | null;
+  emailVerificationExpires?: Date | null;
+
+  // Phone Verification Fields (for future use)
+  phoneNumber?: string | null;
+  isPhoneVerified: boolean;
+
+  // Password Reset Fields
+  passwordResetCode?: string | null;
+  passwordResetExpires?: Date | null;
+  passwordResetToken?: string | null;
+
+  // LOD Data Sharing Consent
+  isDataSharingAccepted: boolean;
 }
 
 const userSchema = new Schema<IUser>(
@@ -53,6 +70,51 @@ const userSchema = new Schema<IUser>(
       type: String,
       trim: true,
     },
+
+    // Email Verification Fields
+    isEmailVerified: {
+      type: Boolean,
+      default: false,
+    },
+    emailVerificationToken: {
+      type: String,
+      default: null,
+    },
+    emailVerificationExpires: {
+      type: Date,
+      default: null,
+    },
+
+    // Phone Verification Fields
+    phoneNumber: {
+      type: String,
+      trim: true,
+      default: null,
+    },
+    isPhoneVerified: {
+      type: Boolean,
+      default: false,
+    },
+
+    // Password Reset Fields
+    passwordResetCode: {
+      type: String,
+      default: null,
+    },
+    passwordResetExpires: {
+      type: Date,
+      default: null,
+    },
+    passwordResetToken: {
+      type: String,
+      default: null,
+    },
+
+    // LOD Data Sharing Consent
+    isDataSharingAccepted: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     timestamps: true,
@@ -61,5 +123,9 @@ const userSchema = new Schema<IUser>(
 
 // Index email và uid để tìm kiếm nhanh
 userSchema.index({ email: 1, uid: 1 });
+// Index for email verification token lookup
+userSchema.index({ emailVerificationToken: 1 });
+// Index for password reset token lookup
+userSchema.index({ passwordResetToken: 1 });
 
 export const User = mongoose.model<IUser>("User", userSchema);

@@ -71,7 +71,7 @@ htmlcov/
 
 # iOS / Android generated
 ios/
-android/
+
 
 # Flutter specific
 .generated/

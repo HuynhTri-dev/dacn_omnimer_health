@@ -8,6 +8,24 @@ class Endpoints {
   static const String login = "/v1/auth/login";
   static const String register = "/v1/auth/register";
   static const String createNewAccessToken = "/v1/auth/new-access-token";
+  static const String changePassword = "/v1/auth/change-password";
+
+  // ================== FORGOT PASSWORD ==================
+  static const String forgotPasswordRequest = "/v1/forgot-password/request";
+  static const String forgotPasswordVerifyCode =
+      "/v1/forgot-password/verify-code";
+  static const String forgotPasswordReset = "/v1/forgot-password/reset";
+  static const String forgotPasswordResendCode =
+      "/v1/forgot-password/resend-code";
+
+  // ================== VERIFICATION ==================
+  static const String verificationStatus = "/v1/verification/status";
+  static const String sendVerificationEmail =
+      "/v1/verification/send-verification-email";
+  static const String resendVerificationEmail =
+      "/v1/verification/resend-verification-email";
+  static const String requestChangeEmail =
+      "/v1/verification/request-change-email";
 
   // ================== USER ==================
   static const String getUsers = "/v1/user";
@@ -142,4 +160,11 @@ class Endpoints {
 
   // ================== AI RECOMMENDATIONS ==================
   static const String getAiRecommendations = "/v1/ai/recommend";
+
+  // ================== CHART ==================
+  static const String getWorkoutFrequency = "/v1/chart/workout-frequency";
+  static const String getCaloriesBurned = "/v1/chart/calories-burned";
+  static const String getMuscleDistribution = "/v1/chart/muscle-distribution";
+  static const String getGoalProgress = "/v1/chart/goal-progress";
+  static const String getWeightProgress = "/v1/chart/weight-progress";
 }

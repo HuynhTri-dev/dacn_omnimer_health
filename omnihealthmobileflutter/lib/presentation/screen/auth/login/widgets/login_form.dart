@@ -259,8 +259,7 @@ class _LoginFormState extends State<LoginForm> {
         TextButton(
           onPressed: widget.isLoading
               ? null
-              : () =>
-                    Navigator.pushReplacementNamed(context, '/forgot-password'),
+              : () => Navigator.pushNamed(context, '/forget-password'),
           style: TextButton.styleFrom(
             padding: EdgeInsets.symmetric(
               horizontal: AppSpacing.sm.w,

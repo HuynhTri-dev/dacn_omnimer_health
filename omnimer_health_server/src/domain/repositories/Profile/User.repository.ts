@@ -37,6 +37,7 @@ export class UserRepository extends BaseRepository<IUser> {
         gender: user.gender,
         birthday: user.birthday,
         roleName: roles.map((r) => r.name),
+        isDataSharingAccepted: user.isDataSharingAccepted,
       };
 
       return userResponse;
@@ -72,6 +73,7 @@ export class UserRepository extends BaseRepository<IUser> {
         birthday: user.birthday,
         roleName: roles.map((r) => r.name),
         roleIds: roles.map((r) => r._id),
+        isDataSharingAccepted: user.isDataSharingAccepted,
       };
 
       if (!user.passwordHashed) {
@@ -133,5 +135,68 @@ export class UserRepository extends BaseRepository<IUser> {
     } catch (e) {
       throw e;
     }
+  }
+
+  /**
+   * Lấy password hash của user theo ID
+   * @param id - ID của user
+   * @returns Promise<string | null> - Password hash hoặc null nếu không tìm thấy
+   */
+  async getPasswordHashById(id: string): Promise<string | null> {
+    try {
+      const user = await this.model
+        .findById(id)
+        .select("passwordHashed")
+        .lean();
+      return user?.passwordHashed ?? null;
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  /**
+   * Cập nhật password của user
+   * @param id - ID của user
+   * @param newPasswordHash - Password hash mới
+   * @returns Promise<boolean> - true nếu cập nhật thành công
+   */
+  async updatePassword(id: string, newPasswordHash: string): Promise<boolean> {
+    try {
+      const result = await this.model.findByIdAndUpdate(
+        id,
+        { passwordHashed: newPasswordHash },
+        { new: true }
+      );
+      return !!result;
+    } catch (e) {
+      throw e;
+    }
+  }
+  /**
+   * 🔹 Count total users
+   */
+  async countUsers(): Promise<number> {
+    return this.model.countDocuments();
+  }
+
+  /**
+   * 🔹 Get user growth stats
+   */
+  async getUserGrowthStats(
+    period: "daily" | "weekly" | "monthly"
+  ): Promise<{ date: string; count: number }[]> {
+    const dateFormat =
+      period === "daily" ? "%Y-%m-%d" : period === "weekly" ? "%Y-%U" : "%Y-%m";
+
+    return this.model.aggregate([
+      {
+        $group: {
+          _id: { $dateToString: { format: dateFormat, date: "$createdAt" } },
+          count: { $sum: 1 },
+        },
+      },
+      { $sort: { _id: 1 } },
+      { $project: { date: "$_id", count: 1, _id: 0 } },
+    ]);
   }
 }

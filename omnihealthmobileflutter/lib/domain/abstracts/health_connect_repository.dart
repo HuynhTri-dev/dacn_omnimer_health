@@ -51,6 +51,9 @@ abstract class HealthConnectRepository {
     List<HealthConnectWorkoutData>? workoutData,
   });
 
+  /// Sync health data for a specific time range to backend
+  Future<bool> syncHealthDataForRange(DateTime startTime, DateTime endTime);
+
   /// Get last sync timestamp
   Future<DateTime?> getLastSyncTimestamp();
 
@@ -62,17 +65,7 @@ abstract class HealthConnectRepository {
 
   /// Stream of workout session updates
   Stream<List<HealthConnectWorkoutData>> get workoutDataStream;
-}
 
-enum HealthDataType {
-  steps,
-  distance,
-  calories,
-  activeMinutes,
-  heartRate,
-  heartRateRest,
-  heartRateMax,
-  sleepDuration,
-  sleepQuality,
-  stressLevel,
+  /// Write mock data for testing/simulation
+  Future<void> writeMockData(DateTime startTime, DateTime endTime);
 }

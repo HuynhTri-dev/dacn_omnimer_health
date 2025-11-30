@@ -2,6 +2,8 @@ import { Express } from "express";
 import permissionRoute from "./permission.route";
 import roleRoute from "./role.route";
 import authRoute from "./auth.route";
+import verificationRoute from "./verification.route";
+import forgotPasswordRoute from "./forgot-password.route";
 import bodyPartRoute from "./body-part.route";
 import equipmentRoute from "./equipment.route";
 import exerciseTypeRoute from "./exercise-type.route";
@@ -17,6 +19,8 @@ import workoutRoute from "./workout.route";
 import workoutFeedbackRoute from "./workout-feedback.route";
 import watchLogRoute from "./watch-log.route";
 import AIRoute from "./ai.route";
+import chartRoute from "./chart.route";
+import adminChartRoute from "./admin-chart.route";
 
 function setupRoutes(app: Express) {
   // System
@@ -24,6 +28,8 @@ function setupRoutes(app: Express) {
   app.use("/api/v1/role", roleRoute);
   // Profile
   app.use("/api/v1/auth", authRoute);
+  app.use("/api/v1/verification", verificationRoute);
+  app.use("/api/v1/forgot-password", forgotPasswordRoute);
   app.use("/api/v1/user", userRoute);
   app.use("/api/v1/health-profile", healthProfileRoute);
   app.use("/api/v1/goal", goalRoute);
@@ -43,5 +49,9 @@ function setupRoutes(app: Express) {
   app.use("/api/v1/watch-log", watchLogRoute);
   // AI
   app.use("/api/v1/ai", AIRoute);
+  // Charts
+  app.use("/api/v1/chart", chartRoute);
+  // Admin Charts
+  app.use("/api/v1/admin-chart", adminChartRoute);
 }
 export default setupRoutes;

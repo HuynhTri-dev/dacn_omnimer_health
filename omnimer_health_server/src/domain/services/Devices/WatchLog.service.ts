@@ -5,12 +5,19 @@ import { WatchLogRepository } from "../../repositories";
 import { HttpError } from "../../../utils/HttpError";
 import { PaginationQueryOptions } from "../../entities";
 import { Types } from "mongoose";
+import { GraphDBService } from "../LOD/GraphDB.service";
+import { LODMapper } from "../LOD/LODMapper";
 
 export class WatchLogService {
   private readonly watchLogRepo: WatchLogRepository;
+  private readonly graphDBService: GraphDBService;
 
-  constructor(watchLogRepo: WatchLogRepository) {
+  constructor(
+    watchLogRepo: WatchLogRepository,
+    graphDBService: GraphDBService
+  ) {
     this.watchLogRepo = watchLogRepo;
+    this.graphDBService = graphDBService;
   }
 
   // ======================================================
@@ -63,7 +70,11 @@ export class WatchLogService {
    * @returns Array of created WatchLog documents
    * @throws HttpError if insertion fails
    */
-  async createManyWatchLog(userId: string, logs: Partial<IWatchLog>[]) {
+  async createManyWatchLog(
+    userId: string,
+    logs: Partial<IWatchLog>[],
+    isDataSharingAccepted?: boolean
+  ) {
     try {
       // Inject userId into each log entry
       const logsWithUser = logs.map((log) => ({
@@ -79,6 +90,13 @@ export class WatchLogService {
         message: `Tạo ${createdLogs.length} WatchLog thành công`,
         status: StatusLogEnum.Success,
       });
+
+      if (isDataSharingAccepted) {
+        for (const log of createdLogs) {
+          const rdf = LODMapper.mapWatchLogToRDF(log);
+          await this.graphDBService.insertData(rdf);
+        }
+      }
 
       return;
     } catch (err: any) {

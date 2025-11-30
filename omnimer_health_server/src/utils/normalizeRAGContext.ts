@@ -17,7 +17,7 @@ export function normalizeUserContext(context: IRAGUserContext) {
   const weight_kg = Number(hp.weight) || 0;
   const bmi = Number(hp.bmi) || 0;
   const body_fat_percentage = Number(hp.bodyFatPercentage) || 0;
-  const whr = Number(hp.whr) || 0;
+
   const resting_hr = Number(hp.restingHeartRate) || 0;
   const workout_frequency_per_week = Number(hp.workoutFrequency) || 0;
   const activity_level = Number(hp.activityLevel) || 1;
@@ -52,7 +52,6 @@ export function normalizeUserContext(context: IRAGUserContext) {
     weight_kg,
     bmi,
     body_fat_percentage,
-    whr,
 
     // Chuỗi
     gender: hp.gender?.toString() || "",

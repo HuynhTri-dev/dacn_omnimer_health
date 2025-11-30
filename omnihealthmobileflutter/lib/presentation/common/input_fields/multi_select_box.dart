@@ -111,7 +111,8 @@ class _MultiSelectBoxState<T> extends State<MultiSelectBox<T>>
           fontSize: AppTypography.fontSizeLg.sp,
         ),
       ),
-      selectedColor: theme.primaryColor,
+      selectedColor: theme.primaryColor.withOpacity(0.1),
+      checkColor: theme.primaryColor,
       decoration: BoxDecoration(
         color: theme.inputDecorationTheme.fillColor ?? theme.cardColor,
         border: Border.all(color: _getBorderColor(false), width: 1.5),
@@ -134,7 +135,8 @@ class _MultiSelectBoxState<T> extends State<MultiSelectBox<T>>
       ),
       buttonIcon: Icon(
         Icons.arrow_drop_down,
-        color: theme.textTheme.bodySmall?.color,
+        color: theme.iconTheme.color,
+        size: 24.sp,
       ),
       buttonText: Text(
         selectedCount == 0
@@ -152,20 +154,38 @@ class _MultiSelectBoxState<T> extends State<MultiSelectBox<T>>
         ),
       ),
       chipDisplay: MultiSelectChipDisplay<T>(
+        items:
+            widget.value
+                ?.map(
+                  (value) => MultiSelectItem<T>(
+                    value,
+                    widget.options
+                        .firstWhere((item) => item.value == value)
+                        .label,
+                  ),
+                )
+                .toList() ??
+            [],
         onTap: (value) {
           final newValues = List<T>.from(widget.value ?? []);
           newValues.remove(value);
           _handleChange(newValues);
         },
-        chipColor: theme.primaryColor,
+        chipColor: theme.primaryColor.withOpacity(0.15),
         textStyle: theme.textTheme.bodySmall?.copyWith(
           fontSize: AppTypography.fontSizeXs.sp,
-          color: theme.colorScheme.onPrimary,
+          color: theme.primaryColor,
+          fontWeight: FontWeight.w600,
         ),
-        decoration: BoxDecoration(
+        icon: Icon(Icons.close, size: 16.sp, color: theme.primaryColor),
+        shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppRadius.sm.r),
+          side: BorderSide(
+            color: theme.primaryColor.withOpacity(0.3),
+            width: 1,
+          ),
         ),
-        chipWidth: AppSpacing.xs,
+        height: 32.h,
       ),
       searchable: widget.searchable,
       searchHint: 'Tìm kiếm...',
@@ -177,7 +197,7 @@ class _MultiSelectBoxState<T> extends State<MultiSelectBox<T>>
         fontSize: AppTypography.fontSizeBase.sp,
       ),
       selectedItemsTextStyle: theme.textTheme.bodyMedium?.copyWith(
-        fontWeight: FontWeight.bold,
+        fontWeight: FontWeight.w600,
         fontSize: AppTypography.fontSizeBase.sp,
         color: theme.primaryColor,
       ),
@@ -197,6 +217,8 @@ class _MultiSelectBoxState<T> extends State<MultiSelectBox<T>>
           color: theme.textTheme.bodySmall?.color,
         ),
       ),
+      dialogHeight: widget.maxHeight.h,
+      dialogWidth: MediaQuery.of(context).size.width * 0.9,
     );
 
     return Focus(

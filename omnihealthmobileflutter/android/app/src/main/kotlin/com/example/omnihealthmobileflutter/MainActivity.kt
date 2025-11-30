@@ -1,5 +1,8 @@
 package com.example.omnihealthmobileflutter
 
-import io.flutter.embedding.android.FlutterActivity
+// Để Health Connect hoạt động tốt trên Android 14, bạn cần đổi lớp cha từ FlutterActivity sang FlutterFragmentActivity
+import io.flutter.embedding.android.FlutterFragmentActivity
 
-class MainActivity : FlutterActivity()
+class MainActivity: FlutterFragmentActivity() {
+    // ...
+}

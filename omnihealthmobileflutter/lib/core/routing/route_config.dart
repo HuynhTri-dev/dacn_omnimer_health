@@ -27,6 +27,19 @@ import 'package:omnihealthmobileflutter/presentation/screen/auth/info_account/in
 import 'package:omnihealthmobileflutter/presentation/screen/more/more_screen.dart';
 import 'package:omnihealthmobileflutter/presentation/screen/auth/change_password/change_password_screen.dart';
 import 'package:omnihealthmobileflutter/presentation/screen/auth/verify_account/verify_account_screen.dart';
+import 'package:omnihealthmobileflutter/presentation/screen/auth/forgot_password/forgot_password_screen.dart';
+import 'package:omnihealthmobileflutter/presentation/screen/workout/workout_template_form/workout_template_form_screen.dart';
+import 'package:omnihealthmobileflutter/presentation/screen/workout/workout_template_detail/workout_template_detail_screen.dart';
+import 'package:omnihealthmobileflutter/presentation/screen/workout/workout_template_detail/cubits/workout_template_detail_cubit.dart';
+import 'package:omnihealthmobileflutter/presentation/screen/workout/workout_template_ai/workout_template_ai_screen.dart';
+import 'package:omnihealthmobileflutter/presentation/screen/workout/workout_template_ai/cubit/workout_template_ai_cubit.dart';
+import 'package:omnihealthmobileflutter/presentation/screen/workout/workout_session/workout_session_screen.dart';
+import 'package:omnihealthmobileflutter/presentation/screen/workout/workout_session/bloc/workout_session_bloc.dart';
+import 'package:omnihealthmobileflutter/domain/entities/workout/workout_template_entity.dart';
+import 'package:omnihealthmobileflutter/domain/usecases/workout/save_workout_log_usecase.dart';
+import 'package:omnihealthmobileflutter/domain/abstracts/workout_log_repository_abs.dart';
+import 'package:omnihealthmobileflutter/domain/abstracts/health_connect_repository.dart';
+import 'package:omnihealthmobileflutter/domain/usecases/workout/create_workout_feedback_usecase.dart';
 
 class RouteConfig {
   // ==================== ROUTE NAMES ====================
@@ -50,6 +63,10 @@ class RouteConfig {
   static const String infoAccount = '/info-account';
   static const String changePassword = '/change-password';
   static const String verifyAccount = '/verify-account';
+  static const String workoutTemplateForm = '/workout-template-form';
+  static const String workoutTemplateDetail = '/workout-template-detail';
+  static const String workoutTemplateAI = '/workout-template-ai';
+  static const String workoutSession = '/workout-session';
 
   // ==================== BUILD AUTH PAGES ====================
   static Widget buildAuthPage(String? routeName) {
@@ -65,8 +82,7 @@ class RouteConfig {
         );
 
       case forgetPassword:
-      // TODO: Implement ForgetPasswordCubit
-      // return const ForgetPasswordScreen();
+        return const ForgotPasswordScreen();
 
       case login:
       default:
@@ -157,6 +173,48 @@ class RouteConfig {
       case verifyAccount:
         return const VerifyAccountScreen();
 
+      case forgetPassword:
+        // From authenticated context (e.g., Change Password screen)
+        return const ForgotPasswordScreen(fromAuthenticated: true);
+
+      case workoutTemplateForm:
+        final templateId = arguments?['templateId'] as String?;
+        return WorkoutTemplateFormScreen(templateId: templateId);
+
+      case workoutTemplateDetail:
+        final templateId = arguments?['templateId'] as String?;
+        if (templateId == null) {
+          return _ErrorPage(message: 'Template ID is required');
+        }
+        return BlocProvider(
+          create: (_) => WorkoutTemplateDetailCubit(
+            getWorkoutTemplateByIdUseCase: sl(),
+            deleteWorkoutTemplateUseCase: sl(),
+          ),
+          child: WorkoutTemplateDetailScreen(templateId: templateId),
+        );
+
+      case workoutTemplateAI:
+        return BlocProvider(
+          create: (_) => sl<WorkoutTemplateAICubit>()..loadInitialData(),
+          child: const WorkoutTemplateAIScreen(),
+        );
+
+      case workoutSession:
+        final template = arguments?['template'] as WorkoutTemplateEntity?;
+        if (template == null) {
+          return _ErrorPage(message: 'Workout template is required');
+        }
+        return BlocProvider(
+          create: (_) => WorkoutSessionBloc(
+            saveWorkoutLogUseCase: sl<SaveWorkoutLogUseCase>(),
+            workoutLogRepository: sl<WorkoutLogRepositoryAbs>(),
+            healthConnectRepository: sl<HealthConnectRepository>(),
+            createWorkoutFeedbackUseCase: sl<CreateWorkoutFeedbackUseCase>(),
+          ),
+          child: WorkoutSessionScreen(template: template),
+        );
+
       default:
         return _ErrorPage(message: 'Không tìm thấy trang: $routeName');
     }
@@ -240,6 +298,37 @@ class RouteConfig {
 
   static void navigateToVerifyAccount(BuildContext context) {
     Navigator.of(context).pushNamed(verifyAccount);
+  }
+
+  static Future<dynamic> navigateToWorkoutTemplateDetail(
+    BuildContext context, {
+    required String templateId,
+  }) {
+    return Navigator.of(
+      context,
+    ).pushNamed(workoutTemplateDetail, arguments: {'templateId': templateId});
+  }
+
+  static Future<dynamic> navigateToWorkoutTemplateForm(
+    BuildContext context, {
+    String? templateId,
+  }) {
+    return Navigator.of(
+      context,
+    ).pushNamed(workoutTemplateForm, arguments: {'templateId': templateId});
+  }
+
+  static void navigateToWorkoutTemplateAI(BuildContext context) {
+    Navigator.of(context).pushNamed(workoutTemplateAI);
+  }
+
+  static Future<dynamic> navigateToWorkoutSession(
+    BuildContext context, {
+    required WorkoutTemplateEntity template,
+  }) {
+    return Navigator.of(
+      context,
+    ).pushNamed(workoutSession, arguments: {'template': template});
   }
 }
 

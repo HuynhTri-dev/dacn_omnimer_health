@@ -34,7 +34,9 @@ export class WorkoutTemplateService {
    */
   async createWorkoutTemplate(userId: string, data: Partial<IWorkoutTemplate>) {
     try {
-      const newTemplate = await this.workoutTemplateRepo.create(data);
+      // Gán createdForUserId từ authenticated user
+      const templateData = { ...data, createdForUserId: new Types.ObjectId(userId) };
+      const newTemplate = await this.workoutTemplateRepo.create(templateData);
 
       await logAudit({
         userId,

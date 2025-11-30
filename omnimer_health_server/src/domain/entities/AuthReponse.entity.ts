@@ -13,6 +13,7 @@ export interface IUserResponse {
   birthday?: Date | null;
   roleIds?: Types.ObjectId[];
   roleName?: string[];
+  isDataSharingAccepted: boolean;
 }
 
 /**

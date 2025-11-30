@@ -1,4 +1,4 @@
-import { Model } from "mongoose";
+import { Model, Types } from "mongoose";
 import { IGoal } from "../../models";
 import { BaseRepository } from "../base.repository";
 import { IRAGGoal } from "../../entities";
@@ -49,5 +49,15 @@ export class GoalRepository extends BaseRepository<IGoal> {
       goalType: g.goalType as GoalTypeEnum,
       targetMetric: g.targetMetric || [],
     }));
+  }
+
+  /**
+   * 🔹 Lấy tất cả mục tiêu của user để thống kê
+   */
+  async getAllGoals(userId: string): Promise<IGoal[]> {
+    return this.model
+      .find({ userId: new Types.ObjectId(userId) })
+      .lean()
+      .exec() as unknown as IGoal[];
   }
 }

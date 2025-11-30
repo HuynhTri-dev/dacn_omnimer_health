@@ -145,4 +145,27 @@ class AuthRepositoryImpl implements AuthRepositoryAbs {
       );
     }
   }
+
+  @override
+  Future<ApiResponse<void>> changePassword(
+    String currentPassword,
+    String newPassword,
+  ) async {
+    try {
+      final response = await authDataSource.changePassword(
+        currentPassword,
+        newPassword,
+      );
+      return ApiResponse<void>(
+        success: response.success,
+        message: response.message,
+        error: response.error,
+      );
+    } catch (e) {
+      return ApiResponse<void>.error(
+        "Thay đổi mật khẩu thất bại: ${e.toString()}",
+        error: e,
+      );
+    }
+  }
 }

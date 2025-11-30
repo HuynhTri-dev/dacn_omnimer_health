@@ -93,11 +93,11 @@ class HealthConnectDataModel {
 
   Map<String, dynamic> toWatchLogPayload() {
     return {
-      'nameDevice': 'HealthConnect',
+      'deviceType': 'Health Connect',
       'date': date.toIso8601String(),
       'steps': steps,
       'distance': distance,
-      'caloriesBurned': caloriesBurned,
+      'caloriesActive': caloriesBurned,
       'activeMinutes': activeMinutes,
       'heartRateAvg': heartRateAvg,
       'heartRateRest': heartRateRest,
@@ -187,10 +187,10 @@ class HealthConnectWorkoutDataModel {
   Map<String, dynamic> toWatchLogPayload() {
     return {
       'workoutId': workoutId,
-      'nameDevice': 'HealthConnect',
+      'deviceType': 'Health Connect',
       'date': date.toIso8601String(),
       'activeMinutes': duration.inMinutes,
-      'caloriesBurned': caloriesBurned,
+      'caloriesActive': caloriesBurned,
       'heartRateAvg': heartRateAvg,
       'heartRateMax': heartRateMax,
       'distance': distance,

@@ -14,6 +14,8 @@ import {
 import { uploadToCloudflare } from "../utils/CloudflareUpload";
 // [Bổ sung] Import MATCHING_EXERCISES từ matchExercise.ts
 import { MATCHING_EXERCISES } from "./matchExercise"; // Giả định đường dẫn tương đối
+import { LODMapper } from "../domain/services/LOD/LODMapper";
+import { GraphDBService } from "../domain/services/LOD/GraphDB.service";
 
 // Đường dẫn tuyệt đối đến thư mục gốc chứa JSON và ảnh
 const EXERCISES_ROOT_DIR = path.resolve(__dirname, "../../../exercises");
@@ -306,7 +308,7 @@ export async function seedExercises(
   );
 
   // 4. Chọn thêm 30 file ngẫu nhiên (hoặc tất cả nếu ít hơn 30)
-  const additionalFilesCount = 30;
+  const additionalFilesCount = 50;
   const additionalFiles = nonPrioritizedJsonFiles.slice(
     0,
     Math.min(additionalFilesCount, nonPrioritizedJsonFiles.length)
@@ -481,6 +483,19 @@ export async function seedExercises(
   console.log(`\n📥 Đang chèn ${exercisesToInsert.length} bài tập vào DB...`);
   const docs = await Exercise.insertMany(exercisesToInsert);
   console.log(`✅ Đã seed ${docs.length} Exercises thành công!`);
+
+  // Push to GraphDB
+  try {
+    const graphDB = new GraphDBService();
+    console.log("⏳ Pushing exercises to GraphDB...");
+    for (const exercise of docs) {
+      const rdf = LODMapper.mapExerciseToRDF(exercise as unknown as IExercise);
+      await graphDB.insertData(rdf);
+    }
+    console.log("✅ Finished pushing exercises to GraphDB");
+  } catch (err) {
+    console.error("❌ Error pushing to GraphDB:", err);
+  }
 
   return docs;
 }

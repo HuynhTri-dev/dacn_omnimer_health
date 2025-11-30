@@ -1,4 +1,6 @@
 import mongoose from "mongoose";
+import { LODMapper } from "../LOD/LODMapper";
+import { GraphDBService } from "../LOD/GraphDB.service";
 import { UserRepository } from "../../repositories";
 import { IUser } from "../../models";
 import {
@@ -123,5 +125,47 @@ export class UserService {
       });
       throw err;
     }
+  }
+
+  // ======================================================
+  // =============== TOGGLE DATA SHARING ==================
+  // ======================================================
+  /**
+   * Toggle the user's data sharing preference.
+   * - Updates the isDataSharingAccepted flag in the database.
+   * - If enabled, maps user data to RDF and pushes to GraphDB.
+   * - If disabled, deletes user data from GraphDB.
+   *
+   * @param userId - ID of the user
+   * @returns The updated user document
+   * @throws HttpError(404) if the user does not exist
+   */
+  async toggleDataSharing(userId: string) {
+    const user = await this.userRepository.findById(userId);
+    if (!user) throw new HttpError(404, "User không tồn tại");
+
+    const newValue = !user.isDataSharingAccepted;
+
+    // Update in DB
+    const updatedUser = await this.userRepository.update(userId, {
+      isDataSharingAccepted: newValue,
+    });
+
+    const graphDBService = new GraphDBService();
+
+    if (newValue) {
+      // If turning ON, map to RDF and insert
+      if (updatedUser) {
+        const rdfData = LODMapper.mapUserToRDF(updatedUser);
+        if (rdfData) {
+          await graphDBService.insertData(rdfData);
+        }
+      }
+    } else {
+      // If turning OFF, delete from GraphDB
+      await graphDBService.deleteUserData(userId);
+    }
+
+    return updatedUser;
   }
 }
