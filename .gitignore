@@ -27,9 +27,9 @@ yarn-error.log*
 
 # Virtual environments
 venv/
-*/venv/
+**/venv/
 env/
-*/env/
+**/env/
 
 # Python build artifacts
 *.egg-info/
@@ -87,7 +87,7 @@ fastlane/screenshots
 # NODEJS + TYPESCRIPT
 ####################################
 node_modules/
-*/node_modules/
+**/node_modules/
 
 # Logs
 logs/
@@ -130,3 +130,6 @@ exercises/
 # AGENT SETUP
 .claude
 CLAUDE.md
+
+# GraphDB Data
+graphdb_data/
