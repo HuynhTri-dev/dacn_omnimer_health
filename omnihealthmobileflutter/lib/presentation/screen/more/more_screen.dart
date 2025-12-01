@@ -16,6 +16,7 @@ import 'package:omnihealthmobileflutter/presentation/screen/more/widgets/health_
 import 'package:omnihealthmobileflutter/presentation/screen/more/widgets/settings_section.dart';
 import 'package:omnihealthmobileflutter/presentation/screen/more/widgets/support_section.dart';
 import 'package:omnihealthmobileflutter/presentation/common/cubits/theme_cubit.dart';
+import 'package:omnihealthmobileflutter/presentation/screen/privacy_lod/privacy_lod_screen.dart';
 
 /// More Screen - Settings & Utilities
 /// Includes: Profile, Privacy, Device Connectivity, Theme, Premium, Support
@@ -158,7 +159,12 @@ class MoreScreen extends StatelessWidget {
   }
 
   void _handlePrivacyTap(BuildContext context) {
-    _showComingSoonSnackbar(context, 'Privacy & LOD');
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const PrivacyLodScreen(),
+      ),
+    );
   }
 
   void _handleExportDataTap(BuildContext context) {
