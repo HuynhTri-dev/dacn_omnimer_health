@@ -43,30 +43,41 @@ class ReportBloc extends Bloc<ReportEvent, ReportState> {
     try {
       final response = await getWorkoutLogsUseCase(NoParams());
 
+      logger.i(
+        '[ReportBloc] getWorkoutLogsUseCase response: success=${response.success}, message=${response.message}, data=${response.data?.length}',
+      );
+
       if (response.success && response.data != null) {
         // Sort by startedAt descending (newest first)
         final sortedLogs = List.of(response.data!)
-          ..sort((a, b) => b.startedAt.compareTo(a.startedAt));
+          ..sort(
+            (a, b) => (b.startedAt ?? DateTime(0)).compareTo(
+              a.startedAt ?? DateTime(0),
+            ),
+          );
 
-        emit(state.copyWith(
-          status: ReportStatus.loaded,
-          workoutLogs: sortedLogs,
-        ));
+        emit(
+          state.copyWith(status: ReportStatus.loaded, workoutLogs: sortedLogs),
+        );
         logger.i('[ReportBloc] Loaded ${sortedLogs.length} workout logs');
       } else {
-        emit(state.copyWith(
-          status: ReportStatus.error,
-          errorMessage: response.message.isNotEmpty 
-              ? response.message 
-              : 'Failed to load workout logs',
-        ));
+        final errorMsg = response.message.isNotEmpty
+            ? response.message
+            : 'Failed to load workout logs (unknown error)';
+        logger.e('[ReportBloc] API returned error: $errorMsg');
+        emit(
+          state.copyWith(status: ReportStatus.error, errorMessage: errorMsg),
+        );
       }
-    } catch (e) {
-      logger.e('[ReportBloc] Error loading workout logs: $e');
-      emit(state.copyWith(
-        status: ReportStatus.error,
-        errorMessage: e.toString(),
-      ));
+    } catch (e, stackTrace) {
+      logger.e(
+        '[ReportBloc] Error loading workout logs: $e',
+        error: e,
+        stackTrace: stackTrace,
+      );
+      emit(
+        state.copyWith(status: ReportStatus.error, errorMessage: e.toString()),
+      );
     }
   }
 
@@ -81,12 +92,15 @@ class ReportBloc extends Bloc<ReportEvent, ReportState> {
 
       if (response.success && response.data != null) {
         final sortedLogs = List.of(response.data!)
-          ..sort((a, b) => b.startedAt.compareTo(a.startedAt));
+          ..sort(
+            (a, b) => (b.startedAt ?? DateTime(0)).compareTo(
+              a.startedAt ?? DateTime(0),
+            ),
+          );
 
-        emit(state.copyWith(
-          status: ReportStatus.loaded,
-          workoutLogs: sortedLogs,
-        ));
+        emit(
+          state.copyWith(status: ReportStatus.loaded, workoutLogs: sortedLogs),
+        );
       }
     } catch (e) {
       logger.e('[ReportBloc] Error refreshing workout logs: $e');
@@ -112,11 +126,13 @@ class ReportBloc extends Bloc<ReportEvent, ReportState> {
         emit(state.copyWith(workoutLogs: updatedLogs));
         logger.i('[ReportBloc] Successfully deleted workout log');
       } else {
-        emit(state.copyWith(
-          errorMessage: response.message.isNotEmpty 
-              ? response.message 
-              : 'Failed to delete workout log',
-        ));
+        emit(
+          state.copyWith(
+            errorMessage: response.message.isNotEmpty
+                ? response.message
+                : 'Failed to delete workout log',
+          ),
+        );
       }
     } catch (e) {
       logger.e('[ReportBloc] Error deleting workout log: $e');
@@ -143,21 +159,25 @@ class ReportBloc extends Bloc<ReportEvent, ReportState> {
       final goalResponse = await goalResponseFuture;
       final weightResponse = await weightResponseFuture;
 
-      emit(state.copyWith(
-        isChartLoading: false,
-        caloriesBurned: caloriesResponse.success && caloriesResponse.data != null
-            ? caloriesResponse.data!
-            : [],
-        muscleDistribution: muscleResponse.success && muscleResponse.data != null
-            ? muscleResponse.data!
-            : [],
-        goalProgress: goalResponse.success && goalResponse.data != null
-            ? goalResponse.data!
-            : [],
-        weightProgress: weightResponse.success && weightResponse.data != null
-            ? weightResponse.data!
-            : [],
-      ));
+      emit(
+        state.copyWith(
+          isChartLoading: false,
+          caloriesBurned:
+              caloriesResponse.success && caloriesResponse.data != null
+              ? caloriesResponse.data!
+              : [],
+          muscleDistribution:
+              muscleResponse.success && muscleResponse.data != null
+              ? muscleResponse.data!
+              : [],
+          goalProgress: goalResponse.success && goalResponse.data != null
+              ? goalResponse.data!
+              : [],
+          weightProgress: weightResponse.success && weightResponse.data != null
+              ? weightResponse.data!
+              : [],
+        ),
+      );
 
       logger.i('[ReportBloc] Chart data loaded successfully');
     } catch (e) {
@@ -166,4 +186,3 @@ class ReportBloc extends Bloc<ReportEvent, ReportState> {
     }
   }
 }
-

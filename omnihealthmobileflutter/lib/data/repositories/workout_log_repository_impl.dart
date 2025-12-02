@@ -3,6 +3,7 @@ import 'package:omnihealthmobileflutter/data/datasources/workout_datasource.dart
 import 'package:omnihealthmobileflutter/domain/abstracts/workout_log_repository_abs.dart';
 import 'package:omnihealthmobileflutter/domain/entities/workout/workout_log_entity.dart';
 import 'package:omnihealthmobileflutter/domain/entities/workout/workout_feedback_entity.dart';
+import 'package:omnihealthmobileflutter/domain/entities/workout/workout_log_summary_entity.dart';
 import 'package:omnihealthmobileflutter/utils/logger.dart';
 
 /// Implementation of WorkoutLogRepositoryAbs
@@ -62,15 +63,16 @@ class WorkoutLogRepositoryImpl implements WorkoutLogRepositoryAbs {
   }
 
   @override
-  Future<ApiResponse<List<WorkoutLogEntity>>> getUserWorkoutLogs() async {
+  Future<ApiResponse<List<WorkoutLogSummaryEntity>>>
+  getUserWorkoutLogs() async {
     try {
       final response = await workoutDataSource.getUserWorkoutLogs();
 
       final entities = response.data != null
           ? response.data!.map((model) => model.toEntity()).toList()
-          : <WorkoutLogEntity>[];
+          : <WorkoutLogSummaryEntity>[];
 
-      return ApiResponse<List<WorkoutLogEntity>>(
+      return ApiResponse<List<WorkoutLogSummaryEntity>>(
         success: response.success,
         message: response.message,
         data: entities,
@@ -78,7 +80,7 @@ class WorkoutLogRepositoryImpl implements WorkoutLogRepositoryAbs {
       );
     } catch (e) {
       logger.e('[WorkoutLogRepository] getUserWorkoutLogs error: $e');
-      return ApiResponse<List<WorkoutLogEntity>>.error(
+      return ApiResponse<List<WorkoutLogSummaryEntity>>.error(
         "Không thể lấy danh sách workout logs: ${e.toString()}",
         error: e,
       );

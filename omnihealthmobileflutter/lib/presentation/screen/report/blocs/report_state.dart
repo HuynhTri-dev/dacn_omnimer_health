@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:omnihealthmobileflutter/domain/entities/workout/workout_log_entity.dart';
+import 'package:omnihealthmobileflutter/domain/entities/workout/workout_log_summary_entity.dart';
 import 'package:omnihealthmobileflutter/domain/entities/chart/calories_burned_entity.dart';
 import 'package:omnihealthmobileflutter/domain/entities/chart/muscle_distribution_entity.dart';
 import 'package:omnihealthmobileflutter/domain/entities/chart/goal_progress_entity.dart';
@@ -9,7 +9,7 @@ enum ReportStatus { initial, loading, loaded, error }
 
 class ReportState extends Equatable {
   final ReportStatus status;
-  final List<WorkoutLogEntity> workoutLogs;
+  final List<WorkoutLogSummaryEntity> workoutLogs;
   final String? errorMessage;
 
   // Chart data
@@ -32,7 +32,7 @@ class ReportState extends Equatable {
 
   ReportState copyWith({
     ReportStatus? status,
-    List<WorkoutLogEntity>? workoutLogs,
+    List<WorkoutLogSummaryEntity>? workoutLogs,
     String? errorMessage,
     List<CaloriesBurnedEntity>? caloriesBurned,
     List<MuscleDistributionEntity>? muscleDistribution,
@@ -56,14 +56,16 @@ class ReportState extends Equatable {
   int get totalWorkouts => workoutLogs.length;
 
   /// Get total duration in seconds
-  int get totalDurationSeconds =>
-      workoutLogs.fold(0, (sum, log) => sum + log.durationSeconds);
+  int get totalDurationSeconds => workoutLogs.fold(
+    0,
+    (sum, log) => sum + (log.summary?.totalDuration ?? 0),
+  );
 
   /// Get formatted total duration
   String get formattedTotalDuration {
     final hours = totalDurationSeconds ~/ 3600;
     final minutes = (totalDurationSeconds % 3600) ~/ 60;
-    
+
     if (hours > 0) {
       return '${hours}h ${minutes}m';
     } else {
@@ -73,22 +75,20 @@ class ReportState extends Equatable {
 
   /// Get total sets completed
   int get totalSetsCompleted =>
-      workoutLogs.fold(0, (sum, log) => sum + log.totalCompletedSets);
+      workoutLogs.fold(0, (sum, log) => sum + (log.summary?.totalSets ?? 0));
 
-  /// Get total exercises completed
-  int get totalExercisesCompleted =>
-      workoutLogs.fold(0, (sum, log) => sum + log.completedExercisesCount);
+  /// Get total exercises completed (Not available in summary, returning 0 or estimated)
+  int get totalExercisesCompleted => 0;
 
   @override
   List<Object?> get props => [
-        status,
-        workoutLogs,
-        errorMessage,
-        caloriesBurned,
-        muscleDistribution,
-        goalProgress,
-        weightProgress,
-        isChartLoading,
-      ];
+    status,
+    workoutLogs,
+    errorMessage,
+    caloriesBurned,
+    muscleDistribution,
+    goalProgress,
+    weightProgress,
+    isChartLoading,
+  ];
 }
-

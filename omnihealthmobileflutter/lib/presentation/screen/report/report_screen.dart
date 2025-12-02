@@ -3,8 +3,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'package:omnihealthmobileflutter/domain/entities/workout/workout_log_entity.dart';
+import 'package:omnihealthmobileflutter/domain/entities/workout/workout_log_summary_entity.dart';
 import 'package:omnihealthmobileflutter/domain/entities/chart/calories_burned_entity.dart';
+
 import 'package:omnihealthmobileflutter/domain/entities/chart/muscle_distribution_entity.dart';
 import 'package:omnihealthmobileflutter/domain/entities/chart/goal_progress_entity.dart';
 import 'package:omnihealthmobileflutter/domain/entities/chart/weight_progress_entity.dart';
@@ -75,7 +76,7 @@ class _ReportViewState extends State<_ReportView> {
                           ),
                           SizedBox(height: 16.h),
                           Text(
-                            state.errorMessage ?? 'An error occurred',
+                            'Error: ${state.errorMessage ?? "Unknown error"}',
                             textAlign: TextAlign.center,
                             style: theme.textTheme.bodyMedium?.copyWith(
                               color: theme.colorScheme.error,
@@ -170,7 +171,10 @@ class _ReportViewState extends State<_ReportView> {
     );
   }
 
-  void _showDeleteConfirmation(BuildContext context, WorkoutLogEntity log) {
+  void _showDeleteConfirmation(
+    BuildContext context,
+    WorkoutLogSummaryEntity log,
+  ) {
     showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
@@ -348,7 +352,7 @@ class _EmptyWorkoutHistory extends StatelessWidget {
 }
 
 class _WorkoutLogCard extends StatelessWidget {
-  final WorkoutLogEntity log;
+  final WorkoutLogSummaryEntity log;
   final VoidCallback onDelete;
 
   const _WorkoutLogCard({required this.log, required this.onDelete});
@@ -358,22 +362,6 @@ class _WorkoutLogCard extends StatelessWidget {
     final theme = Theme.of(context);
     final dateFormat = DateFormat('MMM dd, yyyy');
     final timeFormat = DateFormat('HH:mm');
-
-    // Determine status color
-    Color statusColor;
-    switch (log.status) {
-      case 'completed':
-        statusColor = Colors.green;
-        break;
-      case 'in_progress':
-        statusColor = Colors.orange;
-        break;
-      case 'cancelled':
-        statusColor = Colors.red;
-        break;
-      default:
-        statusColor = Colors.grey;
-    }
 
     return Container(
       decoration: BoxDecoration(
@@ -414,25 +402,6 @@ class _WorkoutLogCard extends StatelessWidget {
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
-                    Container(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 8.w,
-                        vertical: 4.h,
-                      ),
-                      decoration: BoxDecoration(
-                        color: statusColor.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(8.r),
-                      ),
-                      child: Text(
-                        log.status.toUpperCase(),
-                        style: TextStyle(
-                          color: statusColor,
-                          fontSize: 10.sp,
-                          fontWeight: FontWeight.bold,
-                          fontFamily: 'Montserrat',
-                        ),
-                      ),
-                    ),
                   ],
                 ),
 
@@ -448,7 +417,9 @@ class _WorkoutLogCard extends StatelessWidget {
                     ),
                     SizedBox(width: 4.w),
                     Text(
-                      dateFormat.format(log.startedAt),
+                      log.startedAt != null
+                          ? dateFormat.format(log.startedAt!)
+                          : 'N/A',
                       style: theme.textTheme.bodySmall,
                     ),
                     SizedBox(width: 16.w),
@@ -459,7 +430,9 @@ class _WorkoutLogCard extends StatelessWidget {
                     ),
                     SizedBox(width: 4.w),
                     Text(
-                      timeFormat.format(log.startedAt),
+                      log.startedAt != null
+                          ? timeFormat.format(log.startedAt!)
+                          : 'N/A',
                       style: theme.textTheme.bodySmall,
                     ),
                   ],
@@ -477,14 +450,9 @@ class _WorkoutLogCard extends StatelessWidget {
                       value: log.formattedDuration,
                     ),
                     _StatItem(
-                      icon: Icons.sports_gymnastics,
-                      label: 'Exercises',
-                      value: '${log.totalExercisesCount}',
-                    ),
-                    _StatItem(
                       icon: Icons.repeat,
                       label: 'Sets',
-                      value: '${log.totalSets}',
+                      value: '${log.summary?.totalSets ?? 0}',
                     ),
                     IconButton(
                       icon: Icon(
@@ -515,9 +483,9 @@ class _WorkoutLogCard extends StatelessWidget {
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (context) => DraggableScrollableSheet(
-        initialChildSize: 0.85,
-        maxChildSize: 0.95,
-        minChildSize: 0.5,
+        initialChildSize: 0.5,
+        maxChildSize: 0.8,
+        minChildSize: 0.3,
         builder: (context, scrollController) => Container(
           decoration: BoxDecoration(
             color: theme.scaffoldBackgroundColor,
@@ -555,7 +523,9 @@ class _WorkoutLogCard extends StatelessWidget {
                           ),
                           SizedBox(height: 4.h),
                           Text(
-                            dateFormat.format(log.startedAt),
+                            log.startedAt != null
+                                ? dateFormat.format(log.startedAt!)
+                                : 'N/A',
                             style: theme.textTheme.bodySmall?.copyWith(
                               color: Colors.grey,
                             ),
@@ -595,13 +565,8 @@ class _WorkoutLogCard extends StatelessWidget {
                       label: 'Duration',
                     ),
                     _DetailSummaryItem(
-                      icon: Icons.fitness_center,
-                      value: '${log.totalExercisesCount}',
-                      label: 'Exercises',
-                    ),
-                    _DetailSummaryItem(
                       icon: Icons.repeat,
-                      value: '${log.totalSets}',
+                      value: '${log.summary?.totalSets ?? 0}',
                       label: 'Sets',
                     ),
                   ],
@@ -610,300 +575,23 @@ class _WorkoutLogCard extends StatelessWidget {
 
               SizedBox(height: 16.h),
 
-              // Section Title
+              // Note about missing details
               Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16.w),
-                child: Row(
-                  children: [
-                    Icon(
-                      Icons.list_alt,
-                      size: 20.sp,
-                      color: theme.primaryColor,
-                    ),
-                    SizedBox(width: 8.w),
-                    Text(
-                      'Exercise Details',
-                      style: theme.textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const Spacer(),
-                    Text(
-                      '${log.exercises.length} exercises',
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: Colors.grey,
-                      ),
-                    ),
-                  ],
+                padding: EdgeInsets.all(16.w),
+                child: Text(
+                  'Detailed exercise view is not available in summary mode.',
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: Colors.grey,
+                    fontStyle: FontStyle.italic,
+                  ),
+                  textAlign: TextAlign.center,
                 ),
-              ),
-
-              SizedBox(height: 12.h),
-
-              // Exercises list
-              Expanded(
-                child: log.exercises.isEmpty
-                    ? Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.fitness_center_outlined,
-                              size: 64.sp,
-                              color: Colors.grey.withOpacity(0.5),
-                            ),
-                            SizedBox(height: 16.h),
-                            Text(
-                              'No exercise details available',
-                              style: theme.textTheme.bodyMedium?.copyWith(
-                                color: Colors.grey,
-                              ),
-                            ),
-                            SizedBox(height: 8.h),
-                            Text(
-                              'Exercise data will appear here after workouts',
-                              style: theme.textTheme.bodySmall?.copyWith(
-                                color: Colors.grey,
-                              ),
-                            ),
-                          ],
-                        ),
-                      )
-                    : ListView.builder(
-                        controller: scrollController,
-                        padding: EdgeInsets.symmetric(horizontal: 16.w),
-                        itemCount: log.exercises.length,
-                        itemBuilder: (context, index) {
-                          final exercise = log.exercises[index];
-                          return _ExerciseDetailCard(
-                            exercise: exercise,
-                            index: index + 1,
-                            theme: theme,
-                          );
-                        },
-                      ),
               ),
             ],
           ),
         ),
       ),
     );
-  }
-
-  Widget _ExerciseDetailCard({
-    required WorkoutLogExerciseEntity exercise,
-    required int index,
-    required ThemeData theme,
-  }) {
-    return Container(
-      margin: EdgeInsets.only(bottom: 12.h),
-      decoration: BoxDecoration(
-        color: theme.cardColor,
-        borderRadius: BorderRadius.circular(12.r),
-        border: Border.all(
-          color: theme.primaryColor.withOpacity(0.2),
-          width: 1,
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Exercise Header
-          Container(
-            padding: EdgeInsets.all(12.w),
-            decoration: BoxDecoration(
-              color: theme.primaryColor.withOpacity(0.05),
-              borderRadius: BorderRadius.vertical(top: Radius.circular(12.r)),
-            ),
-            child: Row(
-              children: [
-                // Index badge
-                Container(
-                  width: 28.w,
-                  height: 28.w,
-                  decoration: BoxDecoration(
-                    color: theme.primaryColor,
-                    borderRadius: BorderRadius.circular(8.r),
-                  ),
-                  child: Center(
-                    child: Text(
-                      '$index',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 12.sp,
-                        fontWeight: FontWeight.bold,
-                        fontFamily: 'Montserrat',
-                      ),
-                    ),
-                  ),
-                ),
-                SizedBox(width: 12.w),
-                // Exercise name and type
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        exercise.exerciseName.isNotEmpty
-                            ? exercise.exerciseName
-                            : 'Exercise $index',
-                        style: theme.textTheme.titleSmall?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      if (exercise.type.isNotEmpty)
-                        Text(
-                          exercise.type.replaceAll('_', ' ').toUpperCase(),
-                          style: TextStyle(
-                            fontSize: 10.sp,
-                            color: Colors.grey,
-                            fontFamily: 'Montserrat',
-                          ),
-                        ),
-                    ],
-                  ),
-                ),
-                // Sets count badge
-                Container(
-                  padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
-                  decoration: BoxDecoration(
-                    color: theme.primaryColor.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(6.r),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        Icons.repeat,
-                        color: theme.primaryColor,
-                        size: 14.sp,
-                      ),
-                      SizedBox(width: 4.w),
-                      Text(
-                        '${exercise.totalSetsCount} sets',
-                        style: TextStyle(
-                          fontSize: 11.sp,
-                          color: theme.primaryColor,
-                          fontWeight: FontWeight.bold,
-                          fontFamily: 'Montserrat',
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          // Sets
-          if (exercise.sets.isNotEmpty)
-            Padding(
-              padding: EdgeInsets.all(12.w),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Sets',
-                    style: TextStyle(
-                      fontSize: 11.sp,
-                      color: Colors.grey,
-                      fontWeight: FontWeight.w500,
-                      fontFamily: 'Montserrat',
-                    ),
-                  ),
-                  SizedBox(height: 8.h),
-                  ...exercise.sets.asMap().entries.map((entry) {
-                    final setIndex = entry.key;
-                    final set = entry.value;
-                    return Container(
-                      margin: EdgeInsets.only(bottom: 6.h),
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 12.w,
-                        vertical: 8.h,
-                      ),
-                      decoration: BoxDecoration(
-                        color: theme.primaryColor.withOpacity(0.06),
-                        borderRadius: BorderRadius.circular(8.r),
-                      ),
-                      child: Row(
-                        children: [
-                          // Set number
-                          Container(
-                            width: 24.w,
-                            height: 24.w,
-                            decoration: BoxDecoration(
-                              color: theme.primaryColor,
-                              shape: BoxShape.circle,
-                            ),
-                            child: Center(
-                              child: Text(
-                                '${setIndex + 1}',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 10.sp,
-                                  fontWeight: FontWeight.bold,
-                                  fontFamily: 'Montserrat',
-                                ),
-                              ),
-                            ),
-                          ),
-                          SizedBox(width: 12.w),
-                          // Set details
-                          Expanded(
-                            child: Text(
-                              _formatSetInfo(set),
-                              style: TextStyle(
-                                fontSize: 13.sp,
-                                color: theme.textTheme.bodyMedium?.color,
-                                fontWeight: FontWeight.w500,
-                                fontFamily: 'Montserrat',
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    );
-                  }),
-                ],
-              ),
-            )
-          else
-            Padding(
-              padding: EdgeInsets.all(12.w),
-              child: Text(
-                'No set data available',
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: Colors.grey,
-                  fontStyle: FontStyle.italic,
-                ),
-              ),
-            ),
-        ],
-      ),
-    );
-  }
-
-  String _formatSetInfo(WorkoutLogSetEntity set) {
-    final parts = <String>[];
-
-    if (set.reps != null) {
-      parts.add('${set.reps} reps');
-    }
-    if (set.weight != null) {
-      parts.add('${set.weight}kg');
-    }
-    if (set.duration != null) {
-      parts.add('${set.duration}s');
-    }
-    if (set.distance != null) {
-      parts.add('${set.distance}m');
-    }
-
-    if (parts.isEmpty) {
-      return 'Set ${set.setOrder}';
-    }
-
-    return parts.join(' × ');
   }
 }
 
