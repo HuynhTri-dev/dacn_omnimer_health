@@ -168,4 +168,22 @@ class AuthRepositoryImpl implements AuthRepositoryAbs {
       );
     }
   }
+
+  @override
+  Future<ApiResponse<UserEntity>> toggleDataSharing() async {
+    try {
+      final response = await authDataSource.toggleDataSharing();
+      return ApiResponse<UserEntity>(
+        success: response.success,
+        message: response.message,
+        data: response.data?.toEntity(),
+        error: response.error,
+      );
+    } catch (e) {
+      return ApiResponse<UserEntity>.error(
+        "Toggle data sharing failed: ${e.toString()}",
+        error: e,
+      );
+    }
+  }
 }

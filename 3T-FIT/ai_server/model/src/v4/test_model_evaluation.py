@@ -1,11 +1,3 @@
-"""
-Test script for the Two-Branch DNN model evaluation
-Demonstrates model evaluation with the provided test data
-
-Author: Claude Code
-Date: 2025-11-27
-"""
-
 import pandas as pd
 import numpy as np
 import torch

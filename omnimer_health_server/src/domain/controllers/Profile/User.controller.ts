@@ -19,6 +19,9 @@ export class UserController {
   update = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const user = req.user as DecodePayload;
+
+      console.log(user);
+
       const userId = user?.id?.toString();
       if (!userId) return sendUnauthorized(res);
 

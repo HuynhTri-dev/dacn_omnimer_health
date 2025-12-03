@@ -1,13 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:omnihealthmobileflutter/core/theme/app_spacing.dart';
 import 'package:omnihealthmobileflutter/core/theme/app_radius.dart';
-import 'package:omnihealthmobileflutter/presentation/screen/privacy_lod/bloc/privacy_lod_bloc.dart';
-import 'package:omnihealthmobileflutter/presentation/screen/privacy_lod/bloc/privacy_lod_event.dart';
-import 'package:omnihealthmobileflutter/presentation/screen/privacy_lod/bloc/privacy_lod_state.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 /// Policy type enum
@@ -17,10 +13,8 @@ enum PolicyType { privacyPolicy, termsOfService }
 class PolicyViewerScreen extends StatefulWidget {
   final PolicyType policyType;
 
-  const PolicyViewerScreen({
-    Key? key,
-    required this.policyType,
-  }) : super(key: key);
+  const PolicyViewerScreen({Key? key, required this.policyType})
+    : super(key: key);
 
   @override
   State<PolicyViewerScreen> createState() => _PolicyViewerScreenState();
@@ -38,14 +32,6 @@ class _PolicyViewerScreenState extends State<PolicyViewerScreen> {
     super.initState();
     _loadMarkdownContent();
     _scrollController.addListener(_onScroll);
-
-    // Initialize agreement status from bloc state
-    final state = context.read<PrivacyLodBloc>().state;
-    if (state is PrivacyLodLoaded) {
-      _isAgreed = widget.policyType == PolicyType.privacyPolicy
-          ? state.isPrivacyPolicyAccepted
-          : state.isTermsAccepted;
-    }
   }
 
   @override
@@ -95,22 +81,15 @@ class _PolicyViewerScreenState extends State<PolicyViewerScreen> {
     setState(() {
       _isAgreed = value;
     });
-
-    // Update bloc state
-    if (widget.policyType == PolicyType.privacyPolicy) {
-      context.read<PrivacyLodBloc>().add(AcceptPrivacyPolicy(isAccepted: value));
-    } else {
-      context.read<PrivacyLodBloc>().add(AcceptTermsOfService(isAccepted: value));
-    }
   }
 
   Future<void> _launchUrl(String url) async {
     final Uri uri = Uri.parse(url);
     if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Could not open $url')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Could not open $url')));
       }
     }
   }
@@ -126,9 +105,7 @@ class _PolicyViewerScreenState extends State<PolicyViewerScreen> {
       appBar: AppBar(
         title: Text(
           _title,
-          style: textTheme.titleLarge?.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
+          style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
         elevation: 0,
@@ -147,7 +124,9 @@ class _PolicyViewerScreenState extends State<PolicyViewerScreen> {
                 : Container(
                     margin: EdgeInsets.all(AppSpacing.md),
                     decoration: BoxDecoration(
-                      color: colorScheme.surfaceContainerHighest.withOpacity(0.3),
+                      color: colorScheme.surfaceContainerHighest.withOpacity(
+                        0.3,
+                      ),
                       borderRadius: AppRadius.radiusMd,
                       border: Border.all(
                         color: colorScheme.outline.withOpacity(0.1),
@@ -194,7 +173,9 @@ class _PolicyViewerScreenState extends State<PolicyViewerScreen> {
                             color: colorScheme.onSurface.withOpacity(0.7),
                           ),
                           blockquoteDecoration: BoxDecoration(
-                            color: colorScheme.primaryContainer.withOpacity(0.3),
+                            color: colorScheme.primaryContainer.withOpacity(
+                              0.3,
+                            ),
                             borderRadius: AppRadius.radiusSm,
                             border: Border(
                               left: BorderSide(
@@ -277,7 +258,9 @@ class _PolicyViewerScreenState extends State<PolicyViewerScreen> {
                         decoration: BoxDecoration(
                           color: _isAgreed
                               ? colorScheme.primaryContainer.withOpacity(0.3)
-                              : colorScheme.surfaceContainerHighest.withOpacity(0.3),
+                              : colorScheme.surfaceContainerHighest.withOpacity(
+                                  0.3,
+                                ),
                           borderRadius: AppRadius.radiusSm,
                           border: Border.all(
                             color: _isAgreed
@@ -320,7 +303,9 @@ class _PolicyViewerScreenState extends State<PolicyViewerScreen> {
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
-                      onPressed: _isAgreed ? () => Navigator.pop(context) : null,
+                      onPressed: _isAgreed
+                          ? () => Navigator.pop(context, true)
+                          : null,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: colorScheme.primary,
                         foregroundColor: colorScheme.onPrimary,
@@ -350,4 +335,3 @@ class _PolicyViewerScreenState extends State<PolicyViewerScreen> {
     );
   }
 }
-

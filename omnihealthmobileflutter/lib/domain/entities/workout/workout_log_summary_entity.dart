@@ -21,17 +21,14 @@ class WorkoutLogSummaryEntity extends Equatable {
   });
 
   String get formattedDuration {
-    final durationSeconds = summary?.totalDuration ?? 0;
-    final hours = durationSeconds ~/ 3600;
-    final minutes = (durationSeconds % 3600) ~/ 60;
-    final seconds = durationSeconds % 60;
+    final durationMinutes = summary?.totalDuration ?? 0;
+    final hours = durationMinutes ~/ 60;
+    final minutes = durationMinutes % 60;
 
     if (hours > 0) {
-      return '${hours}h ${minutes}m ${seconds}s';
-    } else if (minutes > 0) {
-      return '${minutes}m ${seconds}s';
+      return '${hours}h ${minutes}m';
     } else {
-      return '${seconds}s';
+      return '${minutes}m';
     }
   }
 

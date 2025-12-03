@@ -30,6 +30,7 @@ class Endpoints {
   // ================== USER ==================
   static const String getUsers = "/v1/user";
   static String updateUser(String id) => "/v1/user/$id";
+  static const String toggleDataSharing = "/v1/user/data-sharing";
 
   // ================== PERMISSION ==================
   static const String getPermissions = "/v1/permission";

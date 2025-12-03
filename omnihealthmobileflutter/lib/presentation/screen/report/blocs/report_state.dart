@@ -55,22 +55,59 @@ class ReportState extends Equatable {
   /// Get total workout count
   int get totalWorkouts => workoutLogs.length;
 
-  /// Get total duration in seconds
-  int get totalDurationSeconds => workoutLogs.fold(
+  /// Get total duration in minutes
+  int get totalDurationMinutes => workoutLogs.fold(
     0,
     (sum, log) => sum + (log.summary?.totalDuration ?? 0),
   );
 
   /// Get formatted total duration
   String get formattedTotalDuration {
-    final hours = totalDurationSeconds ~/ 3600;
-    final minutes = (totalDurationSeconds % 3600) ~/ 60;
+    final hours = totalDurationMinutes ~/ 60;
+    final minutes = totalDurationMinutes % 60;
 
     if (hours > 0) {
       return '${hours}h ${minutes}m';
     } else {
       return '${minutes}m';
     }
+  }
+
+  /// Get total calories burned
+  double get totalCalories => workoutLogs.fold(
+    0.0,
+    (sum, log) => sum + (log.summary?.totalCalories ?? 0),
+  );
+
+  /// Get average heart rate across all workouts
+  double get avgHeartRate {
+    if (workoutLogs.isEmpty) return 0;
+    final logsWithHr = workoutLogs
+        .where((log) => log.summary?.heartRateAvgAllWorkout != null)
+        .toList();
+    if (logsWithHr.isEmpty) return 0;
+
+    final totalAvgHr = logsWithHr.fold(
+      0.0,
+      (sum, log) => sum + (log.summary!.heartRateAvgAllWorkout!),
+    );
+    return totalAvgHr / logsWithHr.length;
+  }
+
+  /// Get max heart rate across all workouts
+  double get maxHeartRate {
+    if (workoutLogs.isEmpty) return 0;
+    final logsWithHr = workoutLogs
+        .where((log) => log.summary?.heartRateMaxAllWorkout != null)
+        .toList();
+    if (logsWithHr.isEmpty) return 0;
+
+    return logsWithHr.fold(
+      0.0,
+      (max, log) => (log.summary!.heartRateMaxAllWorkout! > max)
+          ? log.summary!.heartRateMaxAllWorkout!
+          : max,
+    );
   }
 
   /// Get total sets completed

@@ -2,18 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:omnihealthmobileflutter/core/theme/app_spacing.dart';
 import 'package:omnihealthmobileflutter/core/theme/app_radius.dart';
-import 'package:omnihealthmobileflutter/presentation/screen/privacy_lod/bloc/privacy_lod_state.dart';
 
 /// Data visibility section widget with toggle switches for each data type
 class DataVisibilitySection extends StatelessWidget {
-  final DataVisibilitySettings settings;
-  final Function(String dataType, bool value) onToggle;
+  final bool isDataSharingAccepted;
 
-  const DataVisibilitySection({
-    Key? key,
-    required this.settings,
-    required this.onToggle,
-  }) : super(key: key);
+  const DataVisibilitySection({Key? key, required this.isDataSharingAccepted})
+    : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -25,8 +20,7 @@ class DataVisibilitySection extends StatelessWidget {
           iconColor: Colors.blue,
           title: 'Steps',
           subtitle: 'Daily step count data',
-          value: settings.stepsVisible,
-          onChanged: (value) => onToggle('steps', value),
+          value: isDataSharingAccepted,
         ),
         SizedBox(height: AppSpacing.xs),
         _buildToggleItem(
@@ -35,8 +29,7 @@ class DataVisibilitySection extends StatelessWidget {
           iconColor: Colors.red,
           title: 'Heart Rate',
           subtitle: 'Heart rate measurements',
-          value: settings.heartRateVisible,
-          onChanged: (value) => onToggle('heartRate', value),
+          value: isDataSharingAccepted,
         ),
         SizedBox(height: AppSpacing.xs),
         _buildToggleItem(
@@ -45,8 +38,7 @@ class DataVisibilitySection extends StatelessWidget {
           iconColor: Colors.orange,
           title: 'Calories',
           subtitle: 'Calories burned data',
-          value: settings.caloriesVisible,
-          onChanged: (value) => onToggle('calories', value),
+          value: isDataSharingAccepted,
         ),
         SizedBox(height: AppSpacing.xs),
         _buildToggleItem(
@@ -55,8 +47,7 @@ class DataVisibilitySection extends StatelessWidget {
           iconColor: Colors.purple,
           title: 'Sleep',
           subtitle: 'Sleep duration and quality',
-          value: settings.sleepVisible,
-          onChanged: (value) => onToggle('sleep', value),
+          value: isDataSharingAccepted,
         ),
         SizedBox(height: AppSpacing.xs),
         _buildToggleItem(
@@ -65,8 +56,7 @@ class DataVisibilitySection extends StatelessWidget {
           iconColor: Colors.green,
           title: 'Workouts',
           subtitle: 'Exercise and training data',
-          value: settings.workoutsVisible,
-          onChanged: (value) => onToggle('workouts', value),
+          value: isDataSharingAccepted,
         ),
         SizedBox(height: AppSpacing.xs),
         _buildToggleItem(
@@ -75,8 +65,7 @@ class DataVisibilitySection extends StatelessWidget {
           iconColor: Colors.teal,
           title: 'Weight',
           subtitle: 'Body weight measurements',
-          value: settings.weightVisible,
-          onChanged: (value) => onToggle('weight', value),
+          value: isDataSharingAccepted,
         ),
       ],
     );
@@ -89,7 +78,6 @@ class DataVisibilitySection extends StatelessWidget {
     required String title,
     required String subtitle,
     required bool value,
-    required ValueChanged<bool> onChanged,
   }) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
@@ -117,11 +105,7 @@ class DataVisibilitySection extends StatelessWidget {
               color: iconColor.withOpacity(0.1),
               borderRadius: AppRadius.radiusSm,
             ),
-            child: Icon(
-              icon,
-              color: iconColor,
-              size: 20.sp,
-            ),
+            child: Icon(icon, color: iconColor, size: 20.sp),
           ),
           SizedBox(width: AppSpacing.sm),
 
@@ -151,7 +135,7 @@ class DataVisibilitySection extends StatelessWidget {
           // Toggle switch
           Switch.adaptive(
             value: value,
-            onChanged: onChanged,
+            onChanged: null, // Disabled as per requirements
             activeColor: colorScheme.primary,
           ),
         ],
@@ -159,4 +143,3 @@ class DataVisibilitySection extends StatelessWidget {
     );
   }
 }
-

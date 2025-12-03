@@ -3,30 +3,17 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:omnihealthmobileflutter/core/theme/app_spacing.dart';
 import 'package:omnihealthmobileflutter/core/theme/app_radius.dart';
-import 'package:omnihealthmobileflutter/presentation/screen/privacy_lod/bloc/privacy_lod_bloc.dart';
-import 'package:omnihealthmobileflutter/presentation/screen/privacy_lod/bloc/privacy_lod_event.dart';
-import 'package:omnihealthmobileflutter/presentation/screen/privacy_lod/bloc/privacy_lod_state.dart';
+import 'package:omnihealthmobileflutter/presentation/common/blocs/auth/authentication_bloc.dart';
+import 'package:omnihealthmobileflutter/presentation/common/blocs/auth/authentication_event.dart';
+import 'package:omnihealthmobileflutter/presentation/common/blocs/auth/authentication_state.dart';
 import 'package:omnihealthmobileflutter/presentation/screen/privacy_lod/policy_viewer_screen.dart';
 import 'package:omnihealthmobileflutter/presentation/screen/privacy_lod/widgets/legal_documents_section.dart';
 import 'package:omnihealthmobileflutter/presentation/screen/privacy_lod/widgets/data_visibility_section.dart';
-import 'package:omnihealthmobileflutter/presentation/screen/privacy_lod/widgets/anonymize_section.dart';
 
 /// Privacy & LOD Screen
 /// Manages privacy settings, data visibility, and legal documents
 class PrivacyLodScreen extends StatelessWidget {
   const PrivacyLodScreen({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => PrivacyLodBloc()..add(const LoadPrivacySettings()),
-      child: const _PrivacyLodView(),
-    );
-  }
-}
-
-class _PrivacyLodView extends StatelessWidget {
-  const _PrivacyLodView({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -39,9 +26,7 @@ class _PrivacyLodView extends StatelessWidget {
       appBar: AppBar(
         title: Text(
           'Privacy & Data',
-          style: textTheme.titleLarge?.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
+          style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
         elevation: 0,
@@ -51,127 +36,97 @@ class _PrivacyLodView extends StatelessWidget {
           onPressed: () => Navigator.pop(context),
         ),
       ),
-      body: BlocBuilder<PrivacyLodBloc, PrivacyLodState>(
-        builder: (context, state) {
-          if (state is PrivacyLodLoading) {
-            return const Center(child: CircularProgressIndicator());
+      body: BlocBuilder<AuthenticationBloc, AuthenticationState>(
+        builder: (context, authState) {
+          bool isDataSharingAccepted = false;
+          if (authState is AuthenticationAuthenticated) {
+            isDataSharingAccepted = authState.user.isDataSharingAccepted;
           }
 
-          if (state is PrivacyLodError) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.error_outline,
-                    size: 48.sp,
-                    color: colorScheme.error,
+          return SingleChildScrollView(
+            padding: EdgeInsets.all(AppSpacing.md),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Section: Legal Documents
+                _buildSectionHeader(
+                  context,
+                  icon: Icons.gavel,
+                  title: 'Legal Documents',
+                ),
+                SizedBox(height: AppSpacing.sm),
+                LegalDocumentsSection(
+                  isPrivacyAccepted: isDataSharingAccepted,
+                  onPrivacyPolicyTap: () => _navigateToPolicyViewer(
+                    context,
+                    PolicyType.privacyPolicy,
                   ),
-                  SizedBox(height: AppSpacing.md),
-                  Text(
-                    state.message,
-                    style: textTheme.bodyMedium?.copyWith(
-                      color: colorScheme.error,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                  SizedBox(height: AppSpacing.md),
-                  ElevatedButton(
+                ),
+
+                SizedBox(height: AppSpacing.xl),
+
+                // Section: Data Visibility
+                _buildSectionHeader(
+                  context,
+                  icon: Icons.visibility,
+                  title: 'Data Visibility',
+                  subtitle: 'Control which data can be shared',
+                ),
+                SizedBox(height: AppSpacing.sm),
+                DataVisibilitySection(
+                  isDataSharingAccepted: isDataSharingAccepted,
+                ),
+
+                SizedBox(height: AppSpacing.xl),
+
+                // Info card
+                _buildInfoCard(context),
+
+                SizedBox(height: AppSpacing.xl),
+
+                // Toggle Button
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
                     onPressed: () {
-                      context
-                          .read<PrivacyLodBloc>()
-                          .add(const LoadPrivacySettings());
+                      if (isDataSharingAccepted) {
+                        // If currently accepted, toggle to turn off
+                        context.read<AuthenticationBloc>().add(
+                          AuthenticationToggleDataSharing(),
+                        );
+                      } else {
+                        // If not accepted, navigate to privacy policy to accept
+                        _navigateToPolicyViewer(
+                          context,
+                          PolicyType.privacyPolicy,
+                        );
+                      }
                     },
-                    child: const Text('Retry'),
-                  ),
-                ],
-              ),
-            );
-          }
-
-          if (state is PrivacyLodLoaded) {
-            return _buildContent(context, state);
-          }
-
-          return const SizedBox.shrink();
-        },
-      ),
-    );
-  }
-
-  Widget _buildContent(BuildContext context, PrivacyLodLoaded state) {
-    return SingleChildScrollView(
-      padding: EdgeInsets.all(AppSpacing.md),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Section: Legal Documents
-          _buildSectionHeader(
-            context,
-            icon: Icons.gavel,
-            title: 'Legal Documents',
-          ),
-          SizedBox(height: AppSpacing.sm),
-          LegalDocumentsSection(
-            isPrivacyAccepted: state.isPrivacyPolicyAccepted,
-            isTermsAccepted: state.isTermsAccepted,
-            onPrivacyPolicyTap: () => _navigateToPolicyViewer(
-              context,
-              PolicyType.privacyPolicy,
-            ),
-            onTermsOfServiceTap: () => _navigateToPolicyViewer(
-              context,
-              PolicyType.termsOfService,
-            ),
-          ),
-
-          SizedBox(height: AppSpacing.xl),
-
-          // Section: Data Visibility
-          _buildSectionHeader(
-            context,
-            icon: Icons.visibility,
-            title: 'Data Visibility',
-            subtitle: 'Control which data can be shared',
-          ),
-          SizedBox(height: AppSpacing.sm),
-          DataVisibilitySection(
-            settings: state.dataVisibility,
-            onToggle: (dataType, value) {
-              context.read<PrivacyLodBloc>().add(
-                    ToggleDataVisibility(
-                      dataType: dataType,
-                      isVisible: value,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: isDataSharingAccepted
+                          ? colorScheme.error
+                          : colorScheme.primary,
+                      foregroundColor: colorScheme.onPrimary,
+                      padding: EdgeInsets.symmetric(vertical: AppSpacing.md),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: AppRadius.radiusMd,
+                      ),
                     ),
-                  );
-            },
-          ),
-
-          SizedBox(height: AppSpacing.xl),
-
-          // Section: Anonymization
-          _buildSectionHeader(
-            context,
-            icon: Icons.security,
-            title: 'Data Protection',
-          ),
-          SizedBox(height: AppSpacing.sm),
-          AnonymizeSection(
-            isEnabled: state.isAnonymizeEnabled,
-            onChanged: (value) {
-              context.read<PrivacyLodBloc>().add(
-                    ToggleAnonymizeData(isAnonymized: value),
-                  );
-            },
-          ),
-
-          SizedBox(height: AppSpacing.xl),
-
-          // Info card
-          _buildInfoCard(context),
-
-          SizedBox(height: AppSpacing.xl),
-        ],
+                    child: Text(
+                      isDataSharingAccepted
+                          ? 'Stop Sharing Data'
+                          : 'Enable Data Sharing',
+                      style: textTheme.bodyLarge?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: colorScheme.onPrimary,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
       ),
     );
   }
@@ -190,11 +145,7 @@ class _PrivacyLodView extends StatelessWidget {
       padding: EdgeInsets.symmetric(horizontal: AppSpacing.xs),
       child: Row(
         children: [
-          Icon(
-            icon,
-            size: 20.sp,
-            color: colorScheme.primary,
-          ),
+          Icon(icon, size: 20.sp, color: colorScheme.primary),
           SizedBox(width: AppSpacing.sm),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -237,9 +188,7 @@ class _PrivacyLodView extends StatelessWidget {
           end: Alignment.bottomRight,
         ),
         borderRadius: AppRadius.radiusMd,
-        border: Border.all(
-          color: colorScheme.primary.withOpacity(0.2),
-        ),
+        border: Border.all(color: colorScheme.primary.withOpacity(0.2)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -312,12 +261,15 @@ class _PrivacyLodView extends StatelessWidget {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (newContext) => BlocProvider.value(
-          value: context.read<PrivacyLodBloc>(),
-          child: PolicyViewerScreen(policyType: type),
-        ),
+        builder: (newContext) => PolicyViewerScreen(policyType: type),
       ),
-    );
+    ).then((value) {
+      // Check if user accepted the policy
+      if (value == true) {
+        context.read<AuthenticationBloc>().add(
+          AuthenticationToggleDataSharing(),
+        );
+      }
+    });
   }
 }
-

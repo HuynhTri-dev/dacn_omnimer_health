@@ -13,6 +13,7 @@ class UserModel {
   final List<String>? roleNames;
   final String? imageUrl;
   final File? image;
+  final bool isDataSharingAccepted;
 
   const UserModel({
     this.id,
@@ -23,6 +24,7 @@ class UserModel {
     this.roleNames,
     this.imageUrl,
     this.image,
+    this.isDataSharingAccepted = false,
   });
 
   /// Tạo từ JSON (API → Model)
@@ -38,6 +40,7 @@ class UserModel {
           .toList(),
       imageUrl: json['imageUrl'] as String?,
       image: json['image'] as File?,
+      isDataSharingAccepted: json['isDataSharingAccepted'] ?? false,
     );
   }
 
@@ -52,6 +55,7 @@ class UserModel {
       'roleNames': roleNames,
       'imageUrl': imageUrl,
       'image': image,
+      'isDataSharingAccepted': isDataSharingAccepted,
     };
   }
 
@@ -66,6 +70,7 @@ class UserModel {
       roleNames: roleNames,
       imageUrl: imageUrl,
       image: image,
+      isDataSharingAccepted: isDataSharingAccepted,
     );
   }
 
@@ -80,6 +85,7 @@ class UserModel {
       roleNames: entity.roleNames,
       imageUrl: entity.imageUrl,
       image: entity.image,
+      isDataSharingAccepted: entity.isDataSharingAccepted,
     );
   }
 

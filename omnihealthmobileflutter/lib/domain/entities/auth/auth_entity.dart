@@ -11,6 +11,7 @@ class UserAuth extends Equatable {
   final GenderEnum? gender;
   final DateTime? birthday;
   final List<String> roleName;
+  final bool isDataSharingAccepted;
 
   const UserAuth({
     required this.id,
@@ -20,6 +21,7 @@ class UserAuth extends Equatable {
     this.gender,
     this.birthday,
     required this.roleName,
+    this.isDataSharingAccepted = false,
   });
 
   @override
@@ -31,6 +33,7 @@ class UserAuth extends Equatable {
     gender,
     birthday,
     roleName,
+    isDataSharingAccepted,
   ];
 }
 

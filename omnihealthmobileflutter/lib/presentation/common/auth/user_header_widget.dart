@@ -77,16 +77,33 @@ class UserHeaderWidget extends StatelessWidget {
                         SizedBox(height: 2.h),
 
                         // Vai trò
-                        Text(
-                          state.user.roleName.isNotEmpty
-                              ? state.user.roleName.join(', ')
-                              : 'No Role',
-                          style: theme.textTheme.bodySmall?.copyWith(
-                            fontSize: AppTypography.fontSizeSm.sp,
-                            color: theme.textTheme.bodySmall?.color,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                state.user.roleName.isNotEmpty
+                                    ? state.user.roleName.join(', ')
+                                    : 'No Role',
+                                style: theme.textTheme.bodySmall?.copyWith(
+                                  fontSize: AppTypography.fontSizeSm.sp,
+                                  color: theme.textTheme.bodySmall?.color,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                            if (state.user.isDataSharingAccepted) ...[
+                              SizedBox(width: 4.w),
+                              Tooltip(
+                                message: 'Data Sharing Active',
+                                child: Icon(
+                                  Icons.share_location_rounded,
+                                  size: 14.sp,
+                                  color: theme.primaryColor,
+                                ),
+                              ),
+                            ],
+                          ],
                         ),
                       ],
                     ),

@@ -6,16 +6,12 @@ import 'package:omnihealthmobileflutter/core/theme/app_radius.dart';
 /// Legal documents section widget displaying Privacy Policy and Terms links
 class LegalDocumentsSection extends StatelessWidget {
   final VoidCallback onPrivacyPolicyTap;
-  final VoidCallback onTermsOfServiceTap;
   final bool isPrivacyAccepted;
-  final bool isTermsAccepted;
 
   const LegalDocumentsSection({
     Key? key,
     required this.onPrivacyPolicyTap,
-    required this.onTermsOfServiceTap,
     this.isPrivacyAccepted = false,
-    this.isTermsAccepted = false,
   }) : super(key: key);
 
   @override
@@ -31,17 +27,6 @@ class LegalDocumentsSection extends StatelessWidget {
           subtitle: 'How we collect and use your data',
           isAccepted: isPrivacyAccepted,
           onTap: onPrivacyPolicyTap,
-        ),
-        SizedBox(height: AppSpacing.sm),
-
-        // Terms of Service
-        _buildDocumentItem(
-          context,
-          icon: Icons.description_outlined,
-          title: 'Terms of Service',
-          subtitle: 'Terms and conditions of use',
-          isAccepted: isTermsAccepted,
-          onTap: onTermsOfServiceTap,
         ),
       ],
     );
@@ -81,11 +66,7 @@ class LegalDocumentsSection extends StatelessWidget {
                 color: colorScheme.primary.withOpacity(0.1),
                 borderRadius: AppRadius.radiusSm,
               ),
-              child: Icon(
-                icon,
-                color: colorScheme.primary,
-                size: 24.sp,
-              ),
+              child: Icon(icon, color: colorScheme.primary, size: 24.sp),
             ),
             SizedBox(width: AppSpacing.md),
 
@@ -126,11 +107,7 @@ class LegalDocumentsSection extends StatelessWidget {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(
-                      Icons.check_circle,
-                      color: Colors.green,
-                      size: 14.sp,
-                    ),
+                    Icon(Icons.check_circle, color: Colors.green, size: 14.sp),
                     SizedBox(width: 4.w),
                     Text(
                       'Agreed',
@@ -154,4 +131,3 @@ class LegalDocumentsSection extends StatelessWidget {
     );
   }
 }
-

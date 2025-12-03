@@ -36,12 +36,13 @@ abstract class AuthDataSource {
   /// Update user profile
   Future<ApiResponse<UserModel>> updateUser(String id, UserModel user);
 
-  /// Change password
-  /// Returns ApiResponse<void> on success or error message on failure.
   Future<ApiResponse<void>> changePassword(
     String currentPassword,
     String newPassword,
   );
+
+  /// Toggle data sharing status
+  Future<ApiResponse<UserModel>> toggleDataSharing();
 }
 
 class AuthDataSourceImpl implements AuthDataSource {
@@ -248,6 +249,21 @@ class AuthDataSourceImpl implements AuthDataSource {
     } catch (e) {
       logger.e(e);
       return ApiResponse<void>.error("Thay đổi mật khẩu thất bại");
+    }
+  }
+
+  @override
+  Future<ApiResponse<UserModel>> toggleDataSharing() async {
+    try {
+      final response = await apiClient.patch<UserModel>(
+        Endpoints.toggleDataSharing,
+        parser: (json) => UserModel.fromJson(json as Map<String, dynamic>),
+      );
+      return response;
+    } catch (e) {
+      return ApiResponse<UserModel>.error(
+        "Toggle data sharing failed: ${e.toString()}",
+      );
     }
   }
 }
