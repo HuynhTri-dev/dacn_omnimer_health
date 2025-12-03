@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:omnihealthmobileflutter/core/constants/app_strings.dart';
 import 'package:omnihealthmobileflutter/core/theme/app_spacing.dart';
 import 'package:omnihealthmobileflutter/core/theme/app_radius.dart';
 import 'package:omnihealthmobileflutter/presentation/common/blocs/auth/authentication_bloc.dart';
@@ -25,7 +26,7 @@ class PrivacyLodScreen extends StatelessWidget {
       backgroundColor: colorScheme.surface,
       appBar: AppBar(
         title: Text(
-          'Privacy & Data',
+          AppStrings.privacyTitle,
           style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
@@ -52,7 +53,7 @@ class PrivacyLodScreen extends StatelessWidget {
                 _buildSectionHeader(
                   context,
                   icon: Icons.gavel,
-                  title: 'Legal Documents',
+                  title: AppStrings.legalDocuments,
                 ),
                 SizedBox(height: AppSpacing.sm),
                 LegalDocumentsSection(
@@ -69,8 +70,8 @@ class PrivacyLodScreen extends StatelessWidget {
                 _buildSectionHeader(
                   context,
                   icon: Icons.visibility,
-                  title: 'Data Visibility',
-                  subtitle: 'Control which data can be shared',
+                  title: AppStrings.dataVisibility,
+                  subtitle: AppStrings.dataVisibilitySubtitle,
                 ),
                 SizedBox(height: AppSpacing.sm),
                 DataVisibilitySection(
@@ -114,8 +115,8 @@ class PrivacyLodScreen extends StatelessWidget {
                     ),
                     child: Text(
                       isDataSharingAccepted
-                          ? 'Stop Sharing Data'
-                          : 'Enable Data Sharing',
+                          ? AppStrings.stopSharing
+                          : AppStrings.enableSharing,
                       style: textTheme.bodyLarge?.copyWith(
                         fontWeight: FontWeight.bold,
                         color: colorScheme.onPrimary,
@@ -202,7 +203,7 @@ class PrivacyLodScreen extends StatelessWidget {
               ),
               SizedBox(width: AppSpacing.sm),
               Text(
-                'Your Data is Protected',
+                AppStrings.yourDataProtected,
                 style: textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.bold,
                   color: colorScheme.primary,
@@ -212,7 +213,7 @@ class PrivacyLodScreen extends StatelessWidget {
           ),
           SizedBox(height: AppSpacing.sm),
           Text(
-            'We take your privacy seriously. Your health data is encrypted and securely stored. We never sell your personal information to third parties.',
+            AppStrings.privacyDescription,
             style: textTheme.bodySmall?.copyWith(
               color: colorScheme.onSurface.withOpacity(0.8),
               height: 1.5,
@@ -221,11 +222,11 @@ class PrivacyLodScreen extends StatelessWidget {
           SizedBox(height: AppSpacing.sm),
           Row(
             children: [
-              _buildFeatureChip(context, '🔒 Encrypted'),
+              _buildFeatureChip(context, AppStrings.encrypted),
               SizedBox(width: AppSpacing.xs),
-              _buildFeatureChip(context, '🛡️ Secure'),
+              _buildFeatureChip(context, AppStrings.secure),
               SizedBox(width: AppSpacing.xs),
-              _buildFeatureChip(context, '🚫 No Ads'),
+              _buildFeatureChip(context, AppStrings.noAds),
             ],
           ),
         ],

@@ -101,62 +101,72 @@ class _ReportViewState extends State<_ReportView> {
                       context.read<ReportBloc>().add(const LoadChartData());
                       await Future.delayed(const Duration(seconds: 1));
                     },
-                    child: SingleChildScrollView(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 16.w,
-                        vertical: 12.h,
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // Title
-                          Text(
-                            'Workout Report',
-                            style: theme.textTheme.displayMedium,
+                    child: CustomScrollView(
+                      slivers: [
+                        SliverPadding(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 16.w,
+                            vertical: 12.h,
                           ),
-                          SizedBox(height: 12.h),
+                          sliver: SliverList(
+                            delegate: SliverChildListDelegate([
+                              // Title
+                              Text(
+                                'Workout Report',
+                                style: theme.textTheme.displayMedium,
+                              ),
+                              SizedBox(height: 12.h),
 
-                          // Summary Cards
-                          SummarySection(state: state),
+                              // Summary Cards
+                              SummarySection(state: state),
 
-                          SizedBox(height: 16.h),
+                              SizedBox(height: 16.h),
 
-                          // Charts Section
-                          ChartsSection(state: state),
+                              // Charts Section
+                              ChartsSection(state: state),
 
-                          SizedBox(height: 16.h),
+                              SizedBox(height: 16.h),
 
-                          // Workout History Title
-                          Text(
-                            'Workout History',
-                            style: theme.textTheme.titleLarge?.copyWith(
-                              fontWeight: FontWeight.bold,
-                            ),
+                              // Workout History Title
+                              Text(
+                                'Workout History',
+                                style: theme.textTheme.titleLarge?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              SizedBox(height: 8.h),
+                            ]),
                           ),
-                          SizedBox(height: 8.h),
+                        ),
 
-                          // Workout Logs List
-                          if (state.workoutLogs.isEmpty)
-                            const EmptyWorkoutHistory()
-                          else
-                            ListView.separated(
-                              shrinkWrap: true,
-                              physics: const NeverScrollableScrollPhysics(),
-                              itemCount: state.workoutLogs.length,
-                              separatorBuilder: (context, index) =>
-                                  SizedBox(height: 12.h),
-                              itemBuilder: (context, index) {
+                        // Workout Logs List
+                        if (state.workoutLogs.isEmpty)
+                          const SliverToBoxAdapter(child: EmptyWorkoutHistory())
+                        else
+                          SliverPadding(
+                            padding: EdgeInsets.symmetric(horizontal: 16.w),
+                            sliver: SliverList(
+                              delegate: SliverChildBuilderDelegate((
+                                context,
+                                index,
+                              ) {
                                 final log = state.workoutLogs[index];
-                                return WorkoutLogCard(
-                                  log: log,
-                                  onDelete: () {
-                                    _showDeleteConfirmation(context, log);
-                                  },
+                                return Padding(
+                                  padding: EdgeInsets.only(bottom: 12.h),
+                                  child: WorkoutLogCard(
+                                    log: log,
+                                    onDelete: () {
+                                      _showDeleteConfirmation(context, log);
+                                    },
+                                  ),
                                 );
-                              },
+                              }, childCount: state.workoutLogs.length),
                             ),
-                        ],
-                      ),
+                          ),
+
+                        // Bottom padding
+                        SliverToBoxAdapter(child: SizedBox(height: 16.h)),
+                      ],
                     ),
                   );
                 },

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:omnihealthmobileflutter/core/constants/app_strings.dart';
 import 'package:omnihealthmobileflutter/core/theme/app_spacing.dart';
 import 'package:omnihealthmobileflutter/core/theme/app_radius.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -42,6 +43,18 @@ class _PolicyViewerScreenState extends State<PolicyViewerScreen> {
   }
 
   void _onScroll() {
+    if (!_scrollController.hasClients) return;
+
+    // If content is short (maxScrollExtent is small), consider it read
+    if (_scrollController.position.maxScrollExtent <= 10) {
+      if (!_hasScrolledToEnd) {
+        setState(() {
+          _hasScrolledToEnd = true;
+        });
+      }
+      return;
+    }
+
     if (_scrollController.position.pixels >=
         _scrollController.position.maxScrollExtent - 50) {
       if (!_hasScrolledToEnd) {
@@ -63,17 +76,22 @@ class _PolicyViewerScreenState extends State<PolicyViewerScreen> {
         _markdownContent = content;
         _isLoading = false;
       });
+
+      // Check if content fits screen after a short delay to allow rendering
+      Future.delayed(const Duration(milliseconds: 500), () {
+        if (mounted) _onScroll();
+      });
     } catch (e) {
       setState(() {
-        _markdownContent = '# Error\n\nFailed to load document: $e';
+        _markdownContent = '${AppStrings.errorLoading}$e';
         _isLoading = false;
       });
     }
   }
 
   String get _title => widget.policyType == PolicyType.privacyPolicy
-      ? 'Privacy Policy'
-      : 'Terms of Service';
+      ? AppStrings.privacyPolicy
+      : AppStrings.termsOfService;
 
   void _onAgreeChanged(bool? value) {
     if (value == null) return;
@@ -219,7 +237,7 @@ class _PolicyViewerScreenState extends State<PolicyViewerScreen> {
                   ),
                   SizedBox(width: AppSpacing.xs),
                   Text(
-                    'Scroll to read the entire document',
+                    AppStrings.scrollToRead,
                     style: textTheme.bodySmall?.copyWith(
                       color: colorScheme.primary,
                     ),
@@ -282,7 +300,7 @@ class _PolicyViewerScreenState extends State<PolicyViewerScreen> {
                             ),
                             Expanded(
                               child: Text(
-                                'I have read and agree to the $_title',
+                                '${AppStrings.iAgree}$_title',
                                 style: textTheme.bodyMedium?.copyWith(
                                   fontWeight: FontWeight.w500,
                                   color: _isAgreed
@@ -316,7 +334,9 @@ class _PolicyViewerScreenState extends State<PolicyViewerScreen> {
                         elevation: 0,
                       ),
                       child: Text(
-                        _isAgreed ? 'Continue' : 'Read to agree',
+                        _isAgreed
+                            ? AppStrings.continueBtn
+                            : AppStrings.readToAgree,
                         style: textTheme.bodyLarge?.copyWith(
                           fontWeight: FontWeight.bold,
                           color: _isAgreed

@@ -45,3 +45,37 @@ This document outlines the logic, UI/UX, and performance issues identified in th
 2.  **Fix Form Validation**: Convert `CustomTextField` to use `TextFormField` and implement `Form` validation in `LoginForm`.
 3.  **Optimize Lists**: Refactor `WorkoutHomeScreen` and `ReportScreen` to use `CustomScrollView` + `Slivers` for better performance.
 4.  **Polish UI/UX**: Standardize error messages and theme usage.
+
+## 4. Privacy & LOD Module Issues
+
+### 4.1. Hardcoded Strings & Localization
+
+- **Location**: `lib/presentation/screen/privacy_lod/privacy_lod_screen.dart`, `lib/presentation/screen/privacy_lod/policy_viewer_screen.dart`
+- **Issue**: Extensive use of hardcoded strings ("Privacy & Data", "Legal Documents", "Your Data is Protected", etc.).
+- **Fix**: Extract all strings to a localization file (`l10n` or `strings.dart`) to support multiple languages.
+
+### 4.2. Scroll Detection Logic
+
+- **Location**: `lib/presentation/screen/privacy_lod/policy_viewer_screen.dart`
+- **Issue**: `_onScroll` logic relies on `maxScrollExtent`. If the content is shorter than the screen, `maxScrollExtent` might be 0, preventing the "scrolled to end" state from triggering.
+- **Fix**: Check if content fits the screen in `_loadMarkdownContent` or `build` and set `_hasScrolledToEnd` to true immediately if so.
+
+## 5. Health Profile Form Issues
+
+### 5.1. "God Widget" & Mixed State Management
+
+- **Location**: `lib/presentation/screen/health_profile/health_profile_form/personal_profile_form_page.dart`
+- **Issue**: The widget manages a massive amount of local state (dozens of controllers, boolean flags, lists) alongside `BlocConsumer`. This makes it hard to test and maintain.
+- **Fix**: Move form state and logic into the `HealthProfileFormBloc` or a dedicated `FormCubit`. Use `Form` and `TextFormField` for validation.
+
+### 5.2. Manual Validation
+
+- **Location**: `lib/presentation/screen/health_profile/health_profile_form/personal_profile_form_page.dart`
+- **Issue**: Validation is done manually in `_handleSubmit` (e.g., checking `controller.text.isEmpty`).
+- **Fix**: Wrap inputs in a `Form` widget and use `TextFormField` with `validator` callbacks for standard, inline validation errors.
+
+### 5.3. Hardcoded Mock Data
+
+- **Location**: `lib/presentation/screen/health_profile/health_profile_form/personal_profile_form_page.dart`
+- **Issue**: Health status options (e.g., "Diabetes", "Hypertension") are hardcoded lists.
+- **Fix**: Move these options to a Repository or Configuration file to allow for dynamic updates and localization.

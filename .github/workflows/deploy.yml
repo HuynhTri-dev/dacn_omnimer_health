@@ -1,0 +1,53 @@
+name: Deploy to VPS
+
+on:
+  push:
+    # Kích hoạt workflow này khi có code được đẩy (push)
+    # hoặc hợp nhất (merge) vào nhánh 'main'.
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest # Chạy trên máy ảo Ubuntu mới nhất của GitHub
+
+    steps:
+      - name: Checkout code
+        # Bước 1: Lấy code mới nhất từ nhánh main
+        uses: actions/checkout@v4
+
+      # --- Các bước Xây dựng (Build) nếu cần (ví dụ: chạy tests, build frontend) ---
+
+      - name: Set up SSH
+        # Bước 2: Thiết lập khóa SSH để kết nối an toàn với VPS
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Add known hosts
+        # Đảm bảo máy chủ GitHub nhận diện được VPS của bạn
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_KNOWN_HOSTS }}" >> ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
+
+      - name: Deploy to VPS and Run Docker Compose
+        # Bước 3: Kết nối và thực thi các lệnh trên VPS
+        uses: appleboy/ssh-action@v1.0.1
+        with:
+          host: ${{ secrets.VPS_HOST }} # Địa chỉ IP/Hostname của VPS
+          username: ${{ secrets.VPS_USERNAME }} # Tên người dùng SSH
+          key: ${{ secrets.SSH_PRIVATE_KEY }} # Khóa riêng tư SSH
+          script: |
+            # 1. Di chuyển đến thư mục dự án trên VPS
+            cd ~/Downloads/omnimerhealth
+
+            # 2. Cập nhật mã nguồn mới nhất từ kho Git
+            git pull origin main
+
+            # 3. Chạy lại Docker Compose (Xây dựng lại nếu có thay đổi và khởi động lại dịch vụ)
+            docker compose down 
+            docker compose pull 
+            docker compose up -d --build
+
+            echo "Deployment successful!"

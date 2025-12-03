@@ -18,6 +18,7 @@ class LoginForm extends StatefulWidget {
 }
 
 class _LoginFormState extends State<LoginForm> {
+  final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _emailFocusNode = FocusNode();
@@ -35,28 +36,16 @@ class _LoginFormState extends State<LoginForm> {
   }
 
   void _handleLogin(BuildContext context) {
-    final email = _emailController.text.trim();
-    final password = _passwordController.text;
+    if (_formKey.currentState!.validate()) {
+      final email = _emailController.text.trim();
+      final password = _passwordController.text;
 
-    if (email.isEmpty || password.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text('Vui lòng điền đầy đủ thông tin'),
-          backgroundColor: Theme.of(context).colorScheme.error,
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12.r),
-          ),
-        ),
+      context.read<LoginCubit>().login(
+        email: email,
+        password: password,
+        rememberPassword: _rememberPassword,
       );
-      return;
     }
-
-    context.read<LoginCubit>().login(
-      email: email,
-      password: password,
-      rememberPassword: _rememberPassword,
-    );
   }
 
   @override
@@ -78,125 +67,135 @@ class _LoginFormState extends State<LoginForm> {
           ),
         ],
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          // Welcome text
-          Row(
-            children: [
-              Container(
-                width: 4.w,
-                height: 24.h,
-                decoration: BoxDecoration(
-                  color: theme.colorScheme.primary,
-                  borderRadius: BorderRadius.circular(2.r),
-                ),
-              ),
-              SizedBox(width: AppSpacing.sm.w),
-              Text(
-                'Welcome Back!',
-                style: theme.textTheme.titleLarge?.copyWith(
-                  fontSize: AppTypography.fontSizeLg.sp,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
-          ),
-          SizedBox(height: AppSpacing.xs.h),
-          Padding(
-            padding: EdgeInsets.only(left: (4.w + AppSpacing.sm.w)),
-            child: Text(
-              'Sign in to continue your wellness journey',
-              style: theme.textTheme.bodySmall?.copyWith(
-                fontSize: AppTypography.fontSizeXs.sp,
-                color: theme.textTheme.bodyMedium?.color?.withOpacity(0.6),
-              ),
-            ),
-          ),
-          SizedBox(height: AppSpacing.md.h),
-          // Email field
-          CustomTextField(
-            controller: _emailController,
-            focusNode: _emailFocusNode,
-            label: 'Email',
-            placeholder: 'your_email@gmail.com',
-            keyboardType: TextInputType.emailAddress,
-            textInputAction: TextInputAction.next,
-            leftIcon: Icon(
-              Icons.email_outlined,
-              color: theme.colorScheme.primary,
-              size: 20.sp,
-            ),
-            validators: [
-              FieldValidators.required(fieldName: 'Email'),
-              FieldValidators.email(fieldName: 'Email'),
-            ],
-            enabled: !widget.isLoading,
-            onSubmitted: (_) => _passwordFocusNode.requestFocus(),
-          ),
-          SizedBox(height: AppSpacing.lg.h),
-          // Password field
-          CustomTextField(
-            controller: _passwordController,
-            focusNode: _passwordFocusNode,
-            label: 'Password',
-            placeholder: 'Enter your password',
-            obscureText: _obscurePassword,
-            textInputAction: TextInputAction.done,
-            leftIcon: Icon(
-              Icons.lock_outline,
-              color: theme.colorScheme.primary,
-              size: 20.sp,
-            ),
-            rightIcon: GestureDetector(
-              onTap: () => setState(() => _obscurePassword = !_obscurePassword),
-              child: Icon(
-                _obscurePassword
-                    ? Icons.visibility_outlined
-                    : Icons.visibility_off_outlined,
-                color: theme.hintColor,
-                size: 20.sp,
-              ),
-            ),
-            validators: [FieldValidators.required(fieldName: 'Password')],
-            enabled: !widget.isLoading,
-            onSubmitted: (_) => _handleLogin(context),
-          ),
-          SizedBox(height: AppSpacing.md.h),
-          _buildRememberAndForgot(),
-          SizedBox(height: AppSpacing.xl.h),
-          // Sign in button
-          ButtonPrimary(
-            title: 'Sign In',
-            variant: ButtonVariant.primarySolid,
-            size: ButtonSize.large,
-            fullWidth: true,
-            loading: widget.isLoading,
-            disabled: widget.isLoading,
-            onPressed: () => _handleLogin(context),
-          ),
-          SizedBox(height: AppSpacing.xl.h),
-          // Divider with text
-          Row(
-            children: [
-              Expanded(child: Divider(color: theme.dividerColor, thickness: 1)),
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: AppSpacing.md.w),
-                child: Text(
-                  'OR',
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    fontSize: AppTypography.fontSizeXs.sp,
-                    color: theme.textTheme.bodyMedium?.color?.withOpacity(0.5),
-                    fontWeight: FontWeight.w600,
+      child: Form(
+        key: _formKey,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // Welcome text
+            Row(
+              children: [
+                Container(
+                  width: 4.w,
+                  height: 24.h,
+                  decoration: BoxDecoration(
+                    color: theme.colorScheme.primary,
+                    borderRadius: BorderRadius.circular(2.r),
                   ),
                 ),
+                SizedBox(width: AppSpacing.sm.w),
+                Text(
+                  'Welcome Back!',
+                  style: theme.textTheme.titleLarge?.copyWith(
+                    fontSize: AppTypography.fontSizeLg.sp,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: AppSpacing.xs.h),
+            Padding(
+              padding: EdgeInsets.only(left: (4.w + AppSpacing.sm.w)),
+              child: Text(
+                'Sign in to continue your wellness journey',
+                style: theme.textTheme.bodySmall?.copyWith(
+                  fontSize: AppTypography.fontSizeXs.sp,
+                  color: theme.textTheme.bodyMedium?.color?.withOpacity(0.6),
+                ),
               ),
-              Expanded(child: Divider(color: theme.dividerColor, thickness: 1)),
-            ],
-          ),
-          SizedBox(height: AppSpacing.xl.h),
-          _buildRegisterLink(),
-        ],
+            ),
+            SizedBox(height: AppSpacing.md.h),
+            // Email field
+            CustomTextField(
+              controller: _emailController,
+              focusNode: _emailFocusNode,
+              label: 'Email',
+              placeholder: 'your_email@gmail.com',
+              keyboardType: TextInputType.emailAddress,
+              textInputAction: TextInputAction.next,
+              leftIcon: Icon(
+                Icons.email_outlined,
+                color: theme.colorScheme.primary,
+                size: 20.sp,
+              ),
+              validators: [
+                FieldValidators.required(fieldName: 'Email'),
+                FieldValidators.email(fieldName: 'Email'),
+              ],
+              enabled: !widget.isLoading,
+              onSubmitted: (_) => _passwordFocusNode.requestFocus(),
+            ),
+            SizedBox(height: AppSpacing.lg.h),
+            // Password field
+            CustomTextField(
+              controller: _passwordController,
+              focusNode: _passwordFocusNode,
+              label: 'Password',
+              placeholder: 'Enter your password',
+              obscureText: _obscurePassword,
+              textInputAction: TextInputAction.done,
+              leftIcon: Icon(
+                Icons.lock_outline,
+                color: theme.colorScheme.primary,
+                size: 20.sp,
+              ),
+              rightIcon: GestureDetector(
+                onTap: () =>
+                    setState(() => _obscurePassword = !_obscurePassword),
+                child: Icon(
+                  _obscurePassword
+                      ? Icons.visibility_outlined
+                      : Icons.visibility_off_outlined,
+                  color: theme.hintColor,
+                  size: 20.sp,
+                ),
+              ),
+              validators: [FieldValidators.required(fieldName: 'Password')],
+              enabled: !widget.isLoading,
+              onSubmitted: (_) => _handleLogin(context),
+            ),
+            SizedBox(height: AppSpacing.md.h),
+            _buildRememberAndForgot(),
+            SizedBox(height: AppSpacing.xl.h),
+            // Sign in button
+            ButtonPrimary(
+              title: 'Sign In',
+              variant: ButtonVariant.primarySolid,
+              size: ButtonSize.large,
+              fullWidth: true,
+              loading: widget.isLoading,
+              disabled: widget.isLoading,
+              onPressed: () => _handleLogin(context),
+            ),
+            SizedBox(height: AppSpacing.xl.h),
+            // Divider with text
+            Row(
+              children: [
+                Expanded(
+                  child: Divider(color: theme.dividerColor, thickness: 1),
+                ),
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: AppSpacing.md.w),
+                  child: Text(
+                    'OR',
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      fontSize: AppTypography.fontSizeXs.sp,
+                      color: theme.textTheme.bodyMedium?.color?.withOpacity(
+                        0.5,
+                      ),
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+                Expanded(
+                  child: Divider(color: theme.dividerColor, thickness: 1),
+                ),
+              ],
+            ),
+            SizedBox(height: AppSpacing.xl.h),
+            _buildRegisterLink(),
+          ],
+        ),
       ),
     );
   }

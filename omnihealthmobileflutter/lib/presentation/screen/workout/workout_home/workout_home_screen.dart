@@ -97,37 +97,45 @@ class _WorkoutHomeViewState extends State<_WorkoutHomeView> {
                       context.read<WorkoutHomeBloc>().add(RefreshWorkoutData());
                       await Future.delayed(const Duration(seconds: 1));
                     },
-                    child: SingleChildScrollView(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 16.w,
-                        vertical: 16.h,
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // Weekly Workout Chart
-                          if (state.workoutFrequency != null)
-                            _WeeklyWorkoutChart(
-                              frequencyData: state.workoutFrequency!,
-                            ),
-
-                          SizedBox(height: AppSpacing.md.h),
-
-                          // Title "My Template Workout"
-                          Text(
-                            'My Template Workout',
-                            style: Theme.of(context).textTheme.displayMedium,
+                    child: CustomScrollView(
+                      slivers: [
+                        SliverPadding(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 16.w,
+                            vertical: 16.h,
                           ),
-                          SizedBox(height: AppSpacing.md.h),
+                          sliver: SliverList(
+                            delegate: SliverChildListDelegate([
+                              // Weekly Workout Chart
+                              if (state.workoutFrequency != null)
+                                _WeeklyWorkoutChart(
+                                  frequencyData: state.workoutFrequency!,
+                                ),
 
-                          // Action Buttons (3T-FIT and Create)
-                          const ActionButtons(),
+                              if (state.workoutFrequency != null)
+                                SizedBox(height: AppSpacing.md.h),
 
-                          SizedBox(height: AppSpacing.md.h),
+                              // Title "My Template Workout"
+                              Text(
+                                'My Template Workout',
+                                style: Theme.of(
+                                  context,
+                                ).textTheme.displayMedium,
+                              ),
+                              SizedBox(height: AppSpacing.md.h),
 
-                          // Workout Templates List
-                          if (state.templates.isEmpty)
-                            Center(
+                              // Action Buttons (3T-FIT and Create)
+                              const ActionButtons(),
+
+                              SizedBox(height: AppSpacing.md.h),
+                            ]),
+                          ),
+                        ),
+
+                        // Workout Templates List
+                        if (state.templates.isEmpty)
+                          SliverToBoxAdapter(
+                            child: Center(
                               child: Padding(
                                 padding: EdgeInsets.symmetric(vertical: 40.h),
                                 child: Column(
@@ -148,37 +156,44 @@ class _WorkoutHomeViewState extends State<_WorkoutHomeView> {
                                   ],
                                 ),
                               ),
-                            )
-                          else
-                            ListView.separated(
-                              shrinkWrap: true,
-                              physics: const NeverScrollableScrollPhysics(),
-                              itemCount: state.templates.length,
-                              separatorBuilder: (context, index) =>
-                                  SizedBox(height: 12.h),
-                              itemBuilder: (context, index) {
-                                final template = state.templates[index];
-                                return _WorkoutTemplateCard(
-                                  template: template,
-                                  onTap: () async {
-                                    final result =
-                                        await RouteConfig.navigateToWorkoutTemplateDetail(
-                                          context,
-                                          templateId: template.id,
-                                        );
-
-                                    // Reload if there were changes
-                                    if (result == true && context.mounted) {
-                                      context.read<WorkoutHomeBloc>().add(
-                                        RefreshWorkoutData(),
-                                      );
-                                    }
-                                  },
-                                );
-                              },
                             ),
-                        ],
-                      ),
+                          )
+                        else
+                          SliverPadding(
+                            padding: EdgeInsets.symmetric(horizontal: 16.w),
+                            sliver: SliverList(
+                              delegate: SliverChildBuilderDelegate((
+                                context,
+                                index,
+                              ) {
+                                final template = state.templates[index];
+                                return Padding(
+                                  padding: EdgeInsets.only(bottom: 12.h),
+                                  child: _WorkoutTemplateCard(
+                                    template: template,
+                                    onTap: () async {
+                                      final result =
+                                          await RouteConfig.navigateToWorkoutTemplateDetail(
+                                            context,
+                                            templateId: template.id,
+                                          );
+
+                                      // Reload if there were changes
+                                      if (result == true && context.mounted) {
+                                        context.read<WorkoutHomeBloc>().add(
+                                          RefreshWorkoutData(),
+                                        );
+                                      }
+                                    },
+                                  ),
+                                );
+                              }, childCount: state.templates.length),
+                            ),
+                          ),
+
+                        // Bottom padding
+                        SliverToBoxAdapter(child: SizedBox(height: 16.h)),
+                      ],
                     ),
                   );
                 },

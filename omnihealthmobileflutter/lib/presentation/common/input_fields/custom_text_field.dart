@@ -113,179 +113,192 @@ class _CustomTextFieldState extends State<CustomTextField>
   //   return AppColors.gray300;
   // }
 
-  Color _getBorderColor(BuildContext context) {
-    final theme = Theme.of(context);
-    if (!widget.enabled) return theme.disabledColor;
-    if (_internalError != null || widget.error != null)
-      return theme.colorScheme.error;
-    if (_isFocused) return theme.primaryColor;
-    return theme.dividerColor;
-  }
-
   @override
   Widget build(BuildContext context) {
-    final displayError = widget.error ?? _internalError;
     final theme = Theme.of(context);
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        if (widget.label != null)
-          Padding(
-            padding: EdgeInsets.only(bottom: AppSpacing.xs.h),
-            child: Row(
-              children: [
-                Text(
-                  widget.label!,
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    fontSize: AppTypography.fontSizeSm.sp,
-                    color: displayError != null
-                        ? theme.colorScheme.error
-                        : theme.textTheme.bodyMedium?.color,
-                  ),
+    return FormField<String>(
+      validator: (value) {
+        return ValidationRunner.validate(_controller.text, widget.validators);
+      },
+      initialValue: _controller.text,
+      builder: (FormFieldState<String> state) {
+        // Use state.errorText if available, otherwise fallback to widget.error or _internalError
+        final displayError = state.errorText ?? widget.error ?? _internalError;
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (widget.label != null)
+              Padding(
+                padding: EdgeInsets.only(bottom: AppSpacing.xs.h),
+                child: Row(
+                  children: [
+                    Text(
+                      widget.label!,
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        fontSize: AppTypography.fontSizeSm.sp,
+                        color: displayError != null
+                            ? theme.colorScheme.error
+                            : theme.textTheme.bodyMedium?.color,
+                      ),
+                    ),
+                    if (widget.required)
+                      Padding(
+                        padding: const EdgeInsets.only(left: 4),
+                        child: Container(
+                          width: 8,
+                          height: 8,
+                          decoration: const BoxDecoration(
+                            color: Colors.red,
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                      ),
+                  ],
                 ),
-                if (widget.required)
-                  Padding(
-                    padding: const EdgeInsets.only(left: 4),
-                    child: Container(
-                      width: 8,
-                      height: 8,
-                      decoration: const BoxDecoration(
-                        color: Colors.red,
-                        shape: BoxShape.circle,
+              ),
+            Container(
+              decoration: BoxDecoration(
+                color: theme.inputDecorationTheme.fillColor ?? theme.cardColor,
+                borderRadius: BorderRadius.circular(AppRadius.md.r),
+                border: Border.all(
+                  color: !widget.enabled
+                      ? theme.disabledColor
+                      : (displayError != null
+                            ? theme.colorScheme.error
+                            : (_isFocused
+                                  ? theme.primaryColor
+                                  : theme.dividerColor)),
+                  width: 1.5,
+                ),
+                boxShadow: _isFocused
+                    ? [
+                        BoxShadow(
+                          color: theme.primaryColor.withOpacity(0.1),
+                          blurRadius: 6,
+                          offset: const Offset(0, 3),
+                        ),
+                      ]
+                    : [
+                        BoxShadow(
+                          color: theme.shadowColor.withOpacity(0.05),
+                          blurRadius: 2,
+                          offset: const Offset(0, 1),
+                        ),
+                      ],
+              ),
+              padding: EdgeInsets.symmetric(
+                horizontal: AppSpacing.md.w,
+                vertical: AppSpacing.sm.h,
+              ),
+              child: Row(
+                crossAxisAlignment: widget.multiline
+                    ? CrossAxisAlignment.start
+                    : CrossAxisAlignment.center,
+                children: [
+                  if (widget.leftIcon != null)
+                    Container(
+                      width: 40.w,
+                      height: 40.h,
+                      margin: EdgeInsets.only(right: AppSpacing.sm.w),
+                      decoration: BoxDecoration(
+                        color: theme.scaffoldBackgroundColor,
+                        borderRadius: BorderRadius.circular(AppRadius.sm.r),
+                      ),
+                      child: Center(child: widget.leftIcon),
+                    ),
+                  Expanded(
+                    child: TextField(
+                      controller: _controller,
+                      focusNode: _focusNode,
+                      keyboardType: widget.keyboardType,
+                      obscureText: widget.obscureText,
+                      enabled: widget.enabled,
+                      autofocus: widget.autoFocus,
+                      maxLines: widget.multiline ? (widget.maxLines ?? 5) : 1,
+                      maxLength: widget.maxLength,
+                      inputFormatters: widget.inputFormatters,
+                      textInputAction: widget.textInputAction,
+                      onSubmitted: widget.onSubmitted,
+                      onChanged: (text) {
+                        state.didChange(text);
+                        widget.onChanged?.call(text);
+                      },
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        fontSize: AppTypography.fontSizeBase.sp,
+                      ),
+                      decoration: InputDecoration(
+                        hintText: widget.placeholder,
+                        hintStyle: theme.textTheme.bodyMedium?.copyWith(
+                          fontSize: AppTypography.fontSizeBase.sp,
+                          color: theme.hintColor,
+                        ),
+                        border: InputBorder.none,
+                        enabledBorder: InputBorder.none,
+                        focusedBorder: InputBorder.none,
+                        errorBorder: InputBorder.none,
+                        disabledBorder: InputBorder.none,
+                        isDense: true,
+                        contentPadding: EdgeInsets.symmetric(
+                          vertical: 4.h,
+                          horizontal: 0.w,
+                        ),
                       ),
                     ),
                   ),
-              ],
-            ),
-          ),
-        Container(
-          decoration: BoxDecoration(
-            color: theme.inputDecorationTheme.fillColor ?? theme.cardColor,
-            borderRadius: BorderRadius.circular(AppRadius.md.r),
-            border: Border.all(color: _getBorderColor(context), width: 1.5),
-            boxShadow: _isFocused
-                ? [
-                    BoxShadow(
-                      color: theme.primaryColor.withOpacity(0.1),
-                      blurRadius: 6,
-                      offset: const Offset(0, 3),
+                  if (widget.rightIcon != null)
+                    Padding(
+                      padding: EdgeInsets.only(left: AppSpacing.sm.w),
+                      child: widget.rightIcon,
                     ),
-                  ]
-                : [
-                    BoxShadow(
-                      color: theme.shadowColor.withOpacity(0.05),
-                      blurRadius: 2,
-                      offset: const Offset(0, 1),
-                    ),
-                  ],
-          ),
-          padding: EdgeInsets.symmetric(
-            horizontal: AppSpacing.md.w,
-            vertical: AppSpacing.sm.h,
-          ),
-          child: Row(
-            crossAxisAlignment: widget.multiline
-                ? CrossAxisAlignment.start
-                : CrossAxisAlignment.center,
-            children: [
-              if (widget.leftIcon != null)
-                Container(
-                  width: 40.w,
-                  height: 40.h,
-                  margin: EdgeInsets.only(right: AppSpacing.sm.w),
-                  decoration: BoxDecoration(
-                    color: theme.scaffoldBackgroundColor,
-                    borderRadius: BorderRadius.circular(AppRadius.sm.r),
-                  ),
-                  child: Center(child: widget.leftIcon),
-                ),
-              Expanded(
-                child: TextField(
-                  controller: _controller,
-                  focusNode: _focusNode,
-                  keyboardType: widget.keyboardType,
-                  obscureText: widget.obscureText,
-                  enabled: widget.enabled,
-                  autofocus: widget.autoFocus,
-                  maxLines: widget.multiline ? (widget.maxLines ?? 5) : 1,
-                  maxLength: widget.maxLength,
-                  inputFormatters: widget.inputFormatters,
-                  textInputAction: widget.textInputAction,
-                  onSubmitted: widget.onSubmitted,
-                  onChanged: widget.onChanged,
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    fontSize: AppTypography.fontSizeBase.sp,
-                  ),
-                  decoration: InputDecoration(
-                    hintText: widget.placeholder,
-                    hintStyle: theme.textTheme.bodyMedium?.copyWith(
-                      fontSize: AppTypography.fontSizeBase.sp,
-                      color: theme.hintColor,
-                    ),
-                    border: InputBorder.none,
-                    enabledBorder: InputBorder.none,
-                    focusedBorder: InputBorder.none,
-                    errorBorder: InputBorder.none,
-                    disabledBorder: InputBorder.none,
-                    isDense: true,
-                    contentPadding: EdgeInsets.symmetric(
-                      vertical: 4.h,
-                      horizontal: 0.w,
-                    ),
-                  ),
-                ),
+                ],
               ),
-              if (widget.rightIcon != null)
-                Padding(
-                  padding: EdgeInsets.only(left: AppSpacing.sm.w),
-                  child: widget.rightIcon,
-                ),
-            ],
-          ),
-        ),
-        if (displayError != null)
-          Padding(
-            padding: EdgeInsets.only(
-              top: AppSpacing.xs.h,
-              left: AppSpacing.xs.w,
             ),
-            child: Row(
-              children: [
-                Icon(
-                  Icons.error_outline,
-                  size: 14,
-                  color: theme.colorScheme.error,
+            if (displayError != null)
+              Padding(
+                padding: EdgeInsets.only(
+                  top: AppSpacing.xs.h,
+                  left: AppSpacing.xs.w,
                 ),
-                SizedBox(width: 4.w),
-                Expanded(
-                  child: Text(
-                    displayError,
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      fontSize: AppTypography.fontSizeXs.sp,
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.error_outline,
+                      size: 14,
                       color: theme.colorScheme.error,
                     ),
+                    SizedBox(width: 4.w),
+                    Expanded(
+                      child: Text(
+                        displayError,
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          fontSize: AppTypography.fontSizeXs.sp,
+                          color: theme.colorScheme.error,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              )
+            else if (widget.helperText != null)
+              Padding(
+                padding: EdgeInsets.only(
+                  top: AppSpacing.xs.h,
+                  left: AppSpacing.xs.w,
+                ),
+                child: Text(
+                  widget.helperText!,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    fontSize: AppTypography.fontSizeXs.sp,
+                    color: theme.textTheme.bodySmall?.color,
                   ),
                 ),
-              ],
-            ),
-          )
-        else if (widget.helperText != null)
-          Padding(
-            padding: EdgeInsets.only(
-              top: AppSpacing.xs.h,
-              left: AppSpacing.xs.w,
-            ),
-            child: Text(
-              widget.helperText!,
-              style: theme.textTheme.bodySmall?.copyWith(
-                fontSize: AppTypography.fontSizeXs.sp,
-                color: theme.textTheme.bodySmall?.color,
               ),
-            ),
-          ),
-      ],
+          ],
+        );
+      },
     );
   }
 }
