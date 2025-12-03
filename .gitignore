@@ -130,6 +130,3 @@ exercises/
 # AGENT SETUP
 .claude
 CLAUDE.md
-
-# GraphDB Data
-graphdb_data/

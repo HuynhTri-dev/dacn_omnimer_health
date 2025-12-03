@@ -10,7 +10,7 @@ import { GenderEnum } from "../../../common/constants/EnumConstants";
 const { namedNode, literal, quad, blankNode } = DataFactory;
 
 const PREFIXES = {
-  ":": "http://omnimer.health/data/",
+  "": "http://omnimer.health/data/",
   ont: "http://omnimer.health/ontology/",
   xsd: "http://www.w3.org/2001/XMLSchema#",
   sosa: "http://www.w3.org/ns/sosa/",
@@ -31,7 +31,7 @@ export class LODMapper {
   }
 
   private static getUserURI(userId: string): string {
-    return `${PREFIXES[":"]}user_${userId}`;
+    return `${PREFIXES[""]}user_${userId}`;
   }
 
   static mapUserToRDF(user: IUser): string {
@@ -84,7 +84,7 @@ export class LODMapper {
 
   static mapHealthProfileToRDF(profile: IHealthProfile): string {
     const writer = this.getWriter();
-    const subject = namedNode(`${PREFIXES[":"]}hp_${profile._id}`);
+    const subject = namedNode(`${PREFIXES[""]}hp_${profile._id}`);
     const userSubject = namedNode(this.getUserURI(profile.userId.toString()));
 
     writer.addQuad(
@@ -174,7 +174,7 @@ export class LODMapper {
 
   static mapWatchLogToRDF(log: IWatchLog): string {
     const writer = this.getWriter();
-    const subject = namedNode(`${PREFIXES[":"]}wl_${log._id}`);
+    const subject = namedNode(`${PREFIXES[""]}wl_${log._id}`);
     const userSubject = namedNode(this.getUserURI(log.userId.toString()));
 
     writer.addQuad(
@@ -289,7 +289,7 @@ export class LODMapper {
 
   static mapWorkoutToRDF(workout: IWorkout): string {
     const writer = this.getWriter();
-    const subject = namedNode(`${PREFIXES[":"]}wk_${workout._id}`);
+    const subject = namedNode(`${PREFIXES[""]}wk_${workout._id}`);
     const userSubject = namedNode(this.getUserURI(workout.userId.toString()));
 
     writer.addQuad(
@@ -421,7 +421,7 @@ export class LODMapper {
 
   static mapGoalToRDF(goal: IGoal): string {
     const writer = this.getWriter();
-    const subject = namedNode(`${PREFIXES[":"]}gl_${goal._id}`);
+    const subject = namedNode(`${PREFIXES[""]}gl_${goal._id}`);
 
     writer.addQuad(
       subject,
@@ -535,7 +535,7 @@ export class LODMapper {
 
   static mapExerciseToRDF(exercise: IExercise): string {
     const writer = this.getWriter();
-    const subject = namedNode(`${PREFIXES[":"]}ex_${exercise._id}`);
+    const subject = namedNode(`${PREFIXES[""]}ex_${exercise._id}`);
 
     writer.addQuad(
       subject,
