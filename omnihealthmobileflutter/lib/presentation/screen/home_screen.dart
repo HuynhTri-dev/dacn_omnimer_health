@@ -105,8 +105,8 @@ class _HomeScreenState extends State<HomeScreen> {
     final theme = Theme.of(context);
 
     return Scaffold(
-      // Body: Hiển thị trang tương ứng với index hiện tại
-      body: _pages[_currentIndex],
+      // Body: Sử dụng IndexedStack để giữ trạng thái của các trang
+      body: IndexedStack(index: _currentIndex, children: _pages),
 
       // Bottom Navigation Bar với shadow để làm nổi bật
       bottomNavigationBar: Container(

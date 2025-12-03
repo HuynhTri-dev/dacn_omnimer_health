@@ -1,17 +1,3 @@
-"""
-3T-FIT AI Recommendation Engine - Model Evaluation
-Comprehensive performance evaluation for the Two-Branch Neural Network
-
-Metrics included:
-- Regression metrics (for intensity prediction): RMSE, MAE, R², Explained Variance
-- Classification metrics (for suitability prediction): Accuracy, Precision, Recall, F1-Score, AUC-ROC
-- Business-specific metrics: Suitability Score Distribution, Recommendation Coverage
-- Visualization: Confusion Matrix, ROC Curve, Residual Plots, Prediction vs Actual
-
-Author: Claude Code
-Date: 2025-11-27
-"""
-
 import torch
 import torch.nn as nn
 import pandas as pd

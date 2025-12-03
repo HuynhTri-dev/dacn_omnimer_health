@@ -30,3 +30,5 @@ class AuthenticationUserUpdated extends AuthenticationEvent {
   @override
   List<Object?> get props => [user];
 }
+
+class AuthenticationToggleDataSharing extends AuthenticationEvent {}

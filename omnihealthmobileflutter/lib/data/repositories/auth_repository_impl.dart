@@ -34,7 +34,7 @@ class AuthRepositoryImpl implements AuthRepositoryAbs {
       );
     } catch (e) {
       return ApiResponse<AuthEntity>.error(
-        "Đăng ký thất bại: ${e.toString()}",
+        _getErrorMessage(e, "Đăng ký thất bại"),
         error: e,
       );
     }
@@ -55,7 +55,7 @@ class AuthRepositoryImpl implements AuthRepositoryAbs {
       );
     } catch (e) {
       return ApiResponse<AuthEntity>.error(
-        "Đăng nhập thất bại: ${e.toString()}",
+        _getErrorMessage(e, "Đăng nhập thất bại"),
         error: e,
       );
     }
@@ -73,7 +73,7 @@ class AuthRepositoryImpl implements AuthRepositoryAbs {
       );
     } catch (e) {
       return ApiResponse<String>.error(
-        "Làm mới access token thất bại: ${e.toString()}",
+        _getErrorMessage(e, "Làm mới access token thất bại"),
         error: e,
       );
     }
@@ -90,7 +90,7 @@ class AuthRepositoryImpl implements AuthRepositoryAbs {
       );
     } catch (e) {
       return ApiResponse<void>.error(
-        "Đăng xuất thất bại: ${e.toString()}",
+        _getErrorMessage(e, "Đăng xuất thất bại"),
         error: e,
       );
     }
@@ -120,7 +120,7 @@ class AuthRepositoryImpl implements AuthRepositoryAbs {
     } catch (e) {
       // Đã sửa lỗi kiểu trả về ở đây
       return ApiResponse<UserAuth>.error(
-        "Get Auth thất bại: ${e.toString()}",
+        _getErrorMessage(e, "Get Auth thất bại"),
         error: e,
       );
     }
@@ -140,7 +140,7 @@ class AuthRepositoryImpl implements AuthRepositoryAbs {
       );
     } catch (e) {
       return ApiResponse<UserEntity>.error(
-        "Cập nhật thông tin thất bại: ${e.toString()}",
+        _getErrorMessage(e, "Cập nhật thông tin thất bại"),
         error: e,
       );
     }
@@ -163,9 +163,54 @@ class AuthRepositoryImpl implements AuthRepositoryAbs {
       );
     } catch (e) {
       return ApiResponse<void>.error(
-        "Thay đổi mật khẩu thất bại: ${e.toString()}",
+        _getErrorMessage(e, "Thay đổi mật khẩu thất bại"),
         error: e,
       );
     }
+  }
+
+  @override
+  Future<ApiResponse<UserEntity>> toggleDataSharing() async {
+    try {
+      final response = await authDataSource.toggleDataSharing();
+      return ApiResponse<UserEntity>(
+        success: response.success,
+        message: response.message,
+        data: response.data?.toEntity(),
+        error: response.error,
+      );
+    } catch (e) {
+      return ApiResponse<UserEntity>.error(
+        _getErrorMessage(e, "Toggle data sharing failed"),
+        error: e,
+      );
+    }
+  }
+
+  String _getErrorMessage(Object e, String defaultPrefix) {
+    final errorString = e.toString();
+    if (errorString.contains("SocketException") ||
+        errorString.contains("Network is unreachable") ||
+        errorString.contains("Connection refused")) {
+      return "Không thể kết nối đến máy chủ. Vui lòng kiểm tra kết nối mạng.";
+    }
+    if (errorString.contains("401") || errorString.contains("Unauthorized")) {
+      return "Phiên đăng nhập đã hết hạn hoặc thông tin xác thực không đúng.";
+    }
+    if (errorString.contains("403") || errorString.contains("Forbidden")) {
+      return "Bạn không có quyền thực hiện hành động này.";
+    }
+    if (errorString.contains("404") || errorString.contains("Not Found")) {
+      return "Không tìm thấy tài nguyên yêu cầu.";
+    }
+    if (errorString.contains("500") ||
+        errorString.contains("Internal Server Error")) {
+      return "Lỗi máy chủ nội bộ. Vui lòng thử lại sau.";
+    }
+    if (errorString.contains("Timeout")) {
+      return "Quá thời gian chờ kết nối. Vui lòng thử lại.";
+    }
+
+    return "$defaultPrefix: $errorString";
   }
 }

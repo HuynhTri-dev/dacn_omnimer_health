@@ -59,6 +59,7 @@ import 'package:omnihealthmobileflutter/domain/usecases/auth/request_password_re
 import 'package:omnihealthmobileflutter/domain/usecases/auth/verify_reset_code_usecase.dart';
 import 'package:omnihealthmobileflutter/domain/usecases/auth/reset_password_usecase.dart';
 import 'package:omnihealthmobileflutter/domain/usecases/auth/resend_reset_code_usecase.dart';
+import 'package:omnihealthmobileflutter/domain/usecases/auth/toggle_data_sharing_usecase.dart';
 import 'package:omnihealthmobileflutter/domain/usecases/exercise/get_all_body_parts_usecase.dart';
 import 'package:omnihealthmobileflutter/domain/usecases/exercise/get_all_equipments_usecase.dart';
 import 'package:omnihealthmobileflutter/domain/usecases/exercise/get_all_exercise_categories_usecase.dart';
@@ -320,6 +321,9 @@ Future<void> init() async {
   sl.registerLazySingleton<ChangePasswordUseCase>(
     () => ChangePasswordUseCase(sl()),
   );
+  sl.registerLazySingleton<ToggleDataSharingUseCase>(
+    () => ToggleDataSharingUseCase(sl()),
+  );
 
   // Forgot Password Use Cases
   sl.registerLazySingleton<RequestPasswordResetUseCase>(
@@ -506,7 +510,11 @@ Future<void> init() async {
   sl.registerLazySingleton(() => ThemeCubit());
 
   sl.registerLazySingleton(
-    () => AuthenticationBloc(getAuthUseCase: sl(), logoutUseCase: sl()),
+    () => AuthenticationBloc(
+      getAuthUseCase: sl(),
+      logoutUseCase: sl(),
+      toggleDataSharingUseCase: sl(),
+    ),
   );
 
   sl.registerFactory(

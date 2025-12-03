@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:omnihealthmobileflutter/core/theme/app_spacing.dart';
+import 'package:omnihealthmobileflutter/core/validation/field_validator.dart';
 import 'package:omnihealthmobileflutter/presentation/common/input_fields/custom_text_field.dart';
 
 /// Widget cho phần Body Measurements
@@ -35,6 +36,7 @@ class BodyMeasurementsSection extends StatelessWidget {
                   controller: heightController,
                   keyboardType: TextInputType.number,
                   required: true,
+                  validators: [FieldValidators.required(fieldName: 'Height')],
                 ),
               ),
               SizedBox(width: AppSpacing.sm.w),
@@ -44,6 +46,7 @@ class BodyMeasurementsSection extends StatelessWidget {
                   controller: weightController,
                   keyboardType: TextInputType.number,
                   required: true,
+                  validators: [FieldValidators.required(fieldName: 'Weight')],
                 ),
               ),
             ],

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
+import 'package:omnihealthmobileflutter/core/constants/app_strings.dart';
+import 'package:omnihealthmobileflutter/core/constants/health_profile_data.dart';
 import 'package:omnihealthmobileflutter/core/constants/enum_constant.dart';
 import 'package:omnihealthmobileflutter/core/theme/app_colors.dart';
 import 'package:omnihealthmobileflutter/core/theme/app_spacing.dart';
@@ -46,6 +48,7 @@ class _PersonalProfileFormView extends StatefulWidget {
 }
 
 class _PersonalProfileFormViewState extends State<_PersonalProfileFormView> {
+  final _formKey = GlobalKey<FormState>();
   late DateTime _selectedDate;
 
   @override
@@ -76,46 +79,6 @@ class _PersonalProfileFormViewState extends State<_PersonalProfileFormView> {
   Map<String, String> _abnormalitiesDetails = {};
 
   final TextEditingController _notesController = TextEditingController();
-
-  // Health Status Options (Mock Data - Replace with actual data source if needed)
-  final List<String> _knownConditionsOptions = [
-    'Diabetes',
-    'Hypertension',
-    'Heart Disease',
-    'Asthma',
-    'Arthritis',
-    'Obesity',
-  ];
-  final List<String> _painLocationsOptions = [
-    'Head',
-    'Neck',
-    'Shoulders',
-    'Back',
-    'Lower Back',
-    'Knees',
-    'Ankles',
-    'Feet',
-  ];
-  final List<String> _jointIssuesOptions = [
-    'Stiffness',
-    'Swelling',
-    'Redness',
-    'Warmth',
-    'Limited Range of Motion',
-  ];
-  final List<String> _injuriesOptions = [
-    'Fracture',
-    'Sprain',
-    'Strain',
-    'Dislocation',
-    'Concussion',
-  ];
-  final List<String> _abnormalitiesOptions = [
-    'Scoliosis',
-    'Kyphosis',
-    'Lordosis',
-    'Flat Feet',
-  ];
 
   // Controllers
   final TextEditingController _heightController = TextEditingController();
@@ -298,10 +261,10 @@ class _PersonalProfileFormViewState extends State<_PersonalProfileFormView> {
   }
 
   void _handleSubmit(BuildContext context, HealthProfile? existingProfile) {
-    if (_heightController.text.isEmpty || _weightController.text.isEmpty) {
+    if (!_formKey.currentState!.validate()) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Height and Weight are required'),
+          content: Text(AppStrings.heightWeightRequired), // Or generic error
           backgroundColor: AppColors.error,
         ),
       );
@@ -405,7 +368,7 @@ class _PersonalProfileFormViewState extends State<_PersonalProfileFormView> {
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
-        title: const Text('Personal Health Profile'),
+        title: const Text(AppStrings.personalHealthProfile),
         actions: [
           GestureDetector(
             onTap: () => _selectDate(context),
@@ -415,7 +378,7 @@ class _PersonalProfileFormViewState extends State<_PersonalProfileFormView> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  Text('Checkup Date', style: textTheme.bodySmall),
+                  Text(AppStrings.checkupDate, style: textTheme.bodySmall),
                   Text(
                     DateFormat('dd/MM/yyyy').format(_selectedDate),
                     style: textTheme.bodyMedium?.copyWith(
@@ -439,8 +402,8 @@ class _PersonalProfileFormViewState extends State<_PersonalProfileFormView> {
               SnackBar(
                 content: Text(
                   state.isUpdate
-                      ? 'Profile updated successfully'
-                      : 'Profile created successfully',
+                      ? AppStrings.profileUpdated
+                      : AppStrings.profileCreated,
                 ),
                 backgroundColor: AppColors.success,
               ),
@@ -464,152 +427,158 @@ class _PersonalProfileFormViewState extends State<_PersonalProfileFormView> {
               ? state.profile
               : null;
 
-          return SingleChildScrollView(
-            padding: EdgeInsets.all(AppSpacing.md.w),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                BodyMeasurementsSection(
-                  heightController: _heightController,
-                  weightController: _weightController,
-                  waistController: _waistController,
-                  neckController: _neckController,
-                  hipController: _hipController,
-                ),
-                SizedBox(height: AppSpacing.md.h),
-                MetricsSection(
-                  calculateAutomatically: _calculateAutomatically,
-                  onCalculateAutomaticallyChanged: (value) {
-                    setState(() {
-                      _calculateAutomatically = value;
-                    });
-                  },
-                  bmiController: _bmiController,
-                  bmrController: _bmrController,
-                  whrController: _whrController,
-                  bodyFatController: _bodyFatController,
-                  muscleMassController: _muscleMassController,
-                ),
-                SizedBox(height: AppSpacing.md.h),
-                FitnessSection(
-                  maxPushUpsController: _maxPushUpsController,
-                  maxWeightLiftedController: _maxWeightLiftedController,
-                  selectedActivityLevel: _selectedActivityLevel,
-                  onActivityLevelChanged: (value) {
-                    setState(() {
-                      _selectedActivityLevel = value;
-                    });
-                  },
-                  selectedExperienceLevel: _selectedExperienceLevel,
-                  onExperienceLevelChanged: (value) {
-                    setState(() {
-                      _selectedExperienceLevel = value;
-                    });
-                  },
-                  workoutFrequencyController: _workoutFrequencyController,
-                ),
-                SizedBox(height: AppSpacing.md.h),
-                HealthStatusSection(
-                  restingHeartRateController: _restingHeartRateController,
-                  bloodPressureSystolicController:
-                      _bloodPressureSystolicController,
-                  bloodPressureDiastolicController:
-                      _bloodPressureDiastolicController,
-                  cholesterolTotalController: _cholesterolTotalController,
-                  cholesterolHdlController: _cholesterolHdlController,
-                  cholesterolLdlController: _cholesterolLdlController,
-                  bloodSugarController: _bloodSugarController,
+          return Form(
+            key: _formKey,
+            child: SingleChildScrollView(
+              padding: EdgeInsets.all(AppSpacing.md.w),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  BodyMeasurementsSection(
+                    heightController: _heightController,
+                    weightController: _weightController,
+                    waistController: _waistController,
+                    neckController: _neckController,
+                    hipController: _hipController,
+                  ),
+                  SizedBox(height: AppSpacing.md.h),
+                  MetricsSection(
+                    calculateAutomatically: _calculateAutomatically,
+                    onCalculateAutomaticallyChanged: (value) {
+                      setState(() {
+                        _calculateAutomatically = value;
+                      });
+                    },
+                    bmiController: _bmiController,
+                    bmrController: _bmrController,
+                    whrController: _whrController,
+                    bodyFatController: _bodyFatController,
+                    muscleMassController: _muscleMassController,
+                  ),
+                  SizedBox(height: AppSpacing.md.h),
+                  FitnessSection(
+                    maxPushUpsController: _maxPushUpsController,
+                    maxWeightLiftedController: _maxWeightLiftedController,
+                    selectedActivityLevel: _selectedActivityLevel,
+                    onActivityLevelChanged: (value) {
+                      setState(() {
+                        _selectedActivityLevel = value;
+                      });
+                    },
+                    selectedExperienceLevel: _selectedExperienceLevel,
+                    onExperienceLevelChanged: (value) {
+                      setState(() {
+                        _selectedExperienceLevel = value;
+                      });
+                    },
+                    workoutFrequencyController: _workoutFrequencyController,
+                  ),
+                  SizedBox(height: AppSpacing.md.h),
+                  HealthStatusSection(
+                    restingHeartRateController: _restingHeartRateController,
+                    bloodPressureSystolicController:
+                        _bloodPressureSystolicController,
+                    bloodPressureDiastolicController:
+                        _bloodPressureDiastolicController,
+                    cholesterolTotalController: _cholesterolTotalController,
+                    cholesterolHdlController: _cholesterolHdlController,
+                    cholesterolLdlController: _cholesterolLdlController,
+                    bloodSugarController: _bloodSugarController,
 
-                  // Detailed Health Status Props
-                  knownConditionsSelected: _knownConditions,
-                  knownConditionsDetails: _knownConditionsDetails,
-                  knownConditionsOptions: _knownConditionsOptions,
-                  onKnownConditionsSelectionChanged: (values) {
-                    setState(() {
-                      _knownConditions = values;
-                    });
-                  },
-                  onKnownConditionsDetailChanged: (key, detail) {
-                    setState(() {
-                      _knownConditionsDetails[key] = detail;
-                    });
-                  },
+                    // Detailed Health Status Props
+                    knownConditionsSelected: _knownConditions,
+                    knownConditionsDetails: _knownConditionsDetails,
+                    knownConditionsOptions:
+                        HealthProfileData.knownConditionsOptions,
+                    onKnownConditionsSelectionChanged: (values) {
+                      setState(() {
+                        _knownConditions = values;
+                      });
+                    },
+                    onKnownConditionsDetailChanged: (key, detail) {
+                      setState(() {
+                        _knownConditionsDetails[key] = detail;
+                      });
+                    },
 
-                  painLocationsSelected: _painLocations,
-                  painLocationsDetails: _painLocationsDetails,
-                  painLocationsOptions: _painLocationsOptions,
-                  onPainLocationsSelectionChanged: (values) {
-                    setState(() {
-                      _painLocations = values;
-                    });
-                  },
-                  onPainLocationsDetailChanged: (key, detail) {
-                    setState(() {
-                      _painLocationsDetails[key] = detail;
-                    });
-                  },
+                    painLocationsSelected: _painLocations,
+                    painLocationsDetails: _painLocationsDetails,
+                    painLocationsOptions:
+                        HealthProfileData.painLocationsOptions,
+                    onPainLocationsSelectionChanged: (values) {
+                      setState(() {
+                        _painLocations = values;
+                      });
+                    },
+                    onPainLocationsDetailChanged: (key, detail) {
+                      setState(() {
+                        _painLocationsDetails[key] = detail;
+                      });
+                    },
 
-                  jointIssuesSelected: _jointIssues,
-                  jointIssuesDetails: _jointIssuesDetails,
-                  jointIssuesOptions: _jointIssuesOptions,
-                  onJointIssuesSelectionChanged: (values) {
-                    setState(() {
-                      _jointIssues = values;
-                    });
-                  },
-                  onJointIssuesDetailChanged: (key, detail) {
-                    setState(() {
-                      _jointIssuesDetails[key] = detail;
-                    });
-                  },
+                    jointIssuesSelected: _jointIssues,
+                    jointIssuesDetails: _jointIssuesDetails,
+                    jointIssuesOptions: HealthProfileData.jointIssuesOptions,
+                    onJointIssuesSelectionChanged: (values) {
+                      setState(() {
+                        _jointIssues = values;
+                      });
+                    },
+                    onJointIssuesDetailChanged: (key, detail) {
+                      setState(() {
+                        _jointIssuesDetails[key] = detail;
+                      });
+                    },
 
-                  injuriesSelected: _injuries,
-                  injuriesDetails: _injuriesDetails,
-                  injuriesOptions: _injuriesOptions,
-                  onInjuriesSelectionChanged: (values) {
-                    setState(() {
-                      _injuries = values;
-                    });
-                  },
-                  onInjuriesDetailChanged: (key, detail) {
-                    setState(() {
-                      _injuriesDetails[key] = detail;
-                    });
-                  },
+                    injuriesSelected: _injuries,
+                    injuriesDetails: _injuriesDetails,
+                    injuriesOptions: HealthProfileData.injuriesOptions,
+                    onInjuriesSelectionChanged: (values) {
+                      setState(() {
+                        _injuries = values;
+                      });
+                    },
+                    onInjuriesDetailChanged: (key, detail) {
+                      setState(() {
+                        _injuriesDetails[key] = detail;
+                      });
+                    },
 
-                  abnormalitiesSelected: _abnormalities,
-                  abnormalitiesDetails: _abnormalitiesDetails,
-                  abnormalitiesOptions: _abnormalitiesOptions,
-                  onAbnormalitiesSelectionChanged: (values) {
-                    setState(() {
-                      _abnormalities = values;
-                    });
-                  },
-                  onAbnormalitiesDetailChanged: (key, detail) {
-                    setState(() {
-                      _abnormalitiesDetails[key] = detail;
-                    });
-                  },
+                    abnormalitiesSelected: _abnormalities,
+                    abnormalitiesDetails: _abnormalitiesDetails,
+                    abnormalitiesOptions:
+                        HealthProfileData.abnormalitiesOptions,
+                    onAbnormalitiesSelectionChanged: (values) {
+                      setState(() {
+                        _abnormalities = values;
+                      });
+                    },
+                    onAbnormalitiesDetailChanged: (key, detail) {
+                      setState(() {
+                        _abnormalitiesDetails[key] = detail;
+                      });
+                    },
 
-                  notesController: _notesController,
-                  hasMedicalData: _hasMedicalData,
-                  onHasMedicalDataChanged: (value) {
-                    setState(() {
-                      _hasMedicalData = value;
-                    });
-                  },
-                ),
-                SizedBox(height: AppSpacing.xl.h),
-                ButtonPrimary(
-                  title: existingProfile != null
-                      ? 'Update Profile'
-                      : 'Create Profile',
-                  onPressed: state is HealthProfileFormSubmitting
-                      ? null
-                      : () => _handleSubmit(context, existingProfile),
-                ),
-                SizedBox(height: AppSpacing.lg.h),
-              ],
+                    notesController: _notesController,
+                    hasMedicalData: _hasMedicalData,
+                    onHasMedicalDataChanged: (value) {
+                      setState(() {
+                        _hasMedicalData = value;
+                      });
+                    },
+                  ),
+                  SizedBox(height: AppSpacing.xl.h),
+                  ButtonPrimary(
+                    title: existingProfile != null
+                        ? AppStrings.updateProfile
+                        : AppStrings.createProfile,
+                    onPressed: state is HealthProfileFormSubmitting
+                        ? null
+                        : () => _handleSubmit(context, existingProfile),
+                  ),
+                  SizedBox(height: AppSpacing.lg.h),
+                ],
+              ),
             ),
           );
         },

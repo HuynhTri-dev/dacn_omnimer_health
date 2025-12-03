@@ -10,6 +10,7 @@ class UserAuthModel {
   final GenderEnum? gender;
   final String? birthday;
   final List<String> roleName;
+  final bool isDataSharingAccepted;
 
   const UserAuthModel({
     required this.id,
@@ -19,6 +20,7 @@ class UserAuthModel {
     this.gender,
     this.birthday,
     required this.roleName,
+    this.isDataSharingAccepted = false,
   });
 
   /// JSON → Model
@@ -37,6 +39,7 @@ class UserAuthModel {
       birthday: json['birthday'],
       roleName:
           (json['roleName'] as List?)?.map((e) => e.toString()).toList() ?? [],
+      isDataSharingAccepted: json['isDataSharingAccepted'] ?? false,
     );
   }
 
@@ -50,6 +53,7 @@ class UserAuthModel {
       'gender': gender?.name,
       'birthday': birthday,
       'roleName': roleName,
+      'isDataSharingAccepted': isDataSharingAccepted,
     };
   }
 
@@ -63,6 +67,7 @@ class UserAuthModel {
       gender: gender,
       birthday: birthday != null ? DateTime.tryParse(birthday!) : null,
       roleName: roleName,
+      isDataSharingAccepted: isDataSharingAccepted,
     );
   }
 
@@ -75,6 +80,7 @@ class UserAuthModel {
       id: id,
       imageUrl: imageUrl,
       roleNames: roleName,
+      isDataSharingAccepted: isDataSharingAccepted,
     );
   }
 
@@ -88,6 +94,7 @@ class UserAuthModel {
       gender: entity.gender,
       birthday: entity.birthday?.toIso8601String(),
       roleName: entity.roleName,
+      isDataSharingAccepted: entity.isDataSharingAccepted,
     );
   }
 }

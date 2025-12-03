@@ -12,6 +12,7 @@ class UserEntity extends Equatable {
   final List<String>? roleNames;
   final String? imageUrl;
   final File? image;
+  final bool isDataSharingAccepted;
 
   const UserEntity({
     this.id,
@@ -22,6 +23,7 @@ class UserEntity extends Equatable {
     this.roleNames,
     this.imageUrl,
     this.image,
+    this.isDataSharingAccepted = false,
   });
 
   @override
@@ -34,5 +36,6 @@ class UserEntity extends Equatable {
     roleNames,
     imageUrl,
     image,
+    isDataSharingAccepted,
   ];
 }

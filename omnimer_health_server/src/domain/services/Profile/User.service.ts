@@ -141,6 +141,7 @@ export class UserService {
    * @throws HttpError(404) if the user does not exist
    */
   async toggleDataSharing(userId: string) {
+    console.log("UserId: ", userId);
     const user = await this.userRepository.findById(userId);
     if (!user) throw new HttpError(404, "User không tồn tại");
 

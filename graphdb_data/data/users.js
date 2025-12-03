@@ -2,16 +2,23 @@
   "users" : {
     "admin" : {
       "username" : "admin",
-      "password" : "{bcrypt}$2a$10$v4TdDOJN3.vlm7TdM3.0CeO3yfhmNm/3uTH5d27U9TljrZJrss0FW",
+      "password" : "{bcrypt}$2a$10$cUe0/4xcXjNM8nCr6etHmukT921bf6GZX96FYomtQ9Y0zEatiSASC",
       "grantedAuthorities" : [ "ROLE_ADMIN" ],
       "appSettings" : {
         "DEFAULT_INFERENCE" : true,
         "DEFAULT_VIS_GRAPH_SCHEMA" : true,
         "DEFAULT_SAMEAS" : true,
         "IGNORE_SHARED_QUERIES" : false,
-        "EXECUTE_COUNT" : true
+        "EXECUTE_COUNT" : true,
+        "COOKIE_CONSENT" : {
+          "policyAccepted" : true,
+          "statistic" : true,
+          "thirdParty" : true,
+          "updatedAt" : 1764749712692
+        }
       },
-      "dateCreated" : 1764501587411
+      "dateCreated" : 1764518938028,
+      "gptThreads" : [ ]
     }
   },
   "user_queries" : {

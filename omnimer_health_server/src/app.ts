@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import morgan from "morgan";
 
 import { connectMongoDB } from "./common/configs/mongoDBConfig";
+import { connectGraphDB } from "./common/configs/graphdb.config";
 //import { initializeFirebaseAdmin } from "./common/configs/firebase/firebaseAdminConfig";
 import helmet from "helmet";
 
@@ -38,6 +39,7 @@ app.use(errorHandler);
 const initializeApp = async () => {
   try {
     await connectMongoDB();
+    await connectGraphDB();
     // await initializeFirebaseAdmin();
 
     const redisClient = await connectRedis(); // connect trước

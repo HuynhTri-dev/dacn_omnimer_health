@@ -8,6 +8,7 @@ import {
 } from "../../models";
 import {
   HealthProfileRepository,
+  UserRepository,
   WatchLogRepository,
   WorkoutRepository,
   WorkoutTemplateRepository,
@@ -585,15 +586,15 @@ export class WorkoutService {
       const workout = await this.workoutRepo.findById(workoutId);
       if (!workout) throw new HttpError(404, "Buổi tập không tồn tại");
 
-      // 🔹 Tính toán summary bằng util
       const summary = calculateWorkoutSummary(workout);
 
       workout.summary = summary;
       await workout.save();
 
       if (isDataSharingAccepted) {
-        await this.graphDBService.deleteWorkoutData(workoutId);
+        console.log("Inserting workout data to GraphDB");
         const rdf = LODMapper.mapWorkoutToRDF(workout);
+        console.log("Inserting workout data to GraphDB: ", rdf);
         await this.graphDBService.insertData(rdf);
       }
 
@@ -609,6 +610,7 @@ export class WorkoutService {
       };
     } catch (err: any) {
       await logError({
+        userId,
         action: "finishWorkout",
         message: err.message || err,
         errorMessage: err.stack || err,

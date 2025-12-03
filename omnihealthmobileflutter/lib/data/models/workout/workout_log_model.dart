@@ -9,8 +9,8 @@ class WorkoutLogSetModel {
   final int? duration;
   final double? distance;
   final int? restAfterSetSeconds;
+  final String? notes;
   final bool isCompleted;
-  final DateTime? completedAt;
 
   WorkoutLogSetModel({
     this.id,
@@ -20,8 +20,8 @@ class WorkoutLogSetModel {
     this.duration,
     this.distance,
     this.restAfterSetSeconds,
+    this.notes,
     this.isCompleted = false,
-    this.completedAt,
   });
 
   factory WorkoutLogSetModel.fromJson(Map<String, dynamic> json) {
@@ -33,11 +33,9 @@ class WorkoutLogSetModel {
       duration: json['duration'],
       distance: json['distance']?.toDouble(),
       restAfterSetSeconds: json['restAfterSetSeconds'],
+      notes: json['notes'],
       // Server uses 'done', convert to isCompleted
       isCompleted: json['done'] ?? json['isCompleted'] ?? false,
-      completedAt: json['completedAt'] != null
-          ? DateTime.parse(json['completedAt'])
-          : null,
     );
   }
 
@@ -51,6 +49,7 @@ class WorkoutLogSetModel {
       if (distance != null) 'distance': distance,
       if (restAfterSetSeconds != null)
         'restAfterSetSeconds': restAfterSetSeconds,
+      if (notes != null) 'notes': notes,
       'done': isCompleted,
     };
   }
@@ -63,8 +62,9 @@ class WorkoutLogSetModel {
       weight: weight,
       duration: duration,
       distance: distance,
+      restAfterSetSeconds: restAfterSetSeconds,
+      notes: notes,
       isCompleted: isCompleted,
-      completedAt: completedAt,
     );
   }
 
@@ -76,8 +76,60 @@ class WorkoutLogSetModel {
       weight: entity.weight,
       duration: entity.duration,
       distance: entity.distance,
+      restAfterSetSeconds: entity.restAfterSetSeconds,
+      notes: entity.notes,
       isCompleted: entity.isCompleted,
-      completedAt: entity.completedAt,
+    );
+  }
+}
+
+/// Model for device data in workout log
+class WorkoutDeviceDataModel {
+  final String? id;
+  final double? heartRateAvg;
+  final double? heartRateMax;
+  final double? caloriesBurned;
+
+  WorkoutDeviceDataModel({
+    this.id,
+    this.heartRateAvg,
+    this.heartRateMax,
+    this.caloriesBurned,
+  });
+
+  factory WorkoutDeviceDataModel.fromJson(Map<String, dynamic> json) {
+    return WorkoutDeviceDataModel(
+      id: json['_id'],
+      heartRateAvg: json['heartRateAvg']?.toDouble(),
+      heartRateMax: json['heartRateMax']?.toDouble(),
+      caloriesBurned: json['caloriesBurned']?.toDouble(),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      if (id != null) '_id': id,
+      if (heartRateAvg != null) 'heartRateAvg': heartRateAvg,
+      if (heartRateMax != null) 'heartRateMax': heartRateMax,
+      if (caloriesBurned != null) 'caloriesBurned': caloriesBurned,
+    };
+  }
+
+  WorkoutDeviceDataEntity toEntity() {
+    return WorkoutDeviceDataEntity(
+      id: id,
+      heartRateAvg: heartRateAvg,
+      heartRateMax: heartRateMax,
+      caloriesBurned: caloriesBurned,
+    );
+  }
+
+  factory WorkoutDeviceDataModel.fromEntity(WorkoutDeviceDataEntity entity) {
+    return WorkoutDeviceDataModel(
+      id: entity.id,
+      heartRateAvg: entity.heartRateAvg,
+      heartRateMax: entity.heartRateMax,
+      caloriesBurned: entity.caloriesBurned,
     );
   }
 }
@@ -90,6 +142,8 @@ class WorkoutLogExerciseModel {
   final String? exerciseImageUrl;
   final String type;
   final List<WorkoutLogSetModel> sets;
+  final double? durationMin;
+  final WorkoutDeviceDataModel? deviceData;
   final bool isCompleted;
 
   WorkoutLogExerciseModel({
@@ -99,6 +153,8 @@ class WorkoutLogExerciseModel {
     this.exerciseImageUrl,
     required this.type,
     required this.sets,
+    this.durationMin,
+    this.deviceData,
     this.isCompleted = false,
   });
 
@@ -132,6 +188,10 @@ class WorkoutLogExerciseModel {
               ?.map((set) => WorkoutLogSetModel.fromJson(set))
               .toList() ??
           [],
+      durationMin: json['durationMin']?.toDouble(),
+      deviceData: json['deviceData'] != null
+          ? WorkoutDeviceDataModel.fromJson(json['deviceData'])
+          : null,
       isCompleted: json['isCompleted'] ?? false,
     );
   }
@@ -143,6 +203,8 @@ class WorkoutLogExerciseModel {
       if (exerciseImageUrl != null) 'exerciseImageUrl': exerciseImageUrl,
       'type': type,
       'sets': sets.map((set) => set.toJson()).toList(),
+      if (durationMin != null) 'durationMin': durationMin,
+      if (deviceData != null) 'deviceData': deviceData!.toJson(),
       'isCompleted': isCompleted,
     };
   }
@@ -155,6 +217,8 @@ class WorkoutLogExerciseModel {
       exerciseImageUrl: exerciseImageUrl,
       type: type,
       sets: sets.map((set) => set.toEntity()).toList(),
+      durationMin: durationMin,
+      deviceData: deviceData?.toEntity(),
       isCompleted: isCompleted,
     );
   }
@@ -169,7 +233,88 @@ class WorkoutLogExerciseModel {
       sets: entity.sets
           .map((set) => WorkoutLogSetModel.fromEntity(set))
           .toList(),
+      durationMin: entity.durationMin,
+      deviceData: entity.deviceData != null
+          ? WorkoutDeviceDataModel.fromEntity(entity.deviceData!)
+          : null,
       isCompleted: entity.isCompleted,
+    );
+  }
+}
+
+/// Model for workout summary
+class WorkoutSummaryModel {
+  final double? heartRateAvgAllWorkout;
+  final double? heartRateMaxAllWorkout;
+  final int? totalSets;
+  final int? totalReps;
+  final double? totalWeight;
+  final int? totalDuration;
+  final double? totalCalories;
+  final double? totalDistance;
+
+  WorkoutSummaryModel({
+    this.heartRateAvgAllWorkout,
+    this.heartRateMaxAllWorkout,
+    this.totalSets,
+    this.totalReps,
+    this.totalWeight,
+    this.totalDuration,
+    this.totalCalories,
+    this.totalDistance,
+  });
+
+  factory WorkoutSummaryModel.fromJson(Map<String, dynamic> json) {
+    return WorkoutSummaryModel(
+      heartRateAvgAllWorkout: json['heartRateAvgAllWorkout']?.toDouble(),
+      heartRateMaxAllWorkout: json['heartRateMaxAllWorkout']?.toDouble(),
+      totalSets: (json['totalSets'] as num?)?.toInt(),
+      totalReps: (json['totalReps'] as num?)?.toInt(),
+      totalWeight: json['totalWeight']?.toDouble(),
+      totalDuration: (json['totalDuration'] as num?)?.toInt(),
+      totalCalories: json['totalCalories']?.toDouble(),
+      totalDistance: json['totalDistance']?.toDouble(),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      if (heartRateAvgAllWorkout != null)
+        'heartRateAvgAllWorkout': heartRateAvgAllWorkout,
+      if (heartRateMaxAllWorkout != null)
+        'heartRateMaxAllWorkout': heartRateMaxAllWorkout,
+      if (totalSets != null) 'totalSets': totalSets,
+      if (totalReps != null) 'totalReps': totalReps,
+      if (totalWeight != null) 'totalWeight': totalWeight,
+      if (totalDuration != null) 'totalDuration': totalDuration,
+      if (totalCalories != null) 'totalCalories': totalCalories,
+      if (totalDistance != null) 'totalDistance': totalDistance,
+    };
+  }
+
+  WorkoutSummaryEntity toEntity() {
+    return WorkoutSummaryEntity(
+      heartRateAvgAllWorkout: heartRateAvgAllWorkout,
+      heartRateMaxAllWorkout: heartRateMaxAllWorkout,
+      totalSets: totalSets,
+      totalReps: totalReps,
+      totalWeight: totalWeight,
+      totalDuration: totalDuration,
+      totalCalories: totalCalories,
+      totalDistance: totalDistance,
+    );
+  }
+
+  factory WorkoutSummaryModel.fromEntity(WorkoutSummaryEntity entity) {
+    return WorkoutSummaryModel(
+      heartRateAvgAllWorkout: entity.heartRateAvgAllWorkout,
+      heartRateMaxAllWorkout: entity.heartRateMaxAllWorkout,
+      totalSets: entity.totalSets,
+      totalReps: entity.totalReps,
+      totalWeight: entity.totalWeight,
+      totalDuration: entity.totalDuration,
+      totalCalories: entity.totalCalories,
+      totalDistance: entity.totalDistance,
     );
   }
 }
@@ -177,45 +322,34 @@ class WorkoutLogExerciseModel {
 /// Model for workout log
 class WorkoutLogModel {
   final String? id;
+  final String userId;
+  final String? healthProfileId;
   final String? templateId;
   final String workoutName;
   final List<WorkoutLogExerciseModel> exercises;
   final DateTime startedAt;
   final DateTime? finishedAt;
-  final int durationSeconds;
   final String? notes;
-  final String status;
+  final WorkoutSummaryModel? summary;
   final DateTime? createdAt;
   final DateTime? updatedAt;
 
   WorkoutLogModel({
     this.id,
+    required this.userId,
+    this.healthProfileId,
     this.templateId,
     required this.workoutName,
     required this.exercises,
     required this.startedAt,
     this.finishedAt,
-    required this.durationSeconds,
     this.notes,
-    this.status = 'completed',
+    this.summary,
     this.createdAt,
     this.updatedAt,
   });
 
   factory WorkoutLogModel.fromJson(Map<String, dynamic> json) {
-    // Calculate duration if not provided
-    int durationSeconds = 0;
-    if (json['durationSeconds'] != null) {
-      durationSeconds = json['durationSeconds'];
-    } else if (json['summary'] != null &&
-        json['summary']['totalDuration'] != null) {
-      durationSeconds = json['summary']['totalDuration'];
-    } else if (json['startedAt'] != null && json['finishedAt'] != null) {
-      final started = DateTime.parse(json['startedAt']);
-      final finished = DateTime.parse(json['finishedAt']);
-      durationSeconds = finished.difference(started).inSeconds;
-    }
-
     // Handle workoutTemplateId as object or string
     String? templateId;
     String workoutName = json['workoutName'] ?? json['name'] ?? '';
@@ -255,6 +389,8 @@ class WorkoutLogModel {
 
     return WorkoutLogModel(
       id: json['_id'],
+      userId: json['userId'] ?? '', // Should be present
+      healthProfileId: json['healthProfileId'],
       templateId: templateId,
       workoutName: workoutName,
       exercises: exercises,
@@ -262,9 +398,10 @@ class WorkoutLogModel {
       finishedAt: json['finishedAt'] != null
           ? DateTime.parse(json['finishedAt'])
           : null,
-      durationSeconds: durationSeconds,
       notes: json['notes'],
-      status: json['status'] ?? 'completed',
+      summary: json['summary'] != null
+          ? WorkoutSummaryModel.fromJson(json['summary'])
+          : null,
       createdAt: json['createdAt'] != null
           ? DateTime.parse(json['createdAt'])
           : null,
@@ -277,28 +414,30 @@ class WorkoutLogModel {
   Map<String, dynamic> toJson() {
     return {
       if (id != null) '_id': id,
-      if (templateId != null) 'templateId': templateId,
+      'userId': userId,
+      if (healthProfileId != null) 'healthProfileId': healthProfileId,
+      if (templateId != null) 'workoutTemplateId': templateId,
       'workoutName': workoutName,
-      'exercises': exercises.map((e) => e.toJson()).toList(),
-      'startedAt': startedAt.toIso8601String(),
+      'workoutDetail': exercises.map((e) => e.toJson()).toList(),
+      'timeStart': startedAt.toIso8601String(),
       if (finishedAt != null) 'finishedAt': finishedAt!.toIso8601String(),
-      'durationSeconds': durationSeconds,
       if (notes != null) 'notes': notes,
-      'status': status,
+      if (summary != null) 'summary': summary!.toJson(),
     };
   }
 
   WorkoutLogEntity toEntity() {
     return WorkoutLogEntity(
       id: id,
+      userId: userId,
+      healthProfileId: healthProfileId,
       templateId: templateId,
       workoutName: workoutName,
       exercises: exercises.map((e) => e.toEntity()).toList(),
       startedAt: startedAt,
       finishedAt: finishedAt,
-      durationSeconds: durationSeconds,
       notes: notes,
-      status: status,
+      summary: summary?.toEntity(),
       createdAt: createdAt,
       updatedAt: updatedAt,
     );
@@ -307,6 +446,8 @@ class WorkoutLogModel {
   factory WorkoutLogModel.fromEntity(WorkoutLogEntity entity) {
     return WorkoutLogModel(
       id: entity.id,
+      userId: entity.userId,
+      healthProfileId: entity.healthProfileId,
       templateId: entity.templateId,
       workoutName: entity.workoutName,
       exercises: entity.exercises
@@ -314,9 +455,10 @@ class WorkoutLogModel {
           .toList(),
       startedAt: entity.startedAt,
       finishedAt: entity.finishedAt,
-      durationSeconds: entity.durationSeconds,
       notes: entity.notes,
-      status: entity.status,
+      summary: entity.summary != null
+          ? WorkoutSummaryModel.fromEntity(entity.summary!)
+          : null,
       createdAt: entity.createdAt,
       updatedAt: entity.updatedAt,
     );

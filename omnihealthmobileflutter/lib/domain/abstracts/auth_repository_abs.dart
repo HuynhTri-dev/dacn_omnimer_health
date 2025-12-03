@@ -33,4 +33,7 @@ abstract class AuthRepositoryAbs {
     String currentPassword,
     String newPassword,
   );
+
+  /// Toggle data sharing status
+  Future<ApiResponse<UserEntity>> toggleDataSharing();
 }

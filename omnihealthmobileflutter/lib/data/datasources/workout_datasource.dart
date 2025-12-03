@@ -6,6 +6,7 @@ import 'package:omnihealthmobileflutter/data/models/workout/workout_stats_model.
 import 'package:omnihealthmobileflutter/data/models/workout/workout_log_model.dart';
 import 'package:omnihealthmobileflutter/utils/logger.dart';
 import 'package:omnihealthmobileflutter/utils/query_util/default_query_entity.dart';
+import 'package:omnihealthmobileflutter/data/models/workout/workout_log_summary_model.dart';
 import 'package:omnihealthmobileflutter/data/models/workout/workout_feedback_model.dart';
 
 /// DataSource for Workout Template API calls
@@ -258,30 +259,31 @@ class WorkoutDataSource {
   }
 
   /// Get user workout logs
-  Future<ApiResponse<List<WorkoutLogModel>>> getUserWorkoutLogs() async {
+  Future<ApiResponse<List<WorkoutLogSummaryModel>>> getUserWorkoutLogs() async {
     try {
       final queryParams = {'limit': '100', 'page': '1'};
 
-      final response = await apiClient.get<List<WorkoutLogModel>>(
+      final response = await apiClient.get<List<WorkoutLogSummaryModel>>(
         Endpoints.getUserWorkouts,
         query: queryParams,
         parser: (data) {
           if (data is List) {
             return data
                 .map(
-                  (json) =>
-                      WorkoutLogModel.fromJson(json as Map<String, dynamic>),
+                  (json) => WorkoutLogSummaryModel.fromJson(
+                    json as Map<String, dynamic>,
+                  ),
                 )
                 .toList();
           }
-          return <WorkoutLogModel>[];
+          return <WorkoutLogSummaryModel>[];
         },
       );
 
       return response;
     } catch (e) {
       logger.e('[getUserWorkoutLogs] Error: $e');
-      return ApiResponse<List<WorkoutLogModel>>.error(
+      return ApiResponse<List<WorkoutLogSummaryModel>>.error(
         "Failed to get user workout logs: ${e.toString()}",
       );
     }

@@ -219,8 +219,9 @@ export class AuthService {
       }
 
       const accessToken = JwtUtils.generateAccessToken({
-        id: user.id,
-        role: user.roleIds,
+        id: user._id as Types.ObjectId,
+        roleIds: user.roleIds as Types.ObjectId[],
+        isDataSharingAccepted: user.isDataSharingAccepted,
       });
 
       return accessToken;

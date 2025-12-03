@@ -6,10 +6,11 @@ class WorkoutLogSetEntity extends Equatable {
   final int setOrder;
   final int? reps;
   final double? weight;
-  final int? duration;
-  final double? distance;
-  final bool isCompleted;
-  final DateTime? completedAt;
+  final int? duration; // seconds
+  final double? distance; // meters
+  final int? restAfterSetSeconds;
+  final String? notes;
+  final bool isCompleted; // Maps to 'done'
 
   const WorkoutLogSetEntity({
     this.id,
@@ -18,8 +19,9 @@ class WorkoutLogSetEntity extends Equatable {
     this.weight,
     this.duration,
     this.distance,
+    this.restAfterSetSeconds,
+    this.notes,
     this.isCompleted = false,
-    this.completedAt,
   });
 
   @override
@@ -30,9 +32,28 @@ class WorkoutLogSetEntity extends Equatable {
     weight,
     duration,
     distance,
+    restAfterSetSeconds,
+    notes,
     isCompleted,
-    completedAt,
   ];
+}
+
+/// Entity for device data in workout log (per exercise)
+class WorkoutDeviceDataEntity extends Equatable {
+  final String? id;
+  final double? heartRateAvg;
+  final double? heartRateMax;
+  final double? caloriesBurned;
+
+  const WorkoutDeviceDataEntity({
+    this.id,
+    this.heartRateAvg,
+    this.heartRateMax,
+    this.caloriesBurned,
+  });
+
+  @override
+  List<Object?> get props => [id, heartRateAvg, heartRateMax, caloriesBurned];
 }
 
 /// Entity for an exercise in workout log
@@ -43,7 +64,10 @@ class WorkoutLogExerciseEntity extends Equatable {
   final String? exerciseImageUrl;
   final String type;
   final List<WorkoutLogSetEntity> sets;
-  final bool isCompleted;
+  final double? durationMin; // total duration for exercise
+  final WorkoutDeviceDataEntity? deviceData;
+  final bool
+  isCompleted; // Helper for UI, not strictly in backend model but useful
 
   const WorkoutLogExerciseEntity({
     this.id,
@@ -52,6 +76,8 @@ class WorkoutLogExerciseEntity extends Equatable {
     this.exerciseImageUrl,
     required this.type,
     required this.sets,
+    this.durationMin,
+    this.deviceData,
     this.isCompleted = false,
   });
 
@@ -66,34 +92,74 @@ class WorkoutLogExerciseEntity extends Equatable {
     exerciseImageUrl,
     type,
     sets,
+    durationMin,
+    deviceData,
     isCompleted,
+  ];
+}
+
+/// Entity for workout summary
+class WorkoutSummaryEntity extends Equatable {
+  final double? heartRateAvgAllWorkout;
+  final double? heartRateMaxAllWorkout;
+  final int? totalSets;
+  final int? totalReps;
+  final double? totalWeight;
+  final int? totalDuration;
+  final double? totalCalories;
+  final double? totalDistance;
+
+  const WorkoutSummaryEntity({
+    this.heartRateAvgAllWorkout,
+    this.heartRateMaxAllWorkout,
+    this.totalSets,
+    this.totalReps,
+    this.totalWeight,
+    this.totalDuration,
+    this.totalCalories,
+    this.totalDistance,
+  });
+
+  @override
+  List<Object?> get props => [
+    heartRateAvgAllWorkout,
+    heartRateMaxAllWorkout,
+    totalSets,
+    totalReps,
+    totalWeight,
+    totalDuration,
+    totalCalories,
+    totalDistance,
   ];
 }
 
 /// Entity for workout log
 class WorkoutLogEntity extends Equatable {
   final String? id;
+  final String userId;
+  final String? healthProfileId;
   final String? templateId;
-  final String workoutName;
-  final List<WorkoutLogExerciseEntity> exercises;
-  final DateTime startedAt;
-  final DateTime? finishedAt;
-  final int durationSeconds;
+  final String workoutName; // Derived or from template
+  final List<WorkoutLogExerciseEntity> exercises; // Maps to workoutDetail
+  final DateTime startedAt; // Maps to timeStart
+  final DateTime?
+  finishedAt; // Helper, maybe not in backend directly if only timeStart is stored? Backend has timestamps.
   final String? notes;
-  final String status; // 'in_progress', 'completed', 'cancelled'
+  final WorkoutSummaryEntity? summary;
   final DateTime? createdAt;
   final DateTime? updatedAt;
 
   const WorkoutLogEntity({
     this.id,
+    required this.userId,
+    this.healthProfileId,
     this.templateId,
     required this.workoutName,
     required this.exercises,
     required this.startedAt,
     this.finishedAt,
-    required this.durationSeconds,
     this.notes,
-    this.status = 'completed',
+    this.summary,
     this.createdAt,
     this.updatedAt,
   });
@@ -109,30 +175,29 @@ class WorkoutLogEntity extends Equatable {
   int get totalExercisesCount => exercises.length;
 
   String get formattedDuration {
-    final hours = durationSeconds ~/ 3600;
-    final minutes = (durationSeconds % 3600) ~/ 60;
-    final seconds = durationSeconds % 60;
+    final durationMinutes = summary?.totalDuration ?? 0;
+    final hours = durationMinutes ~/ 60;
+    final minutes = durationMinutes % 60;
 
     if (hours > 0) {
-      return '${hours}h ${minutes}m ${seconds}s';
-    } else if (minutes > 0) {
-      return '${minutes}m ${seconds}s';
+      return '${hours}h ${minutes}m';
     } else {
-      return '${seconds}s';
+      return '${minutes}m';
     }
   }
 
   @override
   List<Object?> get props => [
     id,
+    userId,
+    healthProfileId,
     templateId,
     workoutName,
     exercises,
     startedAt,
     finishedAt,
-    durationSeconds,
     notes,
-    status,
+    summary,
     createdAt,
     updatedAt,
   ];

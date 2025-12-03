@@ -1,15 +1,3 @@
-"""
-3T-FIT AI Recommendation Engine - Training Model (DNN Architecture)
-Implements the Two-Branch Neural Network for exercise recommendation
-
-This model consists of:
-1. Branch A: Intensity Prediction (Predicts RPE - Rate of Perceived Exertion)
-2. Branch B: Suitability Prediction (Predicts exercise suitability score)
-
-Author: Claude Code
-Date: 2025-11-27
-"""
-
 import torch
 import torch.nn as nn
 import torch.optim as optim

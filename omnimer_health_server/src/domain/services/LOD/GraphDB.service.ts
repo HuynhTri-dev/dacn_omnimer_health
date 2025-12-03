@@ -1,29 +1,45 @@
 import axios from "axios";
-import { Writer } from "n3";
+
+import { graphDBConfig } from "../../../common/configs/graphdb.config";
 
 export class GraphDBService {
   private readonly baseUrl: string;
   private readonly repoName: string;
 
   constructor() {
-    this.baseUrl = process.env.GRAPHDB_URL || "http://localhost:7200";
-    this.repoName = process.env.GRAPHDB_REPO || "omnimer_health";
-
-    if (!process.env.GRAPHDB_URL) {
-      console.warn(
-        "⚠️ GRAPHDB_URL not set, using default: http://localhost:7200"
-      );
-    }
-    if (!process.env.GRAPHDB_REPO) {
-      console.warn("⚠️ GRAPHDB_REPO not set, using default: omnimer_health");
-    }
+    this.baseUrl = graphDBConfig.baseUrl;
+    this.repoName = graphDBConfig.repoName;
   }
 
   // Hàm gửi SPARQL UPDATE để lưu dữ liệu
   async insertData(turtleData: string): Promise<void> {
+    // Tách các dòng @prefix và chuyển đổi sang định dạng SPARQL PREFIX
+    const lines = turtleData.split("\n");
+    const prefixes: string[] = [];
+    const triples: string[] = [];
+
+    lines.forEach((line) => {
+      const trimmed = line.trim();
+      if (trimmed.startsWith("@prefix")) {
+        // Chuyển đổi: @prefix ns: <url> .  ->  PREFIX ns: <url>
+        const sparqlPrefix = trimmed
+          .replace(/^@prefix/, "PREFIX")
+          .replace(/\.\s*$/, "");
+        prefixes.push(sparqlPrefix);
+      } else if (trimmed && !trimmed.startsWith("#")) {
+        // Chỉ thêm các dòng không rỗng và không phải comment
+        triples.push(line);
+      }
+    });
+
+    // Xây dựng SPARQL UPDATE query
+    const prefixSection = prefixes.length > 0 ? prefixes.join("\n") : "";
+    const tripleSection = triples.length > 0 ? triples.join("\n") : "";
+
     const sparqlUpdate = `
+      ${prefixSection}
       INSERT DATA {
-        ${turtleData}
+        ${tripleSection}
       }
     `;
 
