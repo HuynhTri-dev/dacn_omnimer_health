@@ -260,7 +260,7 @@ class ModelEvaluator:
         if len(X) > 100:
             sample_size = min(1000, len(X))
             indices = np.random.choice(len(X), sample_size, replace=False)
-            X_sample = X[indices]
+            X[indices]
             y_pred_intensity_sample = y_pred_intensity[indices]
             y_pred_suitability_sample = y_pred_suitability[indices]
 

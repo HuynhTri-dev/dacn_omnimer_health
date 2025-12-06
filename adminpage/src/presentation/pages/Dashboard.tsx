@@ -86,7 +86,6 @@ const Dashboard: React.FC = () => {
   const StatCard = ({
     title,
     value,
-    icon,
     color,
   }: {
     title: string;

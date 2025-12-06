@@ -6,7 +6,11 @@ import type {
 } from "../../shared/types";
 
 export class PermissionUseCase {
-  constructor(private permissionRepository: IPermissionRepository) {}
+  private permissionRepository: IPermissionRepository;
+
+  constructor(permissionRepository: IPermissionRepository) {
+    this.permissionRepository = permissionRepository;
+  }
 
   async getPermissions(
     params?: PaginationParams
@@ -18,7 +22,7 @@ export class PermissionUseCase {
     return await this.permissionRepository.getPermissionById(id);
   }
 
-  async createPermission(permissionData: any): Promise<Permission> {
+  async createPermission(permissionData: Permission): Promise<Permission> {
     return await this.permissionRepository.createPermission(permissionData);
   }
 

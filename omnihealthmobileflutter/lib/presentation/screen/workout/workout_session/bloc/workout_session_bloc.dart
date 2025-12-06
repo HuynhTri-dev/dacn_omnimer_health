@@ -266,7 +266,7 @@ class WorkoutSessionBloc
       }
     }
 
-    _updateCurrentSet(emit);
+    await _updateCurrentSet(emit);
 
     if (isCompleting &&
         workoutLogRepository != null &&
@@ -275,6 +275,8 @@ class WorkoutSessionBloc
       final setId = currentSet.id;
 
       if (exerciseId != null && setId != null) {
+        // We don't await this fire-and-forget call for set completion to keep UI snappy,
+        // but for exercise completion/workout finish we want to be strict.
         workoutLogRepository!.completeSet(state.session!.workoutId!, {
           'workoutDetailId': exerciseId,
           'workoutSetId': setId,
@@ -348,7 +350,10 @@ class WorkoutSessionBloc
     );
   }
 
-  void _onAddSet(AddSetEvent event, Emitter<WorkoutSessionState> emit) {
+  Future<void> _onAddSet(
+    AddSetEvent event,
+    Emitter<WorkoutSessionState> emit,
+  ) async {
     if (state.session == null) return;
 
     final exercises = List<ActiveExerciseEntity>.from(state.session!.exercises);
@@ -373,10 +378,13 @@ class WorkoutSessionBloc
       state.copyWith(session: state.session!.copyWith(exercises: exercises)),
     );
 
-    _updateCurrentSet(emit);
+    await _updateCurrentSet(emit);
   }
 
-  void _onRemoveSet(RemoveSetEvent event, Emitter<WorkoutSessionState> emit) {
+  Future<void> _onRemoveSet(
+    RemoveSetEvent event,
+    Emitter<WorkoutSessionState> emit,
+  ) async {
     if (state.session == null) return;
 
     final exercises = List<ActiveExerciseEntity>.from(state.session!.exercises);
@@ -596,7 +604,7 @@ class WorkoutSessionBloc
     return (null, null);
   }
 
-  void _updateCurrentSet(Emitter<WorkoutSessionState> emit) {
+  Future<void> _updateCurrentSet(Emitter<WorkoutSessionState> emit) async {
     if (state.session == null) return;
 
     final oldExerciseIndex = state.currentExerciseIndex;
@@ -612,7 +620,7 @@ class WorkoutSessionBloc
         logger.i(
           '[WorkoutSessionBloc] Exercise ${oldExercise.exerciseId} completed (all reps done). Triggering sync and completion.',
         );
-        _finishExercise(oldExerciseIndex);
+        await _finishExercise(oldExerciseIndex);
       }
     }
 

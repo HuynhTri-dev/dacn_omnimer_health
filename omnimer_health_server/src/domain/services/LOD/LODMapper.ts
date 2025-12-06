@@ -6,6 +6,7 @@ import { IWorkout } from "../../models/Workout/Workout.model";
 import { IGoal } from "../../models/Profile/Goal.model";
 import { IExercise } from "../../models/Exercise/Exercise.model";
 import { GenderEnum } from "../../../common/constants/EnumConstants";
+import { IWorkoutFeedback } from "../../models/Workout/WorkoutFeedback.model";
 
 const { namedNode, literal, quad, blankNode } = DataFactory;
 
@@ -1544,6 +1545,96 @@ export class LODMapper {
       namedNode(PREFIXES.schema + "name"),
       literal(exercise.name)
     );
+
+    let rdfOutput = "";
+    writer.end((error, result) => (rdfOutput = result));
+    return rdfOutput;
+  }
+  static mapWorkoutFeedbackToRDF(feedback: IWorkoutFeedback): string {
+    const writer = this.getWriter();
+    const subject = namedNode(`${PREFIXES[""]}fb_${feedback._id}`);
+
+    writer.addQuad(
+      subject,
+      namedNode("http://www.w3.org/1999/02/22-rdf-syntax-ns#type"),
+      namedNode(PREFIXES.ont + "WorkoutFeedback")
+    );
+
+    if (feedback.workoutId) {
+      writer.addQuad(
+        subject,
+        namedNode(PREFIXES.ont + "isFeedbackFor"),
+        namedNode(`${PREFIXES[""]}wk_${feedback.workoutId}`)
+      );
+    }
+
+    // Suitability
+    if (feedback.suitability) {
+      this.addObservation(
+        writer,
+        subject,
+        PREFIXES.ont + "suitability",
+        feedback.suitability,
+        "Scale",
+        "integer"
+      );
+    }
+
+    // Goal Achieved
+    if (feedback.workout_goal_achieved !== undefined) {
+      this.addObservation(
+        writer,
+        subject,
+        PREFIXES.ont + "goalAchieved",
+        feedback.workout_goal_achieved,
+        undefined,
+        "boolean"
+      );
+    }
+
+    // Target Muscle Felt
+    if (feedback.target_muscle_felt !== undefined) {
+      this.addObservation(
+        writer,
+        subject,
+        PREFIXES.ont + "targetMuscleFelt",
+        feedback.target_muscle_felt,
+        undefined,
+        "boolean"
+      );
+    }
+
+    // Injury Notes
+    if (feedback.injury_or_pain_notes) {
+      writer.addQuad(
+        subject,
+        namedNode(PREFIXES.ont + "injuryNotes"),
+        literal(feedback.injury_or_pain_notes)
+      );
+    }
+
+    // Additional Notes
+    if (feedback.additionalNotes) {
+      writer.addQuad(
+        subject,
+        namedNode(PREFIXES.schema + "description"),
+        literal(feedback.additionalNotes)
+      );
+    }
+
+    // Unsuitable Exercises
+    if (
+      feedback.exercise_not_suitable &&
+      feedback.exercise_not_suitable.length > 0
+    ) {
+      feedback.exercise_not_suitable.forEach((exId) => {
+        writer.addQuad(
+          subject,
+          namedNode(PREFIXES.ont + "unsuitableExercise"),
+          namedNode(`${PREFIXES[""]}ex_${exId}`)
+        );
+      });
+    }
 
     let rdfOutput = "";
     writer.end((error, result) => (rdfOutput = result));

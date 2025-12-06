@@ -1,13 +1,16 @@
 import type { IRoleRepository } from "../repositories/role.repository";
 import type {
   Role,
-  Permission,
   PaginationParams,
   PaginationResponse,
 } from "../../shared/types";
 
 export class RoleUseCase {
-  constructor(private roleRepository: IRoleRepository) {}
+  private roleRepository: IRoleRepository;
+
+  constructor(roleRepository: IRoleRepository) {
+    this.roleRepository = roleRepository;
+  }
 
   async getRoles(params?: PaginationParams): Promise<PaginationResponse<Role>> {
     return await this.roleRepository.getRoles(params);
@@ -21,7 +24,7 @@ export class RoleUseCase {
     return await this.roleRepository.getRolesWithoutAdmin();
   }
 
-  async createRole(roleData: any): Promise<Role> {
+  async createRole(roleData: Role): Promise<Role> {
     return await this.roleRepository.createRole(roleData);
   }
 

@@ -927,7 +927,7 @@ def process_gym_data_enhanced(input_file: str, output_file: str, target_records:
                 base_1rm = weight_variation * (1.0 + (base_experience * 0.15)) * readiness_factor
 
                 # Distribute total calories across exercises
-                calories_per_exercise = calories_burned / exercises_per_workout
+                calories_burned / exercises_per_workout
 
                 for exercise_idx in range(exercises_per_workout):
                     if records_generated >= target_records:

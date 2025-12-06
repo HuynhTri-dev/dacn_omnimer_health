@@ -308,7 +308,7 @@ export async function seedExercises(
   );
 
   // 4. Chọn thêm 30 file ngẫu nhiên (hoặc tất cả nếu ít hơn 30)
-  const additionalFilesCount = 50;
+  const additionalFilesCount = 200;
   const additionalFiles = nonPrioritizedJsonFiles.slice(
     0,
     Math.min(additionalFilesCount, nonPrioritizedJsonFiles.length)

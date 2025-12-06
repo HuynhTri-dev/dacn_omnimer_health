@@ -285,7 +285,7 @@ class DataProcessor:
         logger.info("Calculating enhanced suitability scores...")
 
         df = df.copy()
-        n_samples = len(df)
+        len(df)
 
         # 1. Psychological Component (40%) - based on mood and fatigue
         if 'mood' in df.columns and 'fatigue' in df.columns:
@@ -480,7 +480,7 @@ def main():
 
     try:
         # Process datasets
-        final_dataset = processor.process_datasets(kaggle_path, real_path)
+        processor.process_datasets(kaggle_path, real_path)
 
         # Save processed data
         processor.save_processed_data(output_path)

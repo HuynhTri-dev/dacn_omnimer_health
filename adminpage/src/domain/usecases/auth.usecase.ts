@@ -3,42 +3,26 @@ import type { User } from "../../shared/types";
 import { apiClient } from "../../data/services/authApi";
 
 export class AuthUseCase {
-  constructor(private authRepository: IAuthRepository) {}
+  private authRepository: IAuthRepository;
+
+  constructor(authRepository: IAuthRepository) {
+    this.authRepository = authRepository;
+  }
 
   async login(email: string, password: string) {
-    try {
-      const response = await this.authRepository.login(email, password);
-      return response;
-    } catch (error: any) {
-      throw error;
-    }
+    return this.authRepository.login(email, password);
   }
 
   async register(userData: any) {
-    try {
-      const response = await this.authRepository.register(userData);
-      return response;
-    } catch (error: any) {
-      throw error;
-    }
+    return this.authRepository.register(userData);
   }
 
   async getCurrentUser(): Promise<User> {
-    try {
-      const user = await this.authRepository.getCurrentUser();
-      return user;
-    } catch (error: any) {
-      throw error;
-    }
+    return this.authRepository.getCurrentUser();
   }
 
   async refreshToken() {
-    try {
-      const response = await this.authRepository.refreshToken();
-      return response;
-    } catch (error: any) {
-      throw error;
-    }
+    return this.authRepository.refreshToken();
   }
 
   async logout(): Promise<void> {

@@ -253,8 +253,8 @@ def main(model_path: str, test_data_path: str, artifacts_dir: str):
     
     X_tensor = torch.FloatTensor(X_test_array).to(device)
     y_labels_tensor = torch.FloatTensor(test_labels).to(device)
-    y_intensity_tensor = torch.FloatTensor(test_intensity).to(device)
-    intensity_mask_tensor = torch.FloatTensor(test_intensity_mask).to(device)
+    torch.FloatTensor(test_intensity).to(device)
+    torch.FloatTensor(test_intensity_mask).to(device)
     ex_idx_tensor = torch.LongTensor(test_ex_idx).to(device)
     
     with torch.no_grad():

@@ -4,12 +4,19 @@ import { IWorkoutFeedback } from "../../models";
 import { WorkoutFeedbackRepository } from "../../repositories";
 import { HttpError } from "../../../utils/HttpError";
 import { PaginationQueryOptions } from "../../entities";
+import { GraphDBService } from "../LOD/GraphDB.service";
+import { LODMapper } from "../LOD/LODMapper";
 
 export class WorkoutFeedbackService {
   private readonly workoutFeedbackRepo: WorkoutFeedbackRepository;
+  private readonly graphDBService: GraphDBService;
 
-  constructor(workoutFeedbackRepo: WorkoutFeedbackRepository) {
+  constructor(
+    workoutFeedbackRepo: WorkoutFeedbackRepository,
+    graphDBService: GraphDBService
+  ) {
     this.workoutFeedbackRepo = workoutFeedbackRepo;
+    this.graphDBService = graphDBService;
   }
 
   // ======================================================
@@ -22,12 +29,22 @@ export class WorkoutFeedbackService {
    *
    * @param userId - ID of the user creating the feedback
    * @param data - Partial workout feedback data
+   * @param isDataSharingAccepted - Whether the user creates data sharing
    * @returns The created workout feedback document
    * @throws HttpError if creation fails
    */
-  async createWorkoutFeedback(userId: string, data: Partial<IWorkoutFeedback>) {
+  async createWorkoutFeedback(
+    userId: string,
+    data: Partial<IWorkoutFeedback>,
+    isDataSharingAccepted?: boolean
+  ) {
     try {
       const newFeedback = await this.workoutFeedbackRepo.create(data);
+
+      if (isDataSharingAccepted) {
+        const rdf = LODMapper.mapWorkoutFeedbackToRDF(newFeedback);
+        await this.graphDBService.insertData(rdf);
+      }
 
       await logAudit({
         userId,

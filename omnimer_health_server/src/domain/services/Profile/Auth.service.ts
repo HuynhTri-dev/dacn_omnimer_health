@@ -118,11 +118,13 @@ export class AuthService {
       session.endSession();
 
       const userResponse: IUserResponse = {
+        _id: created._id,
         fullname: created.fullname,
         email: created.email,
         imageUrl: created.imageUrl,
         gender: created.gender,
         birthday: created.birthday,
+        roleIds: defaultRoleIds,
         roleName: defaultRoleNames,
         isDataSharingAccepted: created.isDataSharingAccepted,
       };
@@ -139,7 +141,7 @@ export class AuthService {
       // 10. Trả về
       return {
         user: this.buildUserResponse(userResponse),
-        ...this.generateTokens(created),
+        ...this.generateTokens(userResponse),
       };
     } catch (err: any) {
       //! Hủy session khi có lỗi

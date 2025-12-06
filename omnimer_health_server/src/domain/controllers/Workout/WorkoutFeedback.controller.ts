@@ -34,7 +34,8 @@ export class WorkoutFeedbackController {
 
       const feedback = await this.workoutFeedbackService.createWorkoutFeedback(
         userId,
-        req.body
+        req.body,
+        user.isDataSharingAccepted
       );
       return sendCreated(res, feedback, "Tạo đánh giá buổi tập thành công");
     } catch (err) {

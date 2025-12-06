@@ -5,9 +5,11 @@ import { WorkoutFeedback } from "../models";
 import { WorkoutFeedbackRepository } from "../repositories";
 import { WorkoutFeedbackService } from "../services";
 import { verifyAccessToken } from "../../common/middlewares/auth.middleware";
+import { GraphDBService } from "../services/LOD/GraphDB.service";
 
 const service = new WorkoutFeedbackService(
-  new WorkoutFeedbackRepository(WorkoutFeedback)
+  new WorkoutFeedbackRepository(WorkoutFeedback),
+  new GraphDBService()
 );
 
 const controller = new WorkoutFeedbackController(service);

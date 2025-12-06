@@ -6,7 +6,11 @@ import type {
 } from "../../shared/types";
 
 export class UserUseCase {
-  constructor(private userRepository: IUserRepository) {}
+  private userRepository: IUserRepository;
+
+  constructor(userRepository: IUserRepository) {
+    this.userRepository = userRepository;
+  }
 
   async getUsers(params?: PaginationParams): Promise<PaginationResponse<User>> {
     return await this.userRepository.getUsers(params);

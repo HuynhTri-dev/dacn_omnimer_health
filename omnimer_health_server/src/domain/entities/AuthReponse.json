@@ -5,7 +5,8 @@
     "imageUrl": "https://fe57471ae46e00c8c593d2ce737210b5.r2.cloudflarestorage.com/",
     "gender": "male",
     "birthday": null,
-    "roleName": ["user"]
+    "roleName": ["user"],
+    "isDataSharingAccepted": true
   },
   "accessToken": "accessToken",
   "refreshToken": "refreshToken"

@@ -224,7 +224,7 @@ def main(model_path: str, test_data_path: str, artifacts_dir: str):
     
     X_tensor = torch.FloatTensor(X_test_array).to(device)
     y_cls_tensor = torch.FloatTensor(y_cls).to(device)
-    y_reg_tensor = torch.FloatTensor(y_reg).to(device)
+    torch.FloatTensor(y_reg).to(device)
     
     with torch.no_grad():
         logits, reg_out = model(X_tensor)

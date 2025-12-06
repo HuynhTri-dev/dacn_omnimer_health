@@ -349,7 +349,7 @@ class V3EnhancedModel(nn.Module):
         )
 
     def forward(self, x, sequence_length=1):
-        batch_size = x.size(0)
+        x.size(0)
 
         # Encode features
         features = self.feature_encoder(x)  # [B, H]
